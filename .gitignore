@@ -1,0 +1,5 @@
+*.pth
+*.png
+D_S_segformer/
+logs/
+dataset/
