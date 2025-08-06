@@ -11,7 +11,7 @@ from pathlib import Path
 
 from torch.utils.data import DataLoader
 from train_utils.train_and_eval import train_one_epoch, evaluate, create_lr_scheduler
-from train_utils.my_dataset import CrackDataset
+from train_utils.my_dataset_ import CrackDataset
 import train_utils.transforms as T
 from train_utils.utils import plot, show_config
 
@@ -25,7 +25,7 @@ from models.fcn.fcn import fcn_resnet50
 
 # Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'SegFormer'
+OUTPUT_SAVE_PATH = project_root_ / 'VGG16UNet'
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 class SegmentationPresetTrain:
     def __init__(self, base_size, img_size, hflip_prob=0.5,
@@ -121,10 +121,10 @@ def main(args):
                             pin_memory=True,
                             collate_fn=val_dataset.collate_fn)
 
-    model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
+    # model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
     # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
-    # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
-    # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
+    model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
+    model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
     model.to(device)
     unique_colors = set()

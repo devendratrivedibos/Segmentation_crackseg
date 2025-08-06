@@ -47,26 +47,22 @@ def main():
          T.Normalize([0.473, 0.493, 0.504], [0.100, 0.100, 0.099])])
 
     # load image
-    imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\TRAIN\DATASET_IMAGES"
-    # imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined_OG"
+    # imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\TRAIN\DATASET_IMAGES"
+    imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT\VAL\IMAGES"
     # imgs_root = r'D:\cracks\crack_filter_data_1\section-4\section-4'
     images_list = os.listdir(imgs_root)
-    prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_IMAGES_PREDICTION"
+    prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\MobileV3_Unet"
     os.makedirs(prediction_save_path, exist_ok=True)
 
     # create model
     model = SegFormer(num_classes=num_classes, phi="b0")
     # model = VGG16UNet(num_classes=num_classes)
-    # model = MobileV3Unet(num_classes=num_classes)
+    model = MobileV3Unet(num_classes=num_classes)
 
     # load model weights
+    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\MobileV3Unet\20250805-220438-best_model.pth"
+    # weights_path = "segformer/20250805-194612-best_model.pth"
 
-    weights_path = "D_S_segformer/D_S.pth"
-    # weights_path = "logs/VGG16UNet.pth"
-    # weights_path = "logs/MobileV3Unet.pth"
-    # weights_path = "logs/fcn_resnet101.pth"
-    # weights_path = "logs/deeplabv3_resnet101.pth"
-    # weights_path = "logs/deeplabv3_mobilenetv3_large.pth"
     assert os.path.exists(weights_path), f"file: '{weights_path}' dose not exist."
 
     pretrain_weights = torch.load(weights_path, map_location='cuda:0')

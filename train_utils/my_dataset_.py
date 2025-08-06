@@ -20,7 +20,7 @@ COLOR_MAP = {
 class CrackDataset(Dataset):
     def __init__(self, root: str, train: bool, transforms=None):
         super(CrackDataset, self).__init__()
-        data_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT"
+        data_root = r"T:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT"
         flag = "TRAIN" if train else "VAL"
 
         data_root = os.path.join(data_root, flag)
