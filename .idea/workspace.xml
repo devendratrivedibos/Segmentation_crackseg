@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="70684588-799b-483d-90ce-84094a28b7e3" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/training_code/models/deeplab_v3/deeplabv3.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/models/deeplab_v3/mobilenet_backbone.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/models/deeplab_v3/resnet_backbone.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/models/fcn/backbone.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/models/fcn/fcn.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/models/segformer/backbone.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/models/segformer/segformer.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/models/unet/UnetPP.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/models/unet/mobilenet_unet.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/models/unet/unet.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/models/unet/vgg_unet.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/tools/addprefix_merge_dataset.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/tools/batch_predict.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/tools/craetemask_from_annotation_labelstudio.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/tools/create_blank_mask.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/tools/create_combine_img_mask.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/tools/model_evaluation.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/tools/overlay_mask_image.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/tools/resize_img_masks.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/tools/split_train_val.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/tools/torch_to_onnx.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/tools/train.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/tools/train_seg.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/tools/validation.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/train_utils/dice_coefficient_loss.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/train_utils/distributed_utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/train_utils/my_dataset.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/train_utils/my_dataset_.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/train_utils/train_and_eval.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/train_utils/transforms.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/training_code/train_utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/CrackSegFormer-main.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/addprefix_merge_dataset.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/craetemask_from_annotation_labelstudio.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/create_combine_img_mask.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/deeplab_v3/deeplabv3.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/deeplab_v3/mobilenet_backbone.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/deeplab_v3/resnet_backbone.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/fcn/backbone.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/fcn/fcn.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/segformer/backbone.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/segformer/segformer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/unet/mobilenet_unet.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/unet/unet.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/unet/vgg_unet.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/overlay_mask_image.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/addprefix_merge_dataset.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/batch_predict.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/craetemask_from_annotation_labelstudio.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/create_blank_mask.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/create_combine_img_mask.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/model_evaluation.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/overlay_mask_image.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/resize_img_masks.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/split_train_val.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/train.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/train_seg.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/validation.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_utils/dice_coefficient_loss.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_utils/distributed_utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_utils/my_dataset.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_utils/my_dataset_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_utils/train_and_eval.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_utils/transforms.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_utils/utils.py" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="30m6t096bfE8hJUJ3hULXigZrVD" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.UnetPP (1).executor": "Run",
+    "Python.UnetPP.executor": "Run",
+    "Python.addprefix_merge_dataset.executor": "Run",
+    "Python.base_models.executor": "Run",
+    "Python.batch_predict.executor": "Run",
+    "Python.code.executor": "Run",
+    "Python.craetemask.executor": "Run",
+    "Python.craetemask_from_annotation_labelstudio (1).executor": "Run",
+    "Python.craetemask_from_annotation_labelstudio.executor": "Run",
+    "Python.creake1mask_from_labelstudio.executor": "Run",
+    "Python.creake1mask_from_labelstudio_1.executor": "Run",
+    "Python.create_blank_mask.executor": "Run",
+    "Python.create_combine_img_mask (1).executor": "Run",
+    "Python.create_combine_img_mask.executor": "Run",
+    "Python.create_mask_synthetic.executor": "Run",
+    "Python.replace_merge_dataset.executor": "Run",
+    "Python.resize_img_masks.executor": "Run",
+    "Python.split_train_val.executor": "Run",
+    "Python.torch_to_onnx.executor": "Run",
+    "Python.train (1).executor": "Run",
+    "Python.train.executor": "Run",
+    "Python.unet.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "D:/Devendra_Files/CrackSegFormer-main/training_code"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Devendra_Files\CrackSegFormer-main" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.UnetPP (1)">
+    <configuration name="UnetPP (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CrackSegFormer-main" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/training_code/models/unet" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/training_code/models/unet/UnetPP.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="UnetPP" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CrackSegFormer-main" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/models/unet" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/models/unet/UnetPP.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="code" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CrackSegFormer-main" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tools" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/code.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="torch_to_onnx" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CrackSegFormer-main" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tools" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/torch_to_onnx.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="train (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="CrackSegFormer-main" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../DeepLab" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../DeepLab/train.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.UnetPP (1)" />
+        <item itemvalue="Python.UnetPP" />
+        <item itemvalue="Python.torch_to_onnx" />
+        <item itemvalue="Python.code" />
+        <item itemvalue="Python.train (1)" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-975db3bf15a3-31b6be0877a2-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-241.18034.82" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="70684588-799b-483d-90ce-84094a28b7e3" name="Changes" comment="" />
+      <created>1754220612018</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1754220612018</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tools/batch_predict.py</url>
+          <line>45</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tools/craetemask_from_annotation_labelstudio.py</url>
+          <line>13</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/tools/craetemask_from_annotation_labelstudio.py</url>
+          <line>89</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/models/unet/UnetPP.py</url>
+          <line>4</line>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

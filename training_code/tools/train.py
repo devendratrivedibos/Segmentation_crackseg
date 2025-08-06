@@ -1,4 +1,5 @@
 import os
+import pdb
 import time
 import datetime
 import torch
@@ -7,13 +8,15 @@ import sys
 import cv2
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(project_root, '..'))
+
 from pathlib import Path
 
 from torch.utils.data import DataLoader
 from train_utils.train_and_eval import train_one_epoch, evaluate, create_lr_scheduler
-from train_utils.my_dataset import CrackDataset
+from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
 import train_utils.transforms as T
 from train_utils.utils import plot, show_config
+
 
 from models.segformer.segformer import SegFormer
 from models.unet.unet import UNet
@@ -22,49 +25,21 @@ from models.unet.vgg_unet import VGG16UNet
 from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
 from models.fcn.fcn import fcn_resnet50
 # from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
+from models.unet.UnetPP import UNetPP
+
 
 # Get project root (parent of tools/)
-project_root_ = Path(__file__).resolve().parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'SegFormer'
+project_root_ = Path(__file__).resolve().parent.parent.parent
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UnetPP_model'
+model_name = "SegFormer_3channel_b5"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
-class SegmentationPresetTrain:
-    def __init__(self, base_size, img_size, hflip_prob=0.5,
-                 mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
-
-        trans = [T.Resize(img_size),]
-        # trans = []
-        if hflip_prob > 0:
-            trans.append(T.RandomHorizontalFlip(0.3))
-            trans.append(T.RandomVerticalFlip(0.3))
-        trans.extend([
-            # T.RandomCrop(crop_size),
-            T.ToTensor(),
-            T.Normalize(mean=mean, std=std),
-        ])
-        self.transforms = T.Compose(trans)
-
-    def __call__(self, img, target):
-        return self.transforms(img, target)
-
-
-class SegmentationPresetEval:
-    def __init__(self, img_size, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
-        self.transforms = T.Compose([
-            T.Resize(img_size),
-            T.ToTensor(),
-            T.Normalize(mean=mean, std=std),
-        ])
-
-    def __call__(self, img, target):
-        return self.transforms(img, target)
 
 
 def get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
-    base_size = 512
     img_size = 512
 
     if train:
-        return SegmentationPresetTrain(base_size, img_size, mean=mean, std=std)
+        return SegmentationPresetTrain(img_size, mean=mean, std=std)
     else:
         return SegmentationPresetEval(img_size, mean=mean, std=std)
 
@@ -126,6 +101,7 @@ def main(args):
     # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
+    model = UNetPP(in_channels=3, num_classes=num_classes)
     model.to(device)
     unique_colors = set()
 
@@ -186,18 +162,18 @@ def main(args):
 
     if args.resume:
         checkpoint = torch.load(args.resume, map_location='cuda:0')
-        model.load_state_dict(checkpoint['model'])
-        optimizer.load_state_dict(checkpoint['optimizer'])
-        lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
-        args.start_epoch = checkpoint['epoch'] + 1
-        if args.amp:
-            scaler.load_state_dict(checkpoint["scaler"])
+        model.load_state_dict(checkpoint)
+        # model.load_state_dict(checkpoint['model'])
+        # optimizer.load_state_dict(checkpoint['optimizer'])
+        # lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
+        # args.start_epoch = checkpoint['epoch'] + 1
+        # if args.amp:
+        #     scaler.load_state_dict(checkpoint["scaler"])
 
-    record_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    results_file = OUTPUT_SAVE_PATH / "{}-results.txt".format(record_time)
+    results_file = OUTPUT_SAVE_PATH / "{}-results.txt".format(model_name)
 
     config_info = {
-        'record_time': record_time,
+
         'device': args.device,
         'data_path': args.data_path,
         'num_classes': num_classes,
@@ -230,7 +206,7 @@ def main(args):
     # 训练过程可视化
     train_loss = []
     dice_coefficient = []
-    img_save_path = OUTPUT_SAVE_PATH /"{}-visualization.svg".format(record_time)
+    img_save_path = OUTPUT_SAVE_PATH /"{}-visualization.svg".format(model_name)
 
     best_dice = 0.
     start_time = time.time()
@@ -240,7 +216,7 @@ def main(args):
 
         confmat, dice = evaluate(model, val_loader, device=device, num_classes=num_classes)
         val_info = str(confmat)
-        print(val_info)
+        print("VALINFO", val_info)
         print(f"dice coefficient: {dice:.3f}")
         # write into txt
         with open(results_file, "a") as f:
@@ -259,16 +235,21 @@ def main(args):
         if args.save_best is True:
             if best_dice < dice:
                 best_dice = dice
+                # torch.save(model.state_dict(), OUTPUT_SAVE_PATH / "{}-best_model.pth".format(model_name))
+                torch.save(model.state_dict(), OUTPUT_SAVE_PATH / f"{model_name}_best_epoch{epoch}_dice{dice:.3f}.pth")
+                best_model_info = OUTPUT_SAVE_PATH / f"{model_name}_best_epoch{epoch}_dice{dice:.3f}.txt"
+                with open(best_model_info, "w") as f:
+                    f.write(train_info + val_info)
             else:
                 continue
 
-        if args.save_best is True:
-            torch.save(model.state_dict(), OUTPUT_SAVE_PATH/"{}-best_model.pth".format(record_time))
-            best_model_info = OUTPUT_SAVE_PATH /"{}-best_model_info.txt".format(record_time)
-            with open(best_model_info, "w") as f:
-                f.write(train_info + val_info)
-        else:
-            torch.save(model.state_dict(), OUTPUT_SAVE_PATH / "model_{}.pth".format(epoch))
+        # if args.save_best is True:
+        #     torch.save(model.state_dict(), OUTPUT_SAVE_PATH/"{}-best_model.pth".format(model_name))
+        #     best_model_info = OUTPUT_SAVE_PATH /"{}-best_model_info.txt".format(model_name)
+        #     with open(best_model_info, "w") as f:
+        #         f.write(train_info + val_info)
+        # else:
+        #     torch.save(model.state_dict(), OUTPUT_SAVE_PATH / "model_{}.pth".format(epoch))
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))

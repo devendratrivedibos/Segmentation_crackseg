@@ -4,9 +4,9 @@ from PIL import Image
 from collections import defaultdict
 import os
 
-root_folder = "D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\Devendra"
-image_folder = os.path.join(root_folder, "Devendra_annotations")
-csv_file = os.path.join(root_folder, "Devendra_annotations.csv")
+root_folder = "D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\Shiva\Shiva Annotation"
+image_folder = os.path.join(root_folder, "project-2-at-2025-08-05-18-10-1c77d951")
+csv_file = os.path.join(root_folder, "project-2-at-2025-08-05-18-10-1c77d951.csv")
 output_folder = os.path.join(root_folder, "Masks")
 os.mkdir(output_folder) if not os.path.exists(output_folder) else None
 # --- Step 1: Read the CSV and build the id-to-image-name mapping ---
@@ -44,12 +44,23 @@ for img_file in list_dir:
 
 # --- Step 5: Define coloring logic for mask overlays ---
 def get_mask_color(filename):
-    if 'Alligator crack' in filename:
+    filename = filename.lower()  # Convert to lowercase for case-insensitive matching
+    if 'alligator crack' in filename:
         return (255, 0, 0)  # Red
-    elif 'Tranverse crack' in filename:
+    elif 'tranverse crack' in filename:
         return (0, 255, 0)  # Green
+    elif 'longitudinal crack' in filename:
+        return (0, 0, 255)  # Blue
+    elif 'multiple crack' in filename:
+        return (255, 0, 255)  # Magenta
+    elif 'pothole' in filename:
+        return (0, 42, 255)  # Orange
+    elif 'joint seal' in filename:
+        return (255, 204, 0)  # Yellow
     else:
+        print(f"FILENAME {filename} → NO MATCHING COLOR")
         return None
+
 
 def combine_mask_images_color(image_files, folder):
     base_img = None
@@ -73,13 +84,16 @@ def combine_mask_images_color(image_files, folder):
     else:
         return None
 
+
 # --- Step 6: Merge, color, and save each set of annotation masks ---
 for task_prefix, files in files_by_task.items():
     combined_mask = combine_mask_images_color(files, image_folder)
     if combined_mask:
         save_name = result_mapping.get(files[0], files[0])  # get mapped save name
         save_path = os.path.join(output_folder, save_name)
-        combined_mask.save(save_path)
-        print(f"Saved combined mask as {save_name}")
-
+        try:
+            combined_mask.save(save_path)
+            print(f"Saved combined mask as {save_name}")
+        except:
+            print(f"Failed to save combined mask for {save_name} {save_path}. Check file permissions or path validity.")
 print("All combined colored masks have been saved with proper CSV names.")

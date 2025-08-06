@@ -47,20 +47,19 @@ def main():
          T.Normalize([0.473, 0.493, 0.504], [0.100, 0.100, 0.099])])
 
     # load image
-    # imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\TRAIN\DATASET_IMAGES"
-    imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT\VAL\IMAGES"
-    # imgs_root = r'D:\cracks\crack_filter_data_1\section-4\section-4'
+
+    imgs_root = r"D:\cracks\3Channel\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT\VAL\IMAGES"
     images_list = os.listdir(imgs_root)
-    prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\MobileV3_Unet"
+    prediction_save_path = r"D:\cracks\3Channel\Semantic-Segmentation of pavement distress dataset\SEG"
     os.makedirs(prediction_save_path, exist_ok=True)
 
     # create model
     model = SegFormer(num_classes=num_classes, phi="b0")
     # model = VGG16UNet(num_classes=num_classes)
-    model = MobileV3Unet(num_classes=num_classes)
+    # model = MobileV3Unet(num_classes=num_classes)
 
     # load model weights
-    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\MobileV3Unet\20250805-220438-best_model.pth"
+    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\SegFormer_3channel_b5\SegFormer_3channel_b5_best_epoch4_dice0.233.pth"
     # weights_path = "segformer/20250805-194612-best_model.pth"
 
     assert os.path.exists(weights_path), f"file: '{weights_path}' dose not exist."
