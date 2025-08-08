@@ -21,12 +21,11 @@ COLOR_MAP = {
 class CrackDataset(Dataset):
     def __init__(self, root: str, train: bool, transforms=None):
         super(CrackDataset, self).__init__()
-        data_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT_OLD"
-        # data_root = r"D:\cracks\3Channel\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT"
+        data_root = root
         flag = "TRAIN" if train else "VAL"
 
         data_root = os.path.join(data_root, flag)
-        # assert os.path.exists(data_root), "path '{}' does not exist.".format(data_root)
+        assert os.path.exists(data_root), "path '{}' does not exist.".format(data_root)
         # data_root = root
         imgs_root = os.path.join(data_root, "IMAGES")
         masks_root = os.path.join(data_root, "MASKS")
@@ -100,7 +99,7 @@ class SegmentationPresetTrain:
         # self.transforms = T.Compose(trans)
 
         self.transforms = A.Compose([
-            A.Resize(img_size, img_size),
+            # A.Resize(img_size, img_size),
             A.HorizontalFlip(p=0.2),
             A.VerticalFlip(p=0.2),
             A.RandomRotate90(p=0.2),
@@ -128,7 +127,7 @@ class SegmentationPresetEval:
         #     T.Normalize(mean=mean, std=std),
         # ])
         self.transforms = A.Compose([
-            A.Resize(img_size, img_size),
+            # A.Resize(img_size, img_size),
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ])

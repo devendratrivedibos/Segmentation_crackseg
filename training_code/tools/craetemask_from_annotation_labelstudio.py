@@ -4,9 +4,9 @@ from PIL import Image
 from collections import defaultdict
 import os
 
-root_folder = "D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\Shiva\Shiva Annotation"
-image_folder = os.path.join(root_folder, "project-2-at-2025-08-05-18-10-1c77d951")
-csv_file = os.path.join(root_folder, "project-2-at-2025-08-05-18-10-1c77d951.csv")
+root_folder = "D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\Devendra"
+image_folder = os.path.join(root_folder, "project-11-at-2025-08-07-16-09-d5d12b6f")
+csv_file = os.path.join(root_folder, "project-11-at-2025-08-07-16-08-d5d12b6f.csv")
 output_folder = os.path.join(root_folder, "Masks")
 os.mkdir(output_folder) if not os.path.exists(output_folder) else None
 # --- Step 1: Read the CSV and build the id-to-image-name mapping ---

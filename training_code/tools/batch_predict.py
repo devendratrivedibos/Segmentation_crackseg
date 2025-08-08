@@ -20,7 +20,7 @@ from models.unet.unet import UNet
 from models.unet.mobilenet_unet import MobileV3Unet
 from models.unet.vgg_unet import VGG16UNet
 from models.fcn.fcn import fcn_resnet101
-
+from models.unet.UnetPP import UNetPP
 
 # Define color map for classes (BGR for OpenCV)
 CLASS_COLOR_MAP = {
@@ -48,18 +48,18 @@ def main():
 
     # load image
 
-    imgs_root = r"D:\cracks\3Channel\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT\VAL\IMAGES"
+    imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT_OLD\VAL\IMAGES"
     images_list = os.listdir(imgs_root)
-    prediction_save_path = r"D:\cracks\3Channel\Semantic-Segmentation of pavement distress dataset\SEG"
+    prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\UNETPP"
     os.makedirs(prediction_save_path, exist_ok=True)
 
     # create model
-    model = SegFormer(num_classes=num_classes, phi="b0")
+    model = UNetPP(in_channels=3, num_classes=num_classes)
     # model = VGG16UNet(num_classes=num_classes)
     # model = MobileV3Unet(num_classes=num_classes)
 
     # load model weights
-    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\SegFormer_3channel_b5\SegFormer_3channel_b5_best_epoch4_dice0.233.pth"
+    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNetPP_1\UnetPP_1_best_epoch77_dice0.568.pth"
     # weights_path = "segformer/20250805-194612-best_model.pth"
 
     assert os.path.exists(weights_path), f"file: '{weights_path}' dose not exist."

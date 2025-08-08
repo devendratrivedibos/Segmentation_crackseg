@@ -9,30 +9,21 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(project_root, '..'))
 
-from train_utils.my_dataset import CrackDataset
-import train_utils.transforms as T
+
 import torch.nn.functional as F
 from train_utils.dice_coefficient_loss import multiclass_dice_coeff, build_target
 import train_utils.distributed_utils as utils
-from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
-from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
+from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
+from train_utils.train_and_eval import evaluate
 from models.segformer.segformer import SegFormer
 from models.unet.unet import UNet
 from models.unet.mobilenet_unet import MobileV3Unet
 from models.unet.vgg_unet import VGG16UNet
-from models.fcn.fcn import fcn_resnet101
+from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
+from models.fcn.fcn import fcn_resnet50
+from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
+from models.unet.UnetPP import UNetPP
 
-
-class SegmentationPresetEval:
-    def __init__(self, mean=(0.473, 0.493, 0.504), std=(0.100, 0.100, 0.099)):
-        self.transforms = T.Compose([
-            T.Resize(512),
-            T.ToTensor(),
-            T.Normalize(mean=mean, std=std),
-        ])
-
-    def __call__(self, img, target):
-        return self.transforms(img, target)
 
 
 def time_synchronized():
@@ -40,7 +31,7 @@ def time_synchronized():
     return time.time()
 
 
-def evaluate(model, data_loader, device, num_classes):
+def evaluate1(model, data_loader, device, num_classes):
     model.eval()
     confmat = utils.ConfusionMatrix(num_classes)
     dices = []
@@ -74,13 +65,14 @@ def evaluate(model, data_loader, device, num_classes):
 
 def main(args):
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
-    assert os.path.exists(args.weights), f"weights {args.weights} not found."
+    # assert os.path.exists(args.weights), f"weights {args.weights} not found."
 
     num_classes = args.num_classes + 1
-
+    img_size = (512, 512)  # Set the input size for the model
+    mean = (0.485, 0.456, 0.406)
+    std = (0.229, 0.224, 0.225)
     val_dataset = CrackDataset(args.data_path, train=False,
-                               transforms=SegmentationPresetEval()
-                               )
+                               transforms=SegmentationPresetEval(img_size, mean=mean, std=std))
 
     num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
 
@@ -94,42 +86,55 @@ def main(args):
     # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
     # model = VGG16UNet(num_classes=num_classes)
     # model = MobileV3Unet(num_classes=num_classes)
-    model = SegFormer(num_classes=num_classes, phi=args.phi)
-    pretrain_weights = torch.load(args.weights, map_location='cpu')
-    if "model" in pretrain_weights:
-        model.load_state_dict(pretrain_weights["model"])
-    else:
-        model.load_state_dict(pretrain_weights)
-    model.to(device)
-
-    # model = fcn_resnet101(aux=False, num_classes=num_classes)
-    # # model = deeplabv3_resnet101(aux=False, num_classes=num_classes)
-    # # # model = deeplabv3_mobilenetv3_large(aux=False, num_classes=num_classes)
-    # weights_dict = torch.load(args.weights, map_location='cpu')
-    # for k in list(weights_dict.keys()):
-    #     if "aux" in k:
-    #         del weights_dict[k]
-
-    # model.load_state_dict(weights_dict)
+    # model = SegFormer(num_classes=num_classes, phi=args.phi)
+    # pretrain_weights = torch.load(args.weights, map_location='cpu')
+    # if "model" in pretrain_weights:
+    #     model.load_state_dict(pretrain_weights["model"])
+    # else:
+    #     model.load_state_dict(pretrain_weights)
     # model.to(device)
 
-    record_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    results_file = "logs/{}-validation.txt".format(record_time)
+    weight_paths = {
+        "SegFormer_b0": r"D:\Devendra_Files\CrackSegFormer-main\weights\Segformer\20250806-011324-best_model.pth",
+        "SegFormer_b5": r"D:\Devendra_Files\CrackSegFormer-main\weights\Segformer_b5/Segformer_b5__best_epoch10_dice0.542.pth",
+        "UNetPP": r"D:\Devendra_Files\CrackSegFormer-main\weights\UNetPP_1\UnetPP_1_best_epoch89_dice0.574.pth",
+        "DeepLabV3": r"D:\Devendra_Files\CrackSegFormer-main\weights\DeepLab\DeepLab_best_epoch2_dice0.425.pth",
+    }
+    models = {
+        "SegFormer_b0": SegFormer(num_classes=num_classes, phi='b0', pretrained=False),
+        "SegFormer_b5": SegFormer(num_classes=num_classes, phi='b5', pretrained=False),
+        "UNetPP": UNetPP(in_channels=3, num_classes=num_classes),
+        "DeepLabV3": deeplabv3_resnet101(aux=True, num_classes=num_classes, pretrain_backbone=False)
+    }
 
-    confmat, dices, total_time = evaluate(model, val_loader, device=device, num_classes=num_classes)
+    results = {}
+    for name, model in models.items():
+        print(f"Evaluating {name}...")
+        model.to(device)
+        weight_path = weight_paths.get(name, None)
+        if weight_path and os.path.exists(weight_path):
+            checkpoint = torch.load(weight_path, map_location=device)
+            # Adjust loading if checkpoint contains keys under 'model'
+            if "model" in checkpoint:
+                model.load_state_dict(checkpoint["model"])
+            else:
+                model.load_state_dict(checkpoint)
+        else:
+            print(f"Warning: weight for {name} not found, using default initialized weights!")
 
-    predict_time_per_img = total_time / len(val_dataset)
-    predict_imgs_per_time = len(val_dataset) / total_time
-    print("predict time: {}".format(total_time))
-    print("predict time per img: {}".format(predict_time_per_img))
-    print("predict imgs_return per second: {}".format(predict_imgs_per_time))
-
-    val_info = str(confmat)
-    print(val_info)
-    print(f"mean dice coefficient: {np.mean(dices):.3f}")
-    print(f"std dice coefficient: {np.std(dices):.3f}")
-    print("dice coefficient length: {}".format(len(dices)))
-
+        confmat, dices,  = evaluate(model, val_loader, device=device, num_classes=num_classes)
+        mean_dice = np.mean(dices)
+        std_dice = np.std(dices)
+        results[name] = {
+            "confmat": confmat,
+            "mean_dice": mean_dice,
+            "std_dice": std_dice,
+            # "total_time": total_time,
+            # "time_per_image": total_time / len(val_dataset)
+        }
+        print(confmat)
+        print(f"Model {name} - mean Dice: {mean_dice:.3f}, std Dice: {std_dice:.3f}") #, Total time: {total_time:.2f}s")
+        print("" + "=" * 50)
 
 def parse_args():
     import argparse
@@ -137,20 +142,13 @@ def parse_args():
     parser.add_argument("--device", default="cuda:0", help="training device")
 
     parser.add_argument("--data-path",
-                        default="dataset/test",
+                        default=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT_OLD",
                         help="images root")
-    # parser.add_argument("--data-path",
-    #                     default="./",
-    #                     help="images root")
     parser.add_argument("--num-classes", default=1, type=int)  # exclude background
 
     parser.add_argument("--phi", default="b0", help="Use backbone")
-    parser.add_argument("--weights", default="logs/20221028-073013-best_model.pth")
-    # parser.add_argument("--weights", default="logs/deeplabv3_resnet101.pth")
-    # parser.add_argument("--weights", default="logs/deeplabv3_mobilenetv3_large.pth")
-    # parser.add_argument("--weights", default="logs/VGG16UNet.pth")
-    # parser.add_argument("--weights", default="logs/MobileV3Unet.pth")
-    # parser.add_argument("--weights", default="logs/segformer_b5.pth")
+    parser.add_argument("--weights", default="")
+
 
     parser.add_argument("--batch-size", default=1, type=int)
     parser.add_argument('--print-freq', default=10, type=int, help='print frequency')

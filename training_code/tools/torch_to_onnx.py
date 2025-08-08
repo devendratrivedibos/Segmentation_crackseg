@@ -3,11 +3,11 @@ import os
 from models.segformer.segformer import SegFormer  # Adjust path if it's elsewhere
 
 # ---- Configuration ----
-pth_path = r'D:\Devendra_Files\CrackSegFormer-main\segformer\20250805-194612-best_model.pth'  # Your .pth file
-onnx_path = r'D:\Devendra_Files\CrackSegFormer-main\segformer\segformer.onnx'  # Where to save .onnx
+pth_path = r'D:\Devendra_Files\CrackSegFormer-main\weights\Segformer_b5\Segformer_b5__best_epoch10_dice0.542.pth'  # Your .pth file
+onnx_path = r'D:\Devendra_Files\CrackSegFormer-main\weights\Segformer_b5\segformer.onnx'  # Where to save .onnx
 num_classes = 2  # Background + your target classes (adjust as needed)
-phi = 'b0'  # Or 'b0', 'b1', etc.
-img_size = 512  # Input size expected by your model (or as used in training)
+phi = 'b5'  # Or 'b0', 'b1', etc.
+# img_size = 512  # Input size expected by your model (or as used in training)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # ---- Model Preparation ----
@@ -22,7 +22,7 @@ if 'model' in state_dict:
 model.load_state_dict(state_dict, strict=False)
 
 # ---- Example Input ----
-dummy_input = torch.randn(1, 3, img_size, img_size).to(device)  # Batch size 1, 3 channels
+dummy_input = torch.randn(1, 3, 1024, 419).to(device)  # Batch size 1, 3 channels
 
 # ---- Export to ONNX ----
 torch.onnx.export(
@@ -58,7 +58,7 @@ session = ort.InferenceSession(onnx_path)
 img_path = "D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\Devendra\A_T_1_rangeDataFiltered-0000272-_crack.png"
 img = cv2.imread(img_path)
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-img = cv2.resize(img, (512, 512))  # Adjust size as needed
+# img = cv2.resize(img, (512, 512))  # Adjust size as needed
 
 # 3. Normalize as during training (use your mean/std)
 img = img.astype(np.float32) / 255.0

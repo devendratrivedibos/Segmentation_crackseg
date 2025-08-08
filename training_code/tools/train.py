@@ -24,14 +24,14 @@ from models.unet.mobilenet_unet import MobileV3Unet
 from models.unet.vgg_unet import VGG16UNet
 from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
 from models.fcn.fcn import fcn_resnet50
-# from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
+from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
 from models.unet.UnetPP import UNetPP
 
 
 # Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UnetPP_model'
-model_name = "SegFormer_3channel_b5"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'DeepLab'  # Change this to your desired output path
+model_name = "DeepLab"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -47,8 +47,8 @@ def get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
 def create_model(aux, num_classes, pretrained=True):
     # model = deeplabv3_resnet50(aux=aux, num_classes=num_classes)
     # model = fcn_resnet50(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
-    # model = deeplabv3_resnet101(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
-    model = deeplabv3_mobilenetv3_large(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
+    model = deeplabv3_resnet101(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
+    # model = deeplabv3_mobilenetv3_large(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
 
     if args.pretrained_weights != "":
         weights_dict = torch.load(args.pretrained_weights, map_location='cpu')
@@ -96,26 +96,26 @@ def main(args):
                             pin_memory=True,
                             collate_fn=val_dataset.collate_fn)
 
-    model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
+    # model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
     # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
     # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
-    # model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
-    model = UNetPP(in_channels=3, num_classes=num_classes)
+    model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
+    # model = UNetPP(in_channels=3, num_classes=num_classes)
     model.to(device)
     unique_colors = set()
 
-    for idx in range(len(train_dataset)):
-        mask_path = train_dataset.masks_path[idx]
-        mask = cv2.imread(mask_path, cv2.IMREAD_COLOR)  # <-- Load as color
-        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
-        pixels = mask.reshape(-1, 3)
-        for color in np.unique(pixels, axis=0):
-            unique_colors.add(tuple(color))  # Convert to tuple for set
+    # for idx in range(len(train_dataset)):
+    #     mask_path = train_dataset.masks_path[idx]
+    #     mask = cv2.imread(mask_path, cv2.IMREAD_COLOR)  # <-- Load as color
+    #     mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
+    #     pixels = mask.reshape(-1, 3)
+    #     for color in np.unique(pixels, axis=0):
+    #         unique_colors.add(tuple(color))  # Convert to tuple for set
 
-    print("Unique RGB colors in all masks:", unique_colors)
-    for color in sorted(unique_colors):
-        print(color)
+    # print("Unique RGB colors in all masks:", unique_colors)
+    # for color in sorted(unique_colors):
+    #     print(color)
 
 
 
@@ -261,13 +261,12 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        # default="dataset",
-                        default=r'D:\cracks\crack_filter_data_1',
+                        default=r"T:/cracks/Semantic-Segmentation of pavement distress dataset/Combined/DATASET_SPLIT_OLD",
                         help="root")
     parser.add_argument("--num-classes", default=1, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
-    parser.add_argument("--phi", default="b0", help="Use backbone")
-    parser.add_argument('--pretrained', default=False, type=bool, help='backbone')
+    parser.add_argument("--phi", default="b5", help="Use backbone")
+    parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
                         default="",
                         help='pretrained weights path')
