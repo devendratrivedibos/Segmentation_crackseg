@@ -3,15 +3,15 @@ import shutil
 import random
 
 # Paths
-images_dir = r'D:\cracks\3Channel\Semantic-Segmentation of pavement distress dataset\Combined\IMAGES'
-masks_dir = r'D:\cracks\3Channel\Semantic-Segmentation of pavement distress dataset\Combined\MASKS'
-output_base = r'D:\cracks\3Channel\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT'
+images_dir = r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_IMAGES'
+masks_dir = r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_MASKS_CLEANED'
+output_base = r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT'
 split_ratio = 0.85  # 80% train, 20% val
 
 # Get matching base filenames (only those that have both .jpg and .png)
 image_filenames = [
     f for f in os.listdir(images_dir)
-    if f.lower().endswith('.jpg') and os.path.exists(os.path.join(masks_dir, os.path.splitext(f)[0] + '.png'))
+    if f.lower().endswith('.png') and os.path.exists(os.path.join(masks_dir, os.path.splitext(f)[0] + '.png'))
 ]
 
 # Shuffle and split

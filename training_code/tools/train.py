@@ -30,8 +30,8 @@ from models.unet.UnetPP import UNetPP
 
 # Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'DeepLab'  # Change this to your desired output path
-model_name = "DeepLab"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'SegFormer_8aug'  # Change this to your desired output path
+model_name = "seg_b5"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -96,11 +96,11 @@ def main(args):
                             pin_memory=True,
                             collate_fn=val_dataset.collate_fn)
 
-    # model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
+    model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
     # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
     # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
-    model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
+    # model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
     # model = UNetPP(in_channels=3, num_classes=num_classes)
     model.to(device)
     unique_colors = set()
@@ -211,23 +211,13 @@ def main(args):
     best_dice = 0.
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs):
+        epoch_start_time = time.time()
         mean_loss, lr = train_one_epoch(model, optimizer, train_loader, device, epoch, num_classes,
                                         lr_scheduler=lr_scheduler, print_freq=args.print_freq, scaler=scaler)
 
         confmat, dice = evaluate(model, val_loader, device=device, num_classes=num_classes)
         val_info = str(confmat)
-        print("VALINFO", val_info)
-        print(f"dice coefficient: {dice:.3f}")
-        # write into txt
-        with open(results_file, "a") as f:
-            # 记录每个epoch对应的train_loss、lr以及验证集各指标
-            train_info = f"[epoch: {epoch}]\n" \
-                         f"train_loss: {mean_loss:.4f}\n" \
-                         f"lr: {lr:.8f}\n" \
-                         f"dice coefficient: {dice:.3f}\n"
-            f.write(train_info + val_info + "\n\n")
 
-        # 绘图
         train_loss.append(mean_loss)
         dice_coefficient.append(dice)
         plot(train_loss, dice_coefficient, img_save_path)
@@ -242,7 +232,22 @@ def main(args):
                     f.write(train_info + val_info)
             else:
                 continue
+        print("VALINFO", val_info)
+        print(f"dice coefficient: {dice:.3f}")
 
+        epoch_end_time = time.time()
+        one_epoch_time = epoch_end_time - epoch_start_time
+        one_epoch_time = str(datetime.timedelta(seconds=int(one_epoch_time)))
+        print(f"training epoch {epoch} time {total_time_str}")
+        # write into txt
+        with open(results_file, "a") as f:
+            # 记录每个epoch对应的train_loss、lr以及验证集各指标
+            train_info =f"[epoch: {epoch}]\n" \
+                        f"train_loss: {mean_loss:.4f}\n" \
+                        f"lr: {lr:.8f}\n" \
+                        f"dice coefficient: {dice:.3f}\n" \
+                        f"epoch time: {one_epoch_time}\n"
+            f.write(train_info + val_info + "\n\n")
         # if args.save_best is True:
         #     torch.save(model.state_dict(), OUTPUT_SAVE_PATH/"{}-best_model.pth".format(model_name))
         #     best_model_info = OUTPUT_SAVE_PATH /"{}-best_model_info.txt".format(model_name)
@@ -261,9 +266,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"T:/cracks/Semantic-Segmentation of pavement distress dataset/Combined/DATASET_SPLIT_OLD",
+                        default=r"W:/cracks/Semantic-Segmentation of pavement distress dataset/Combined/DATASET_SPLIT",
                         help="root")
-    parser.add_argument("--num-classes", default=1, type=int)  # exclude background
+    parser.add_argument("--num-classes", default=5, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
     parser.add_argument("--phi", default="b5", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')

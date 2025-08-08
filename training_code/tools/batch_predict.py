@@ -26,9 +26,11 @@ from models.unet.UnetPP import UNetPP
 CLASS_COLOR_MAP = {
     0: [0, 0, 0],        # background: black
     1: [255, 0, 0],      # red (BGR) for class 1
-    2: [255, 255, 255],
-    3: [0, 255, 0],  #
-    4: [0, 0, 255],  #
+    2: [0, 0, 255],   # Blue     Transverse Crack
+    3: [0, 255, 0],  # Green    Longitudinal Crack
+    4: [255, 0, 255],  ## Magenta  Multiple Crack
+    5: [255, 204, 0],  # Yellow   Joint Seal
+    6: [0, 42, 255],  # Orange   Pothole
 }
 
 

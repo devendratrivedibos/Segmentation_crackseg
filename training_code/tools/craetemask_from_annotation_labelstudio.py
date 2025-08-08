@@ -4,11 +4,12 @@ from PIL import Image
 from collections import defaultdict
 import os
 
-root_folder = "D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\Devendra"
-image_folder = os.path.join(root_folder, "project-11-at-2025-08-07-16-09-d5d12b6f")
-csv_file = os.path.join(root_folder, "project-11-at-2025-08-07-16-08-d5d12b6f.csv")
+root_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\Devendra"
+image_folder = os.path.join(root_folder, "project-11-at-2025-08-08-20-27-d5d12b6f")
+csv_file = os.path.join(root_folder, "project-11-at-2025-08-08-20-27-d5d12b6f.csv")
+
 output_folder = os.path.join(root_folder, "Masks")
-os.mkdir(output_folder) if not os.path.exists(output_folder) else None
+os.makedirs(output_folder, exist_ok=True)
 # --- Step 1: Read the CSV and build the id-to-image-name mapping ---
 
 df = pd.read_csv(csv_file)
@@ -42,15 +43,16 @@ for img_file in list_dir:
     task_prefix = img_file.split('-annotation')[0]
     files_by_task[task_prefix].append(img_file)
 
+
 # --- Step 5: Define coloring logic for mask overlays ---
 def get_mask_color(filename):
     filename = filename.lower()  # Convert to lowercase for case-insensitive matching
     if 'alligator crack' in filename:
         return (255, 0, 0)  # Red
-    elif 'tranverse crack' in filename:
-        return (0, 255, 0)  # Green
+    elif 'transverse crack' in filename:
+        return (0, 0, 255)  # Green
     elif 'longitudinal crack' in filename:
-        return (0, 0, 255)  # Blue
+        return (0, 255, 0)  # Blue
     elif 'multiple crack' in filename:
         return (255, 0, 255)  # Magenta
     elif 'pothole' in filename:

@@ -7,14 +7,14 @@ from torch.utils.data import Dataset
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-
 COLOR_MAP = {
-    (0,   0,   0): 0,  # Black
-    (255, 0, 0): 1,  # Red
-    # (255, 255,   255): 2,  # White
-    # (255, 0, 0): 3,  # Yellow
-    # (255, 0, 0): 4,  # Cyan
-    # # Add more as needed
+    (0, 0, 0): 0,  # Black   Background
+    (255, 0, 0): 1,  # Red      Alligator
+    (0, 0, 255): 2,  # Blue     Transverse Crack
+    (0, 255, 0): 3,  # Green    Longitudinal Crack
+    (255, 0, 255): 4,  # Magenta  Multiple Crack
+    (255, 204, 0): 5,  # Yellow   Joint Seal
+    (0, 42, 255): 6,  # Orange   Pothole
 }
 
 
@@ -62,7 +62,6 @@ class CrackDataset(Dataset):
         mask = mask.long()
         return img, mask
 
-
     def __len__(self):
         return len(self.images_list)
 
@@ -82,10 +81,27 @@ class CrackDataset(Dataset):
             class_map[match] = class_id
         return class_map
 
+    def rgb_to_class_id(self, mask_rgb, color2id):
+        # Create a blank class map
+        class_map = np.zeros(mask_rgb.shape[:2], dtype=np.uint8)
+
+        # Create a mask to track which pixels have been matched
+        matched_mask = np.zeros(mask_rgb.shape[:2], dtype=bool)
+
+        for color, class_id in color2id.items():
+            color_arr = np.array(color, dtype=np.uint8)
+            match = np.all(mask_rgb == color_arr, axis=-1)
+            class_map[match] = class_id
+            matched_mask |= match
+
+        # Set unmatched pixels to black in the original RGB mask
+        mask_rgb[~matched_mask] = (0, 0, 0)
+
+        return class_map
+
 
 class SegmentationPresetTrain:
     def __init__(self, img_size, mean, std):
-
         # trans = [T.Resize(img_size),]
         # # trans = []
         # if hflip_prob > 0:
@@ -136,6 +152,7 @@ class SegmentationPresetEval:
         # return self.transforms(img, target)
         result = self.transforms(image=img, mask=target)
         return result
+
 
 def cat_list(images, fill_value=0):
     # 计算该batch数据中,channel,h,w的最大值
