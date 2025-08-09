@@ -40,7 +40,8 @@ def time_synchronized():
 
 
 def main():
-    num_classes = 1 + 1
+    num_classes = 5
+    num_classes = num_classes + 1
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     data_transform = T.Compose([
@@ -50,21 +51,21 @@ def main():
 
     # load image
 
-    imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT_OLD\VAL\IMAGES"
+    imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT\TRAIN\IMAGES"
     images_list = os.listdir(imgs_root)
-    prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\UNETPP"
+    images_list = [f for f in os.listdir(imgs_root) if "copy" in f.lower()]
+    prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\2_4"
     os.makedirs(prediction_save_path, exist_ok=True)
+
+    # load model weights
+    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNETPP_9aug\UnetPP_9aug_best_epoch136_dice0.712.pth"
+    assert os.path.exists(weights_path), f"file: '{weights_path}' dose not exist."
 
     # create model
     model = UNetPP(in_channels=3, num_classes=num_classes)
+    # model = SegFormer(num_classes=num_classes, phi="b5")
     # model = VGG16UNet(num_classes=num_classes)
     # model = MobileV3Unet(num_classes=num_classes)
-
-    # load model weights
-    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNetPP_1\UnetPP_1_best_epoch77_dice0.568.pth"
-    # weights_path = "segformer/20250805-194612-best_model.pth"
-
-    assert os.path.exists(weights_path), f"file: '{weights_path}' dose not exist."
 
     pretrain_weights = torch.load(weights_path, map_location='cuda:0')
     if "model" in pretrain_weights:
@@ -92,7 +93,7 @@ def main():
         for index, image in enumerate(images_list):
             original_img = cv2.imread(os.path.join(imgs_root, image))
             original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB)
-            original_img = cv2.resize(original_img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
+            # original_img = cv2.resize(original_img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
             img , _= data_transform(original_img, original_img)
             img = torch.unsqueeze(img, dim=0)
 
@@ -100,6 +101,9 @@ def main():
 
             prediction = output['out'].argmax(1).squeeze(0)
             prediction = prediction.to("cpu").numpy().astype(np.uint8)
+
+            original_save_path = os.path.join(prediction_save_path, image.split('.')[0] + '_original.png')
+            cv2.imwrite(original_save_path, cv2.cvtColor(original_img, cv2.COLOR_RGB2BGR))
 
             prediction_color = colorize_prediction(prediction)
             mask_save_path = os.path.join(prediction_save_path, image.split('.')[0] + '_mask.png')
@@ -128,7 +132,7 @@ def colorize_prediction(prediction):
         color_mask[prediction == class_id] = color
     return color_mask
 
-def overlay_mask_on_image(image, color_mask, alpha=0.5):
+def overlay_mask_on_image(image, color_mask, alpha=0.3):
     """
     Overlay a multi-class RGB mask on a color image.
     """

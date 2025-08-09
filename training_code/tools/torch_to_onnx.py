@@ -1,17 +1,19 @@
 import torch
 import os
 from models.segformer.segformer import SegFormer  # Adjust path if it's elsewhere
+from models.unet.UnetPP import UNetPP  # Adjust path if it's elsewhere
 
 # ---- Configuration ----
-pth_path = r'D:\Devendra_Files\CrackSegFormer-main\weights\Segformer_b5\Segformer_b5__best_epoch10_dice0.542.pth'  # Your .pth file
-onnx_path = r'D:\Devendra_Files\CrackSegFormer-main\weights\Segformer_b5\segformer.onnx'  # Where to save .onnx
-num_classes = 2  # Background + your target classes (adjust as needed)
+pth_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNETPP_8aug\UnetPP_8aug_best_epoch14_dice0.731.pth"  # Your .pth file
+onnx_path = r'D:\Devendra_Files\CrackSegFormer-main\weights\UNETPP_8aug\unetpp_onnx_8aug.onnx'  # Where to save .onnx
+num_classes = 6  # Background + your target classes (adjust as needed)
 phi = 'b5'  # Or 'b0', 'b1', etc.
 # img_size = 512  # Input size expected by your model (or as used in training)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # ---- Model Preparation ----
-model = SegFormer(num_classes=num_classes, phi=phi, pretrained=False)
+# model = SegFormer(num_classes=num_classes, phi=phi, pretrained=False)
+model = UNetPP(in_channels=3, num_classes=num_classes)
 model = model.to(device)
 model.eval()
 
@@ -30,22 +32,20 @@ torch.onnx.export(
     dummy_input,
     onnx_path,
     export_params=True,
-    opset_version=11,   # 11 or newer is widely supported
+    opset_version=11,  # 11 or newer is widely supported
     do_constant_folding=True,
-    input_names = ['input'],
-    output_names = ['output'],
+    input_names=['input'],
+    output_names=['output'],
     dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}},
 )
 
 print(f"ONNX export complete: {onnx_path}")
-
 
 import onnx
 
 onnx_model = onnx.load(onnx_path)
 onnx.checker.check_model(onnx_model)
 print("ONNX model is valid!")
-
 
 import onnxruntime as ort
 import numpy as np
@@ -85,11 +85,24 @@ mask = np.argmax(output[0], axis=0).astype(np.uint8)  # Shape: [H, W]
 
 # 8. (Optional) Map mask to colors for visualization
 # Example: for 2 classes, background=0 (black), crack=1 (white)
-colors = np.array([[0, 0, 0], [255, 255, 255]], dtype=np.uint8)
+CLASS_COLOR_MAP = {
+    0: [0, 0, 0],  # background: black
+    1: [255, 0, 0],  # red (BGR) for class 1
+    2: [0, 0, 255],  # Blue     Transverse Crack
+    3: [0, 255, 0],  # Green    Longitudinal Crack
+    4: [255, 0, 255],  ## Magenta  Multiple Crack
+    5: [255, 204, 0],  # Yellow   Joint Seal
+    6: [0, 42, 255],  # Orange   Pothole
+}
+colors = np.array([[0, 0, 0],
+                   [255, 255, 255],
+                   [0, 0, 255],
+                   [0, 255, 0],
+                   [255, 0, 255],
+                   [255, 204, 0],
+                   [0, 42, 255]], dtype=np.uint8)
 output_img = colors[mask]
 
 cv2.imwrite("D:/segformer_onnx_prediction.png", cv2.cvtColor(output_img, cv2.COLOR_RGB2BGR))
 
 print("Inference completed. Output mask saved as segformer_onnx_prediction.png")
-
-

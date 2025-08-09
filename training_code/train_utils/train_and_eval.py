@@ -53,7 +53,14 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, num_classes, l
         loss_weight = torch.as_tensor([1.0, 1.0], device=device)
     else:
         loss_weight = None
-        # loss_weight = torch.tensor([0.05, 1.0, 1.0, 1.0, 1.0], dtype=torch.float32).to(device)
+        # loss_weight = torch.tensor([
+        #     0.1,  # Background
+        #     1.0,  # Alligator
+        #     2.5,  # Transverse
+        #     1.2,  # Longitudinal
+        #     2.0,  # Multiple
+        #     5.0  # Joint Seal
+        # ], dtype=torch.float32).to(device)
 
     for image, target in metric_logger.log_every(data_loader, print_freq, header):
         image, target = image.to(device), target.to(device)

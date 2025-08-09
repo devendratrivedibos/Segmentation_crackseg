@@ -81,23 +81,23 @@ class CrackDataset(Dataset):
             class_map[match] = class_id
         return class_map
 
-    def rgb_to_class_id(self, mask_rgb, color2id):
-        # Create a blank class map
-        class_map = np.zeros(mask_rgb.shape[:2], dtype=np.uint8)
-
-        # Create a mask to track which pixels have been matched
-        matched_mask = np.zeros(mask_rgb.shape[:2], dtype=bool)
-
-        for color, class_id in color2id.items():
-            color_arr = np.array(color, dtype=np.uint8)
-            match = np.all(mask_rgb == color_arr, axis=-1)
-            class_map[match] = class_id
-            matched_mask |= match
-
-        # Set unmatched pixels to black in the original RGB mask
-        mask_rgb[~matched_mask] = (0, 0, 0)
-
-        return class_map
+    # def rgb_to_class_id(self, mask_rgb, color2id):
+    #     # Create a blank class map
+    #     class_map = np.zeros(mask_rgb.shape[:2], dtype=np.uint8)
+    #
+    #     # Create a mask to track which pixels have been matched
+    #     matched_mask = np.zeros(mask_rgb.shape[:2], dtype=bool)
+    #
+    #     for color, class_id in color2id.items():
+    #         color_arr = np.array(color, dtype=np.uint8)
+    #         match = np.all(mask_rgb == color_arr, axis=-1)
+    #         class_map[match] = class_id
+    #         matched_mask |= match
+    #
+    #     # Set unmatched pixels to black in the original RGB mask
+    #     mask_rgb[~matched_mask] = (0, 0, 0)
+    #
+    #     return class_map
 
 
 class SegmentationPresetTrain:

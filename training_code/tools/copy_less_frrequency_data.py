@@ -1,0 +1,93 @@
+import cv2
+import os
+import numpy as np
+import shutil
+
+# Color map
+COLOR_MAP = {
+    (0, 0, 0): 0,  # Black   - Background
+    (255, 0, 0): 1,  # Red     - Alligator
+    (0, 0, 255): 2,  # Blue    - Transverse Crack
+    (0, 255, 0): 3,  # Green   - Longitudinal Crack
+    (255, 0, 255): 4,  # Magenta - Multiple Crack
+    (255, 204, 0): 5,  # Yellow  - Joint Seal
+    (0, 42, 255): 6  # Orange  - Pothole
+}
+
+# Target classes
+target_classes = {2, 4}  # Blue and Magenta
+
+# Colors corresponding to target classes (RGB)
+target_colors = [color for color, cls in COLOR_MAP.items() if cls in target_classes]
+
+# Paths
+mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_MASKS_CLEANED"  # change to your folder
+output_mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_MASKS_CLEANED"
+image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_IMAGES"
+output_image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_IMAGES"
+
+matching_images = []
+"""
+for filename in os.listdir(mask_folder):
+    if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+        path = os.path.join(mask_folder, filename)
+
+        # Read as RGB
+        img = cv2.imread(path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        # Check if any target color is present
+        found = False
+        for color in target_colors:
+            if np.any(np.all(img == color, axis=-1)):
+                found = True
+                break
+
+        if found:
+            matching_images.append(filename)
+
+print("Images matching classes 2 or 4:")
+for name in matching_images:
+    print(name)
+
+print(f"Total: {len(matching_images)} images found.")
+"""
+
+
+
+# Find matching masks
+for filename in os.listdir(mask_folder):
+    if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+        mask_path = os.path.join(mask_folder, filename)
+
+        # Read mask in RGB
+        mask = cv2.imread(mask_path)
+        mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
+
+        # Check for target colors
+        if any(np.any(np.all(mask == color, axis=-1)) for color in target_colors):
+            matching_images.append(filename)
+
+for filename in matching_images:
+    mask_src = os.path.join(mask_folder, filename)
+    image_src = os.path.join(image_folder, filename)
+
+    if not os.path.exists(image_src):
+        print(f"⚠ Image for {filename} not found, skipping.")
+        continue
+
+    name, ext = os.path.splitext(filename)
+
+    # Mask copies
+    shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy1{ext}"))
+    shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy2{ext}"))
+
+    # Image copies
+    shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy1{ext}"))
+    shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy2{ext}"))
+
+print(f"✅ Done! {len(matching_images)} masks and images copied (with duplicates).")
+
+print(f"✅ Done! {len(matching_images)} matching masks found.")
+print(f"Copied masks to: {output_mask_folder}")
+print(f"Copied images to: {output_image_folder}")
