@@ -51,8 +51,10 @@ def main():
     # load image
 
     imgs_root = r"D:\AMRAVTI-TALEGAON_2025-06-09_06-38-51\SECTION-5\process_distress"
+    imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\segmentation_dataset_08_aug"
     images_list = os.listdir(imgs_root)
-    prediction_save_path = r"D:\AMRAVTI-TALEGAON_2025-06-09_06-38-51\SECTION-5\process_distress_results"
+    images_list = [img for img in images_list if img.lower().endswith(('.png', '.jpg', '.jpeg'))]
+    prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\segmentation_dataset_08_aug\predictions"
     os.makedirs(prediction_save_path, exist_ok=True)
 
     # create model

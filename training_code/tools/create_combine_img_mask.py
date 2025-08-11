@@ -11,11 +11,7 @@ os.makedirs(output_images, exist_ok=True)
 os.makedirs(output_masks, exist_ok=True)
 
 # Contributors and their folders
-contributors = ["Ankit", "Devendra",
-                "Gaurav", "Jayesh", "Payal",
-                "Sagar", "sam", "Sanket",
-                "Saurav", "Shiva",
-                "Vishwas"]
+contributors = ["segmentation_dataset_08_aug"]
 
 for name in contributors:
     img_dir = os.path.join(base_path, name)

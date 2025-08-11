@@ -17,14 +17,15 @@ COLOR_MAP = {
 known_colors = np.array(list(COLOR_MAP.keys()), dtype=np.uint8)  # shape: (N, 3)
 
 # Input and output folders
-input_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_MASKS"
-output_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_MASKS_CLEANED"
+input_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\segmentation_dataset_08_aug\Annotation 8 august 2025\Tanishq\Masks"
+output_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\segmentation_dataset_08_aug\Annotation 8 august 2025\Tanishq\Masks"
 os.makedirs(output_folder, exist_ok=True)
-
 # Process all images
 for fname in os.listdir(input_folder):
     if fname.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
+
         fpath = os.path.join(input_folder, fname)
+
         image_bgr = cv2.imread(fpath)
         if image_bgr is None:
             continue

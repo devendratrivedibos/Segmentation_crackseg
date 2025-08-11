@@ -11,8 +11,8 @@ except ImportError:
     use_tqdm = False
 
 # Folder path
-mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_MASKS_CLEANED"
-# mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\Devendra\Masks"
+# mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_MASKS_CLEANED"
+mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\segmentation_dataset_08_aug\Annotation 8 august 2025\Masks"
 # Color map (RGB) → ID
 COLOR_MAP = {
     (0, 0, 0): 0,           # Black   - Background     1097
@@ -21,7 +21,8 @@ COLOR_MAP = {
     (0, 255, 0): 3,         # Green   - Longitudinal Crack    489
     (255, 0, 255): 4,       # Magenta - Multiple Crack        136
     (255, 204, 0): 5,       # Yellow  - Joint Seal            2
-    (0, 42, 255): 6         # Orange  - Pothole
+    (0, 42, 255): 6,         # Orange  - Pothole
+    (255,255,255):7
 }
 
 # Track count of how many images each ID appears in
@@ -75,6 +76,8 @@ for cid in sorted(id_image_count):
 if invalid_color_files:
     print("\n⚠️ Files with unknown colors:")
     for fname, colors in invalid_color_files.items():
-        print(f"{fname}: {sorted(colors)}")
+        print(f"{fname} ))#: {sorted(colors)}")
+
+        # print(fname)
 else:
     print("\n✅ All images use only valid colors.")
