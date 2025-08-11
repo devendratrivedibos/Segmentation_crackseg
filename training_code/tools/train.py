@@ -12,7 +12,7 @@ sys.path.append(os.path.join(project_root, '..'))
 from pathlib import Path
 
 from torch.utils.data import DataLoader
-from train_utils.train_and_eval import train_one_epoch, evaluate, create_lr_scheduler
+from train_utils.train_and_eval_1 import train_one_epoch, evaluate, create_lr_scheduler
 from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
 import train_utils.transforms as T
 from train_utils.utils import plot, show_config
@@ -30,7 +30,7 @@ from models.unet.UnetPP import UNetPP
 
 # Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'SegFormer_8aug'  # Change this to your desired output path
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'SegFormer_9augFocal'  # Change this to your desired output path
 model_name = "seg_b5"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
@@ -47,15 +47,11 @@ def get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
 def create_model(aux, num_classes, pretrained=True):
     # model = deeplabv3_resnet50(aux=aux, num_classes=num_classes)
     # model = fcn_resnet50(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
-    # model = deeplabv3_resnet101(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
+    model = deeplabv3_resnet101(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
     # model = deeplabv3_mobilenetv3_large(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
-    model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
-    # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
-    # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
-    # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
-    # model = UNetPP(in_channels=3, num_classes=num_classes)
+
     if args.pretrained_weights != "":
-        weights_dict = torch.load(args.pretrained_weights, map_location=device)
+        weights_dict = torch.load(args.pretrained_weights, map_location='cpu')
         for k in list(weights_dict.keys()):
             if "classifier.4" in k:
                 del weights_dict[k]
@@ -100,7 +96,15 @@ def main(args):
                             pin_memory=True,
                             collate_fn=val_dataset.collate_fn)
 
-    # unique_colors = set()
+    model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
+    # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
+    # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
+    # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
+    # model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
+    # model = UNetPP(in_channels=3, num_classes=num_classes)
+    model.to(device)
+    unique_colors = set()
+
     # for idx in range(len(train_dataset)):
     #     mask_path = train_dataset.masks_path[idx]
     #     mask = cv2.imread(mask_path, cv2.IMREAD_COLOR)  # <-- Load as color
@@ -113,8 +117,7 @@ def main(args):
     # for color in sorted(unique_colors):
     #     print(color)
 
-    model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
-    model.to(device)
+
 
     if args.pretrained_weights != "":
         assert os.path.exists(args.pretrained_weights), "weights file: '{}' not exist.".format(args.pretrained_weights)
@@ -154,6 +157,7 @@ def main(args):
 
     scaler = torch.cuda.amp.GradScaler() if args.amp else None
 
+    # 创建学习率更新策略，这里是每个step更新一次(不是每个epoch)
     lr_scheduler = create_lr_scheduler(optimizer, len(train_loader), args.epochs, warmup=True, warmup_epochs=20)
 
     if args.resume:
@@ -182,7 +186,7 @@ def main(args):
         'momentum': args.momentum,
         'weight_decay': args.weight_decay,
         'batch_size': args.batch_size,
-        'img_size': '1024 * 419',
+        'img_size': '512 * 512',
         'start_epoch': args.start_epoch,
         'epochs': args.epochs,
         "warmup_epochs: 20\n"
@@ -199,6 +203,7 @@ def main(args):
             f.write(f"{key}: {value}\n")
         f.write("\n\n")
 
+    # 训练过程可视化
     train_loss = []
     dice_coefficient = []
     img_save_path = OUTPUT_SAVE_PATH /"{}-visualization.svg".format(model_name)
@@ -226,13 +231,14 @@ def main(args):
         print(f"training epoch {epoch} time {one_epoch_time}")
         # write into txt
         with open(results_file, "a") as f:
-            train_info = f"[epoch: {epoch}]\n" \
-                         f"train_loss: {mean_loss:.4f}\n" \
-                         f"lr: {lr:.8f}\n" \
-                         f"dice coefficient: {dice:.3f}\n" \
-                         f"epoch time: {one_epoch_time}\n"
+            # 记录每个epoch对应的train_loss、lr以及验证集各指标
+            train_info =f"[epoch: {epoch}]\n" \
+                        f"train_loss: {mean_loss:.4f}\n" \
+                        f"lr: {lr:.8f}\n" \
+                        f"dice coefficient: {dice:.3f}\n" \
+                        f"epoch time: {one_epoch_time}\n"
             f.write(train_info + val_info + "\n\n")
-
+            
         if args.save_best is True:
             if best_dice < dice:
                 best_dice = dice
@@ -243,7 +249,6 @@ def main(args):
                     f.write(train_info + val_info)
             else:
                 continue
-
         # if args.save_best is True:
         #     torch.save(model.state_dict(), OUTPUT_SAVE_PATH/"{}-best_model.pth".format(model_name))
         #     best_model_info = OUTPUT_SAVE_PATH /"{}-best_model_info.txt".format(model_name)
@@ -262,7 +267,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"W:/cracks/Semantic-Segmentation of pavement distress dataset/Combined/DATASET_SPLIT",
+                        default=r"D:/Devendra_Files/DATASET_SPLIT",
                         help="root")
     parser.add_argument("--num-classes", default=5, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")

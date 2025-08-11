@@ -220,25 +220,8 @@ def main(args):
 
         train_loss.append(mean_loss)
         dice_coefficient.append(dice)
-        # plot(train_loss, dice_coefficient, img_save_path)
+        plot(train_loss, dice_coefficient, img_save_path)
 
-        print("VALINFO", val_info)
-        print(f"dice coefficient: {dice:.3f}")
-
-        epoch_end_time = time.time()
-        one_epoch_time = epoch_end_time - epoch_start_time
-        one_epoch_time = str(datetime.timedelta(seconds=int(one_epoch_time)))
-        print(f"training epoch {epoch} time {one_epoch_time}")
-        # write into txt
-        with open(results_file, "a") as f:
-            # 记录每个epoch对应的train_loss、lr以及验证集各指标
-            train_info =f"[epoch: {epoch}]\n" \
-                        f"train_loss: {mean_loss:.4f}\n" \
-                        f"lr: {lr:.8f}\n" \
-                        f"dice coefficient: {dice:.3f}\n" \
-                        f"epoch time: {one_epoch_time}\n"
-            f.write(train_info + val_info + "\n\n")
-            
         if args.save_best is True:
             if best_dice < dice:
                 best_dice = dice
@@ -249,7 +232,22 @@ def main(args):
                     f.write(train_info + val_info)
             else:
                 continue
+        print("VALINFO", val_info)
+        print(f"dice coefficient: {dice:.3f}")
 
+        epoch_end_time = time.time()
+        one_epoch_time = epoch_end_time - epoch_start_time
+        one_epoch_time = str(datetime.timedelta(seconds=int(one_epoch_time)))
+        print(f"training epoch {epoch} time {total_time_str}")
+        # write into txt
+        with open(results_file, "a") as f:
+            # 记录每个epoch对应的train_loss、lr以及验证集各指标
+            train_info =f"[epoch: {epoch}]\n" \
+                        f"train_loss: {mean_loss:.4f}\n" \
+                        f"lr: {lr:.8f}\n" \
+                        f"dice coefficient: {dice:.3f}\n" \
+                        f"epoch time: {one_epoch_time}\n"
+            f.write(train_info + val_info + "\n\n")
         # if args.save_best is True:
         #     torch.save(model.state_dict(), OUTPUT_SAVE_PATH/"{}-best_model.pth".format(model_name))
         #     best_model_info = OUTPUT_SAVE_PATH /"{}-best_model_info.txt".format(model_name)
@@ -268,7 +266,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r":/cracks/Semantic-Segmentation of pavement distress dataset/Combined/DATASET_SPLIT",
+                        default=r"T:/cracks/Semantic-Segmentation of pavement distress dataset/Combined/DATASET_SPLIT",
                         help="root")
     parser.add_argument("--num-classes", default=5, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")

@@ -4,15 +4,15 @@ from models.segformer.segformer import SegFormer  # Adjust path if it's elsewher
 from models.unet.UnetPP import UNetPP  # Adjust path if it's elsewhere
 
 # ---- Configuration ----
-pth_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNETPP_8aug\UnetPP_8aug_best_epoch14_dice0.731.pth"  # Your .pth file
-onnx_path = r'D:\Devendra_Files\CrackSegFormer-main\weights\UNETPP_8aug\unetpp_onnx_8aug.onnx'  # Where to save .onnx
+pth_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNETPP_9aug\UnetPP_9aug_best_epoch136_dice0.712.pth"  # Your .pth file
+onnx_path = r'D:\Devendra_Files\CrackSegFormer-main\weights\UNETPP_9aug\UnetPP_9aug.onnx'  # Where to save .onnx
 num_classes = 6  # Background + your target classes (adjust as needed)
 phi = 'b5'  # Or 'b0', 'b1', etc.
 # img_size = 512  # Input size expected by your model (or as used in training)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # ---- Model Preparation ----
-# model = SegFormer(num_classes=num_classes, phi=phi, pretrained=False)
+# model = UNetPP(num_classes=num_classes, phi=phi, pretrained=False)
 model = UNetPP(in_channels=3, num_classes=num_classes)
 model = model.to(device)
 model.eval()
@@ -62,9 +62,10 @@ img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 # 3. Normalize as during training (use your mean/std)
 img = img.astype(np.float32) / 255.0
-mean = [0.485, 0.456, 0.406]
-std = [0.229, 0.224, 0.225]
-
+# mean = [0.485, 0.456, 0.406]
+# std = [0.229, 0.224, 0.225]
+mean = [0.473, 0.493, 0.504]
+std = [0.100, 0.100, 0.099]
 mean = np.array(mean)
 std = np.array(std)
 img = (img - mean) / std
@@ -85,22 +86,7 @@ mask = np.argmax(output[0], axis=0).astype(np.uint8)  # Shape: [H, W]
 
 # 8. (Optional) Map mask to colors for visualization
 # Example: for 2 classes, background=0 (black), crack=1 (white)
-CLASS_COLOR_MAP = {
-    0: [0, 0, 0],  # background: black
-    1: [255, 0, 0],  # red (BGR) for class 1
-    2: [0, 0, 255],  # Blue     Transverse Crack
-    3: [0, 255, 0],  # Green    Longitudinal Crack
-    4: [255, 0, 255],  ## Magenta  Multiple Crack
-    5: [255, 204, 0],  # Yellow   Joint Seal
-    6: [0, 42, 255],  # Orange   Pothole
-}
-colors = np.array([[0, 0, 0],
-                   [255, 255, 255],
-                   [0, 0, 255],
-                   [0, 255, 0],
-                   [255, 0, 255],
-                   [255, 204, 0],
-                   [0, 42, 255]], dtype=np.uint8)
+colors = np.array([[0, 0, 0], [255, 255, 255]], dtype=np.uint8)
 output_img = colors[mask]
 
 cv2.imwrite("D:/segformer_onnx_prediction.png", cv2.cvtColor(output_img, cv2.COLOR_RGB2BGR))

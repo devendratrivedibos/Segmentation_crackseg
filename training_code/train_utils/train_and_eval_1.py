@@ -4,20 +4,75 @@ from . import distributed_utils as utils
 from .dice_coefficient_loss import dice_loss, build_target
 
 
-def criterion(inputs, target, loss_weight=None, num_classes: int = 2, dice: bool = True, ignore_index: int = -100):
+class FocalLoss(nn.Module):
+    """
+    Focal Loss for multi-class segmentation.
+    """
+    def __init__(self, alpha=None, gamma=2.0, ignore_index=-100, reduction='mean'):
+        super(FocalLoss, self).__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+        self.ignore_index = ignore_index
+        self.reduction = reduction
+
+    def forward(self, inputs, targets):
+        # inputs: (N, C, H, W)
+        # targets: (N, H, W)
+        ce_loss = nn.functional.cross_entropy(
+            inputs, targets,
+            weight=self.alpha,
+            ignore_index=self.ignore_index,
+            reduction='none'
+        )
+        pt = torch.exp(-ce_loss)  # p_t = e^(-CE)
+        focal_loss = ((1 - pt) ** self.gamma) * ce_loss
+
+        if self.reduction == 'mean':
+            return focal_loss.mean()
+        elif self.reduction == 'sum':
+            return focal_loss.sum()
+        else:
+            return focal_loss
+
+
+def criterion(inputs, target, loss_weight=None, num_classes: int = 2,
+              use_ce: bool = True, use_focal: bool = False, use_dice: bool = True,
+              focal_gamma: float = 2.0, ignore_index: int = -100):
+    """
+    Flexible criterion to enable/disable CrossEntropy, FocalLoss, and DiceLoss.
+    """
     losses = {}
+    focal_loss_fn = FocalLoss(alpha=loss_weight, gamma=focal_gamma, ignore_index=ignore_index)
+
     for name, x in inputs.items():
-        # 忽略target中值为255的像素，255的像素是目标边缘或者padding填充
-        loss = nn.functional.cross_entropy(x, target, ignore_index=ignore_index, weight=loss_weight)
-        if dice is True:
+        total_loss = 0.0
+
+        # CrossEntropy Loss
+        if use_ce:
+            ce_loss = nn.functional.cross_entropy(
+                x, target,
+                ignore_index=ignore_index,
+                weight=loss_weight
+            )
+            total_loss += ce_loss
+
+        # Focal Loss
+        if use_focal:
+            fl = focal_loss_fn(x, target)
+            total_loss += fl
+
+        # Dice Loss
+        if use_dice:
             dice_target = build_target(target, num_classes, ignore_index)
-            loss += dice_loss(x, dice_target, multiclass=True, ignore_index=ignore_index)
-        losses[name] = loss
+            dl = dice_loss(x, dice_target, multiclass=True, ignore_index=ignore_index)
+            total_loss += dl
+
+        losses[name] = total_loss
 
     if len(losses) == 1:
         return losses['out']
-
     return losses['out'] + 0.5 * losses['aux']
+
 
 
 def evaluate(model, data_loader, device, num_classes):
@@ -41,32 +96,33 @@ def evaluate(model, data_loader, device, num_classes):
     return confmat, dice.value.item()
 
 
-def train_one_epoch(model, optimizer, data_loader, device, epoch, num_classes, lr_scheduler, print_freq=10,
-                    scaler=None):
+def train_one_epoch(model, optimizer, data_loader, device, epoch, num_classes, lr_scheduler,
+                    print_freq=10, scaler=None):
     model.train()
     metric_logger = utils.MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
     header = 'Epoch: [{}]'.format(epoch)
 
     if num_classes == 2:
-        # 设置cross_entropy中背景和前景的loss权重(根据自己的数据集进行设置)
         loss_weight = torch.as_tensor([1.0, 1.0], device=device)
     else:
-        # loss_weight = None
+        # Example: adjust weights according to dataset
         loss_weight = torch.tensor([
             0.3,  # Background
             1.0,  # Alligator
             1.2,  # Transverse
             1.2,  # Longitudinal
             1.2,  # Multiple
-            5.0  # Joint Seal
+            5.0   # Joint Seal
         ], dtype=torch.float32).to(device)
 
     for image, target in metric_logger.log_every(data_loader, print_freq, header):
         image, target = image.to(device), target.to(device)
         with torch.cuda.amp.autocast(enabled=scaler is not None):
             output = model(image)
-            loss = criterion(output, target, loss_weight, num_classes=num_classes, ignore_index=255)
+            loss = criterion(output, target, loss_weight, num_classes=num_classes,
+                            use_ce=False, use_focal=True, use_dice=True,
+                            ignore_index=255, focal_gamma=2.0)
 
         optimizer.zero_grad()
         if scaler is not None:
@@ -96,17 +152,11 @@ def create_lr_scheduler(optimizer,
         warmup_epochs = 0
 
     def f(x):
-        """
-        根据step数返回一个学习率倍率因子，
-        注意在训练开始之前，pytorch会提前调用一次lr_scheduler.step()方法
-        """
         if warmup is True and x <= (warmup_epochs * num_step):
             alpha = float(x) / (warmup_epochs * num_step)
-            # warmup过程中lr倍率因子从warmup_factor -> 1
             return warmup_factor * (1 - alpha) + alpha
         else:
-            # warmup后lr倍率因子从1 -> 0
-            # 参考deeplab_v2: Learning rate policy
-            return (1 - (x - warmup_epochs * num_step) / ((epochs - warmup_epochs) * num_step)) ** 0.9
+            return (1 - (x - warmup_epochs * num_step) /
+                    ((epochs - warmup_epochs) * num_step)) ** 0.9
 
     return torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=f)
