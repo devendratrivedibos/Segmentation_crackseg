@@ -6,9 +6,9 @@ from PIL import Image
 from collections import defaultdict
 
 # --- Paths ---
-root_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\segmentation_dataset_08_aug\Annotation 8 august 2025\Payal"
-image_folder = os.path.join(root_folder, "project-5-at-2025-08-08-20-40-b5b0ed14")
-csv_file = os.path.join(root_folder, "project-5-at-2025-08-08-20-39-b5b0ed14.csv")
+root_folder = r"X:\DataSet\15\ANKIT ANNOTATION 13.08.2025"
+image_folder = os.path.join(root_folder, "project-12-at-2025-08-14-10-17-0803421a")
+csv_file = os.path.join(root_folder, "project-12-at-2025-08-14-10-17-0803421a.csv")
 output_folder = os.path.join(root_folder, "Masks")
 os.makedirs(output_folder, exist_ok=True)
 
@@ -74,7 +74,7 @@ def combine_mask_images_color(image_files, folder):
         img_array = np.array(img)
 
         # Binary threshold to avoid stray values
-        mask_nonzero = img_array > 127
+        mask_nonzero = img_array > 0
 
         if base_img is None:
             base_img = np.zeros((*img_array.shape, 3), dtype=np.uint8)
@@ -88,6 +88,9 @@ for task_prefix, files in files_by_task.items():
     combined_mask = combine_mask_images_color(files, image_folder)
     if combined_mask:
         save_name = result_mapping.get(files[0], files[0])
+        # Force PNG extension
+        base_name, _ = os.path.splitext(save_name)
+        save_name = base_name + ".png"
         save_path = os.path.join(output_folder, save_name)
         combined_mask.save(save_path, format='PNG')  # No interpolation
         print(f"Saved: {save_name}")

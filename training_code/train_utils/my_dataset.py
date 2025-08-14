@@ -36,10 +36,14 @@ class CrackDataset(Dataset):
 
         self.images_path = [os.path.join(imgs_root, i) for i in self.images_list]
 
-        self.masks_path = [os.path.join(masks_root, i) for i in self.images_list]  # same_name
+        # self.masks_path = [os.path.join(masks_root, i) for i in self.images_list]  # same_name
 
-        # self.masks_path = [os.path.join(masks_root, os.path.splitext(i)[0] + '.png')
-        #                     for i in self.images_list]
+        # Build a lookup dictionary for masks (key = base name without extension)
+
+        self.masks_path = [os.path.join(masks_root, os.path.splitext(i)[0] + '.png')
+                            for i in self.images_list]
+        print("LEN IMAGES:", len(self.images_path))
+        print("LEN MASKS:", len(self.masks_path))
         assert (len(self.images_path) == len(self.masks_path))
 
         self.transforms = transforms
@@ -81,45 +85,12 @@ class CrackDataset(Dataset):
             class_map[match] = class_id
         return class_map
 
-    # def rgb_to_class_id(self, mask_rgb, color2id):
-    #     # Create a blank class map
-    #     class_map = np.zeros(mask_rgb.shape[:2], dtype=np.uint8)
-    #
-    #     # Create a mask to track which pixels have been matched
-    #     matched_mask = np.zeros(mask_rgb.shape[:2], dtype=bool)
-    #
-    #     for color, class_id in color2id.items():
-    #         color_arr = np.array(color, dtype=np.uint8)
-    #         match = np.all(mask_rgb == color_arr, axis=-1)
-    #         class_map[match] = class_id
-    #         matched_mask |= match
-    #
-    #     # Set unmatched pixels to black in the original RGB mask
-    #     mask_rgb[~matched_mask] = (0, 0, 0)
-    #
-    #     return class_map
-
 
 class SegmentationPresetTrain:
     def __init__(self, img_size, mean, std):
-        # trans = [T.Resize(img_size),]
-        # # trans = []
-        # if hflip_prob > 0:
-        #     trans.append(T.RandomHorizontalFlip(0.3))
-        #     trans.append(T.RandomVerticalFlip(0.3))
-        # trans.extend([
-        #     # T.RandomCrop(crop_size),
-        #     T.ToTensor(),
-        #     T.Normalize(mean=mean, std=std),
-        # ])
-        # self.transforms = T.Compose(trans)
-
         self.transforms = A.Compose([
-            # A.Resize(img_size, img_size),
             A.HorizontalFlip(p=0.2),
             A.VerticalFlip(p=0.2),
-            A.RandomRotate90(p=0.2),
-            A.ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.1, rotate_limit=30, p=0.5, border_mode=0),
             A.RandomBrightnessContrast(p=0.2),
             A.GaussNoise(var_limit=(10.0, 40.0), p=0.3),
             A.Blur(blur_limit=3, p=0.2),
@@ -137,25 +108,17 @@ class SegmentationPresetTrain:
 
 class SegmentationPresetEval:
     def __init__(self, img_size, mean, std):
-        # self.transforms = T.Compose([
-        #     T.Resize(img_size),
-        #     T.ToTensor(),
-        #     T.Normalize(mean=mean, std=std),
-        # ])
         self.transforms = A.Compose([
-            # A.Resize(img_size, img_size),
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ])
 
     def __call__(self, img, target):
-        # return self.transforms(img, target)
         result = self.transforms(image=img, mask=target)
         return result
 
 
 def cat_list(images, fill_value=0):
-    # 计算该batch数据中,channel,h,w的最大值
     max_size = tuple(max(s) for s in zip(*[img.shape for img in images]))
     batch_shape = (len(images),) + max_size
     batched_imgs = images[0].new(*batch_shape).fill_(fill_value)

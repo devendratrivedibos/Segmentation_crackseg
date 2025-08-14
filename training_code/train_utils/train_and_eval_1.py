@@ -74,7 +74,6 @@ def criterion(inputs, target, loss_weight=None, num_classes: int = 2,
     return losses['out'] + 0.5 * losses['aux']
 
 
-
 def evaluate(model, data_loader, device, num_classes):
     model.eval()
     confmat = utils.ConfusionMatrix(num_classes)
@@ -82,7 +81,7 @@ def evaluate(model, data_loader, device, num_classes):
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Test:'
     with torch.no_grad():
-        for image, target in metric_logger.log_every(data_loader, 100, header):
+        for image, target in metric_logger.log_every(data_loader, 50, header):
             image, target = image.to(device), target.to(device)
             output = model(image)
             output = output['out']
@@ -108,12 +107,12 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, num_classes, l
     else:
         # Example: adjust weights according to dataset
         loss_weight = torch.tensor([
-            0.3,  # Background
-            1.0,  # Alligator
-            1.2,  # Transverse
-            1.2,  # Longitudinal
-            1.2,  # Multiple
-            5.0   # Joint Seal
+            0.1480,  # Background
+            4.8054,  # Alligator
+            544.9000,  # Transverse
+            38.5770,  # Longitudinal
+            136.5000,  # Multiple
+            5784.7000  # Joint Seal
         ], dtype=torch.float32).to(device)
 
     for image, target in metric_logger.log_every(data_loader, print_freq, header):
@@ -121,7 +120,7 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, num_classes, l
         with torch.cuda.amp.autocast(enabled=scaler is not None):
             output = model(image)
             loss = criterion(output, target, loss_weight, num_classes=num_classes,
-                            use_ce=False, use_focal=True, use_dice=True,
+                            use_ce=True, use_focal=False, use_dice=True,
                             ignore_index=255, focal_gamma=2.0)
 
         optimizer.zero_grad()

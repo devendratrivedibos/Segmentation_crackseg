@@ -4,8 +4,8 @@ from models.segformer.segformer import SegFormer  # Adjust path if it's elsewher
 from models.unet.UnetPP import UNetPP  # Adjust path if it's elsewhere
 
 # ---- Configuration ----
-pth_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNETPP_9aug\UnetPP_9aug_best_epoch136_dice0.712.pth"  # Your .pth file
-onnx_path = r'D:\Devendra_Files\CrackSegFormer-main\weights\UNETPP_9aug\UnetPP_9aug.onnx'  # Where to save .onnx
+pth_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_hybrid\UNET_V2_best_epoch117_dice0.729.pth"  # Your .pth file
+onnx_path = r'D:\Devendra_Files\CrackSegFormer-main\weights\UNET_hybrid\UnetPP_14aug.onnx'  # Where to save .onnx
 num_classes = 6  # Background + your target classes (adjust as needed)
 phi = 'b5'  # Or 'b0', 'b1', etc.
 # img_size = 512  # Input size expected by your model (or as used in training)

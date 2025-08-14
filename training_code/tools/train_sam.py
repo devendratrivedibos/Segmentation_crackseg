@@ -12,7 +12,7 @@ sys.path.append(os.path.join(project_root, '..'))
 from pathlib import Path
 
 from torch.utils.data import DataLoader
-from train_utils.train_and_eval import train_one_epoch, evaluate, create_lr_scheduler
+from train_utils.train_and_eval_1 import train_one_epoch, evaluate, create_lr_scheduler
 from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
 import train_utils.transforms as T
 from train_utils.utils import plot, show_config
@@ -30,8 +30,8 @@ from models.unet.UnetPP import UNetPP
 
 # Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNETPP_8aug'  # Change this to your desired output path
-model_name = "UnetPP_8aug"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_weighttensor'  # Change this to your desired output path
+model_name = "UNET_V2"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -47,20 +47,23 @@ def get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
 def create_model(aux, num_classes, pretrained=True):
     # model = deeplabv3_resnet50(aux=aux, num_classes=num_classes)
     # model = fcn_resnet50(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
-    model = deeplabv3_resnet101(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
+    # model = deeplabv3_resnet101(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
     # model = deeplabv3_mobilenetv3_large(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
-
-    if args.pretrained_weights != "":
-        weights_dict = torch.load(args.pretrained_weights, map_location='cpu')
-        for k in list(weights_dict.keys()):
-            if "classifier.4" in k:
-                del weights_dict[k]
-
-        missing_keys, unexpected_keys = model.load_state_dict(weights_dict, strict=False)
-        if len(missing_keys) != 0 or len(unexpected_keys) != 0:
-            print("missing_keys: ", missing_keys)
-            print("unexpected_keys: ", unexpected_keys)
-
+    # model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
+    # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
+    # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
+    # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
+    model = UNetPP(in_channels=3, num_classes=num_classes)
+    # if args.pretrained_weights != "":
+    #     weights_dict = torch.load(args.pretrained_weights, map_location='cpu')
+    #     for k in list(weights_dict.keys()):
+    #         if "classifier.4" in k:
+    #             del weights_dict[k]
+    #
+    #     missing_keys, unexpected_keys = model.load_state_dict(weights_dict, strict=False)
+    #     if len(missing_keys) != 0 or len(unexpected_keys) != 0:
+    #         print("missing_keys: ", missing_keys)
+    #         print("unexpected_keys: ", unexpected_keys)
     return model
 
 
@@ -70,8 +73,11 @@ def main(args):
     # segmentation nun_classes + background
     num_classes = args.num_classes + 1
 
-    mean = (0.473, 0.493, 0.504)
-    std = (0.100, 0.100, 0.099)
+    # mean = (0.473, 0.493, 0.504)
+    # std = (0.100, 0.100, 0.099)
+
+    mean = (0.493, 0.493, 0.493)
+    std = (0.144, 0.144, 0.144)
 
     num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
 
@@ -91,20 +97,15 @@ def main(args):
                               collate_fn=train_dataset.collate_fn)
 
     val_loader = DataLoader(val_dataset,
-                            batch_size=1,  # 不为1时报错,可能是transform的设置问题
+                            batch_size=1,
                             num_workers=num_workers,
                             pin_memory=True,
                             collate_fn=val_dataset.collate_fn)
 
-    model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
-    # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
-    # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
-    # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
-    # model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
-    model = UNetPP(in_channels=3, num_classes=num_classes)
+    model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
     model.to(device)
-    unique_colors = set()
 
+    # unique_colors = set()
     # for idx in range(len(train_dataset)):
     #     mask_path = train_dataset.masks_path[idx]
     #     mask = cv2.imread(mask_path, cv2.IMREAD_COLOR)  # <-- Load as color
@@ -116,7 +117,6 @@ def main(args):
     # print("Unique RGB colors in all masks:", unique_colors)
     # for color in sorted(unique_colors):
     #     print(color)
-
 
 
     if args.pretrained_weights != "":
@@ -137,7 +137,6 @@ def main(args):
 
     params_to_optimize = [p for p in model.parameters() if p.requires_grad]
 
-    # # fcn,deeplabv3优化参数
     # params_to_optimize = [
     #     {"params": [p for p in model.backbone.parameters() if p.requires_grad]},
     #     {"params": [p for p in model.classifier.parameters() if p.requires_grad]}
@@ -157,8 +156,7 @@ def main(args):
 
     scaler = torch.cuda.amp.GradScaler() if args.amp else None
 
-    # 创建学习率更新策略，这里是每个step更新一次(不是每个epoch)
-    lr_scheduler = create_lr_scheduler(optimizer, len(train_loader), args.epochs, warmup=True, warmup_epochs=20)
+    lr_scheduler = create_lr_scheduler(optimizer, len(train_loader), args.epochs, warmup=True, warmup_epochs=10)
 
     if args.resume:
         checkpoint = torch.load(args.resume, map_location='cuda:0')
@@ -203,7 +201,6 @@ def main(args):
             f.write(f"{key}: {value}\n")
         f.write("\n\n")
 
-    # 训练过程可视化
     train_loss = []
     dice_coefficient = []
     img_save_path = OUTPUT_SAVE_PATH /"{}-visualization.svg".format(model_name)
@@ -220,8 +217,24 @@ def main(args):
 
         train_loss.append(mean_loss)
         dice_coefficient.append(dice)
-        plot(train_loss, dice_coefficient, img_save_path)
+        # plot(train_loss, dice_coefficient, img_save_path)
 
+        print("VALINFO", val_info)
+        print(f"dice coefficient: {dice:.3f}")
+
+        epoch_end_time = time.time()
+        one_epoch_time = epoch_end_time - epoch_start_time
+        one_epoch_time = str(datetime.timedelta(seconds=int(one_epoch_time)))
+        print(f"training epoch {epoch} time {one_epoch_time}")
+        # write into txt
+        with open(results_file, "a") as f:
+            train_info =f"[epoch: {epoch}]\n" \
+                        f"train_loss: {mean_loss:.4f}\n" \
+                        f"lr: {lr:.8f}\n" \
+                        f"dice coefficient: {dice:.3f}\n" \
+                        f"epoch time: {one_epoch_time}\n"
+            f.write(train_info + val_info + "\n\n")
+            
         if args.save_best is True:
             if best_dice < dice:
                 best_dice = dice
@@ -232,22 +245,6 @@ def main(args):
                     f.write(train_info + val_info)
             else:
                 continue
-        print("VALINFO", val_info)
-        print(f"dice coefficient: {dice:.3f}")
-
-        epoch_end_time = time.time()
-        one_epoch_time = epoch_end_time - epoch_start_time
-        one_epoch_time = str(datetime.timedelta(seconds=int(one_epoch_time)))
-        print(f"training epoch {epoch} time {total_time_str}")
-        # write into txt
-        with open(results_file, "a") as f:
-            # 记录每个epoch对应的train_loss、lr以及验证集各指标
-            train_info =f"[epoch: {epoch}]\n" \
-                        f"train_loss: {mean_loss:.4f}\n" \
-                        f"lr: {lr:.8f}\n" \
-                        f"dice coefficient: {dice:.3f}\n" \
-                        f"epoch time: {one_epoch_time}\n"
-            f.write(train_info + val_info + "\n\n")
         # if args.save_best is True:
         #     torch.save(model.state_dict(), OUTPUT_SAVE_PATH/"{}-best_model.pth".format(model_name))
         #     best_model_info = OUTPUT_SAVE_PATH /"{}-best_model_info.txt".format(model_name)
@@ -266,7 +263,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"T:/cracks/Semantic-Segmentation of pavement distress dataset/Combined/DATASET_SPLIT",
+                        default=r"W:/cracks/Semantic-Segmentation of pavement distress dataset/Combined/DATASET_V2/DATASET_SPLIT",
                         help="root")
     parser.add_argument("--num-classes", default=5, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
@@ -277,16 +274,16 @@ def parse_args():
                         help='pretrained weights path')
 
     parser.add_argument('--optimizer-type', default="adamw")
-    parser.add_argument('--lr', default=0.001, type=float, help='initial learning rate') #0.00006
-    parser.add_argument('--warmup-epochs', default=20, type=int)
+    parser.add_argument('--lr', default=0.0001, type=float, help='initial learning rate') #0.00006
+    parser.add_argument('--warmup-epochs', default=10, type=int)
     parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                         help='momentum')
-    parser.add_argument('--wd', '--weight-decay', default=1e-2, type=float,
+    parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
 
     parser.add_argument("-b", "--batch-size", default=4, type=int)
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
-    parser.add_argument("--epochs", default=200, type=int, metavar="N",
+    parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")
     parser.add_argument('--print-freq', default=1, type=int, help='print frequency')
 

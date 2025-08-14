@@ -3,15 +3,15 @@ import shutil
 import random
 
 # Paths
-images_dir = r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_IMAGES'
-masks_dir = r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_MASKS_CLEANED'
-output_base = r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_SPLIT'
-split_ratio = 0.85  # 80% train, 20% val
+images_dir = r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\DATASET_IMAGES_COPY'
+masks_dir = r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\DATASET_MASKS_COPY'
+output_base = r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\DATASET_SPLIT'
+split_ratio = 0.80  # 80% train, 20% val
 
 # Get matching base filenames (only those that have both .jpg and .png)
 image_filenames = [
     f for f in os.listdir(images_dir)
-    if f.lower().endswith('.png') and os.path.exists(os.path.join(masks_dir, os.path.splitext(f)[0] + '.png'))
+    # if f.lower().endswith('.png') and os.path.exists(os.path.join(masks_dir, os.path.splitext(f)[0] + '.png'))
 ]
 
 # Shuffle and split
@@ -49,3 +49,9 @@ copy_pairs(val_files, 'VAL')
 
 print(f"Split complete: {len(train_files)} train, {len(val_files)} val")
 
+train_dir = os.path.join(output_base, 'TRAIN', 'IMAGES')
+val_dir = os.path.join(output_base, 'VAL', 'IMAGES')
+train_files = [f for f in os.listdir(train_dir) if os.path.isfile(os.path.join(train_dir, f))]
+val_files = [f for f in os.listdir(val_dir) if os.path.isfile(os.path.join(val_dir, f))]
+
+print(f"Split complete: {len(train_files)} train, {len(val_files)} val")

@@ -42,29 +42,30 @@ def time_synchronized():
 def main():
     num_classes = 5 + 1
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
+    mean = (0.493, 0.493, 0.493)
+    std = (0.144, 0.144, 0.144)
     data_transform = T.Compose([
         # T.Resize(512),
          T.ToTensor(),
-         T.Normalize([0.473, 0.493, 0.504], [0.100, 0.100, 0.099])])
+         T.Normalize(mean=mean, std=std),])
 
     # load image
 
-    imgs_root = r"D:\AMRAVTI-TALEGAON_2025-06-09_06-38-51\SECTION-5\process_distress"
-    imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\segmentation_dataset_08_aug"
+    imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\DATASET_SPLIT\VAL\IMAGES"
     images_list = os.listdir(imgs_root)
     images_list = [img for img in images_list if img.lower().endswith(('.png', '.jpg', '.jpeg'))]
-    prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\segmentation_dataset_08_aug\predictions"
+    prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2_HYBRID"
     os.makedirs(prediction_save_path, exist_ok=True)
 
     # create model
     model = UNetPP(in_channels=3, num_classes=num_classes)
+    # model = SegFormer(num_classes=num_classes, phi='b0', pretrained=False)
     # model = VGG16UNet(num_classes=num_classes)
     # model = MobileV3Unet(num_classes=num_classes)
 
     # load model weights
-    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNETPP_9aug\UnetPP_9aug_best_epoch136_dice0.712.pth"
-    # weights_path = "segformer/20250805-194612-best_model.pth"
+    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_V2_13aug_\UNET_V2_13aug_mean_best_epoch100_dice0.560.pth"
+    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_hybrid\UNET_V2_best_epoch186_dice0.743.pth"
 
     assert os.path.exists(weights_path), f"file: '{weights_path}' dose not exist."
 

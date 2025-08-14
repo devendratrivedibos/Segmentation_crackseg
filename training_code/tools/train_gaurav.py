@@ -12,7 +12,7 @@ sys.path.append(os.path.join(project_root, '..'))
 from pathlib import Path
 
 from torch.utils.data import DataLoader
-from train_utils.train_and_eval import train_one_epoch, evaluate, create_lr_scheduler
+from train_utils.train_and_eval_2 import train_one_epoch, evaluate, create_lr_scheduler
 from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
 import train_utils.transforms as T
 from train_utils.utils import plot, show_config
@@ -30,8 +30,8 @@ from models.unet.UnetPP import UNetPP
 
 # Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'Unet_CE'  # Change this to your desired output path
-model_name = "U"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_hybrid'  # Change this to your desired output path
+model_name = "UNET_V2"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -156,7 +156,7 @@ def main(args):
 
     scaler = torch.cuda.amp.GradScaler() if args.amp else None
 
-    lr_scheduler = create_lr_scheduler(optimizer, len(train_loader), args.epochs, warmup=True, warmup_epochs=20)
+    lr_scheduler = create_lr_scheduler(optimizer, len(train_loader), args.epochs, warmup=True, warmup_epochs=10)
 
     if args.resume:
         checkpoint = torch.load(args.resume, map_location='cuda:0')
@@ -263,26 +263,27 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\DATASET_SPLIT",
+                        default=r"W:/cracks/Semantic-Segmentation of pavement distress dataset/Combined/DATASET_V2/DATASET_SPLIT",
                         help="root")
     parser.add_argument("--num-classes", default=5, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
-    parser.add_argument("--phi", default="b0", help="Use backbone")
+    parser.add_argument("--phi", default="b5", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
-                        default="", help='pretrained weights path')
+                        default="",
+                        help='pretrained weights path')
 
     parser.add_argument('--optimizer-type', default="adamw")
     parser.add_argument('--lr', default=0.0001, type=float, help='initial learning rate') #0.00006
-    parser.add_argument('--warmup-epochs', default=20, type=int)
+    parser.add_argument('--warmup-epochs', default=10, type=int)
     parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                         help='momentum')
-    parser.add_argument('--wd', '--weight-decay', default=1e-3, type=float,
+    parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
 
     parser.add_argument("-b", "--batch-size", default=4, type=int)
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
-    parser.add_argument("--epochs", default=200, type=int, metavar="N",
+    parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")
     parser.add_argument('--print-freq', default=1, type=int, help='print frequency')
 

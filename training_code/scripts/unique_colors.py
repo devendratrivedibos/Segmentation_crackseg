@@ -11,14 +11,14 @@ except ImportError:
     use_tqdm = False
 
 # Folder path
-# mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_MASKS_CLEANED"
-mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\segmentation_dataset_08_aug\Annotation 8 august 2025\Masks"
+mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\DATASET_MASKS"
+
 # Color map (RGB) → ID
 COLOR_MAP = {
-    (0, 0, 0): 0,           # Black   - Background     1097
+    (0, 0, 0): 0,           # Black   - Background     1139
     (255, 0, 0): 1,         # Red     - Alligator      700
-    (0, 0, 255): 2,         # Blue    - Transverse Crack    78
-    (0, 255, 0): 3,         # Green   - Longitudinal Crack    489
+    (0, 0, 255): 2,         # Blue    - Transverse Crack    90
+    (0, 255, 0): 3,         # Green   - Longitudinal Crack    522
     (255, 0, 255): 4,       # Magenta - Multiple Crack        136
     (255, 204, 0): 5,       # Yellow  - Joint Seal            2
     (0, 42, 255): 6,         # Orange  - Pothole

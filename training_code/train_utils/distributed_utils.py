@@ -81,12 +81,9 @@ class ConfusionMatrix(object):
     def update(self, a, b):
         n = self.num_classes
         if self.mat is None:
-            # 创建混淆矩阵
             self.mat = torch.zeros((n, n), dtype=torch.int64, device=a.device)
         with torch.no_grad():
-            # 寻找GT中为目标的像素索引
             k = (a >= 0) & (a < n)
-            # 统计像素真实类别a[k]被预测成类别b[k]的个数(这里的做法很巧妙)
             inds = n * a[k].to(torch.int64) + b[k]
             self.mat += torch.bincount(inds, minlength=n ** 2).reshape(n, n)
 
@@ -97,14 +94,11 @@ class ConfusionMatrix(object):
     def compute(self):
         h = self.mat.float()
         epsilon = 1e-6
-        # 计算全局预测准确率(混淆矩阵的对角线为预测正确的个数)
         acc = torch.diag(h).sum() / h.sum()
 
-        # 计算每个类别的准确率
         pr = (torch.diag(h) + epsilon) / (h.sum(0) + epsilon)  # 列求和
         re = (torch.diag(h) + epsilon) / (h.sum(1) + epsilon)  # 行求和
 
-        # 计算每个类别预测与真实目标的iou
         iu = (torch.diag(h) + epsilon) / (h.sum(1) + h.sum(0) - torch.diag(h) + epsilon)
         F1 = (2 * torch.diag(h) + epsilon) / (h.sum(0) + h.sum(1) + epsilon)
         return acc, pr, re, iu, F1
