@@ -1,4 +1,6 @@
 import os
+import pdb
+
 import cv2
 import pandas as pd
 import numpy as np
@@ -6,9 +8,10 @@ from PIL import Image
 from collections import defaultdict
 
 # --- Paths ---
-root_folder = r"X:\DataSet\15\ANKIT ANNOTATION 13.08.2025"
-image_folder = os.path.join(root_folder, "project-12-at-2025-08-14-10-17-0803421a")
-csv_file = os.path.join(root_folder, "project-12-at-2025-08-14-10-17-0803421a.csv")
+root_folder = r"X:\DataSet\25-08-2025\Sharan"
+root_folder = r"C:\Users\Admin\Downloads"
+image_folder = os.path.join(root_folder, "project-36-at-2025-08-30-17-26-e16eb6dd")
+csv_file = os.path.join(root_folder, "project-36-at-2025-08-30-17-27-e16eb6dd.csv")
 output_folder = os.path.join(root_folder, "Masks")
 os.makedirs(output_folder, exist_ok=True)
 
@@ -46,6 +49,7 @@ for img_file in list_dir:
 # --- Step 4: Color mapping ---
 def get_mask_color(filename):
     filename = filename.lower()
+    pdb.set_trace()
     if 'alligator crack' in filename:
         return (255, 0, 0)   # Red
     elif 'transverse crack' in filename:
@@ -58,6 +62,10 @@ def get_mask_color(filename):
         return (0, 42, 255)  # Orange
     elif 'joint seal' in filename:
         return (255, 204, 0) # Yellow
+    elif 'airplane' in filename:
+        return (255, 0, 0) # Yellow
+    elif 'car' in filename:
+        return (0, 255, 0) # Yellow
     else:
         return None
 
@@ -67,6 +75,7 @@ def combine_mask_images_color(image_files, folder):
     for img_file in image_files:
         color = get_mask_color(img_file)
         if color is None:
+            print("None Colors:", img_file)
             continue
 
         img_path = os.path.join(folder, img_file)
@@ -82,6 +91,7 @@ def combine_mask_images_color(image_files, folder):
         base_img[mask_nonzero] = color  # Overwrite where mask is present
 
     return Image.fromarray(base_img) if base_img is not None else None
+
 
 # --- Step 6: Save results ---
 for task_prefix, files in files_by_task.items():

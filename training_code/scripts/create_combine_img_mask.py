@@ -38,6 +38,7 @@ import os
 import shutil
 
 # Paths
+base_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset"
 base_path = r"X:\DataSet"
 output_images = os.path.join(base_path, "DATASET_IMAGES_")
 output_masks = os.path.join(base_path, "DATASET_MASKS_")
@@ -48,7 +49,7 @@ os.makedirs(output_masks, exist_ok=True)
 
 # Contributors (subfolders)
 contributors = ["Combined_Images"]
-
+# contributors = ["Combined_OG_OLD"]
 for name in contributors:
     img_dir = os.path.join(base_path, name)
     mask_dir = os.path.join(img_dir, "Masks")

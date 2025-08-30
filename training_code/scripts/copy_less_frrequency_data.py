@@ -2,6 +2,8 @@ import cv2
 import os
 import numpy as np
 import shutil
+import csv
+import pandas as pd
 
 # Color map
 COLOR_MAP = {
@@ -15,7 +17,7 @@ COLOR_MAP = {
 }
 
 # Target classes
-target_classes = {2, 4, 5, 6}  # Blue and Magenta
+target_classes = {2, 4}  # Blue and Magenta
 
 # Colors corresponding to target classes (RGB)
 target_colors = [color for color, cls in COLOR_MAP.items() if cls in target_classes]
@@ -28,6 +30,7 @@ output_image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dat
 os.makedirs(output_mask_folder, exist_ok=True)
 os.makedirs(output_image_folder, exist_ok=True)
 matching_images = []
+
 """
 for filename in os.listdir(mask_folder):
     if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
@@ -54,6 +57,7 @@ for name in matching_images:
 print(f"Total: {len(matching_images)} images found.")
 """
 
+
 def find_image_file(image_folder, base_name):
     for ext in ['.png', '.jpg', '.jpeg']:
         candidate = os.path.join(image_folder, base_name + ext)
@@ -74,6 +78,7 @@ for filename in os.listdir(mask_folder):
         if any(np.any(np.all(mask == color, axis=-1)) for color in target_colors):
             matching_images.append(filename)
 
+rows= []
 for filename in matching_images:
     name, _ = os.path.splitext(filename)
 
@@ -89,11 +94,17 @@ for filename in matching_images:
 
     # Copy mask duplicates
     shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy1{mask_ext}"))
-    shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy2{mask_ext}"))
+    # shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy2{mask_ext}"))
 
     # Copy image duplicates with original image extension
     shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy1{image_ext}"))
-    shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy2{image_ext}"))
+    # shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy2{image_ext}"))
+    rows.append([image_src, mask_src])
+
+# ✅ Save all at once
+df_new = pd.DataFrame(rows, columns=["image_path", "mask_path"])
+
+df_new.to_csv(r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\data.csv", mode="a", index=False, header=False)
 print(f"✅ Done! {len(matching_images)} masks and images copied (with duplicates).")
 
 print(f"✅ Done! {len(matching_images)} matching masks found.")
