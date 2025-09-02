@@ -51,10 +51,10 @@ def main():
 
     # load image
 
-    imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\DATASET_SPLIT\VAL\IMAGES"
+    imgs_root = r"X:/THANE-BELAPUR_2025-05-11_07-35-42/renamed_files/SECTION"
     images_list = os.listdir(imgs_root)
     images_list = [img for img in images_list if img.lower().endswith(('.png', '.jpg', '.jpeg'))]
-    prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2_HYBRID"
+    prediction_save_path = r"X:/THANE-BELAPUR_2025-05-11_07-35-42/renamed_files/SECTION_RESULTS"
     os.makedirs(prediction_save_path, exist_ok=True)
 
     # create model
@@ -64,7 +64,6 @@ def main():
     # model = MobileV3Unet(num_classes=num_classes)
 
     # load model weights
-    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_V2_13aug_\UNET_V2_13aug_mean_best_epoch100_dice0.560.pth"
     weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_hybrid\UNET_V2_best_epoch186_dice0.743.pth"
 
     assert os.path.exists(weights_path), f"file: '{weights_path}' dose not exist."
@@ -105,7 +104,7 @@ def main():
             prediction = prediction.to("cpu").numpy().astype(np.uint8)
 
             prediction_color = colorize_prediction(prediction)
-            mask_save_path = os.path.join(prediction_save_path, image.split('.')[0] + '_mask.png')
+            mask_save_path = os.path.join(prediction_save_path, image.split('.')[0] + '.png')
             cv2.imwrite(mask_save_path, cv2.cvtColor(prediction_color, cv2.COLOR_RGB2BGR))
 
             # Overlay on original image and save overlay

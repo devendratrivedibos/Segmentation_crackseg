@@ -1,94 +1,124 @@
-import torch
 import os
-from models.segformer.segformer import SegFormer  # Adjust path if it's elsewhere
-from models.unet.UnetPP import UNetPP  # Adjust path if it's elsewhere
+import torch
+from ultralytics import YOLO
+from segmentation_architecture.UnetPP import UNetPP  # Adjust import
 
-# ---- Configuration ----
-pth_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_hybrid\UNET_V2_best_epoch117_dice0.729.pth"  # Your .pth file
-onnx_path = r'D:\Devendra_Files\CrackSegFormer-main\weights\UNET_hybrid\UnetPP_14aug.onnx'  # Where to save .onnx
-num_classes = 6  # Background + your target classes (adjust as needed)
-phi = 'b5'  # Or 'b0', 'b1', etc.
-# img_size = 512  # Input size expected by your model (or as used in training)
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# ---- Model Preparation ----
-# model = UNetPP(num_classes=num_classes, phi=phi, pretrained=False)
-model = UNetPP(in_channels=3, num_classes=num_classes)
-model = model.to(device)
-model.eval()
+class ONNXExporter:
+    def __init__(self, model_type: str, model_path: str, onnx_path: str,
+                 input_size=(1024, 419), class_names=None, device=None):
+        """
+        :param model_type: 'yolo' or 'unet'
+        :param model_path: path to .pt/.pth file
+        :param onnx_path: path to save .onnx file
+        :param input_size: input resolution (H, W)
+        :param class_names: list of class names (for UNet++)
+        :param device: torch.device
+        """
+        self.model_type = model_type.lower()
+        self.model_path = model_path
+        self.onnx_path = onnx_path
+        self.height, self.width = input_size
+        self.class_names = class_names
+        self.device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# If loading weights (just state_dict)
-state_dict = torch.load(pth_path, map_location=device)
-if 'model' in state_dict:
-    state_dict = state_dict['model']  # If checkpoint was saved with 'model' key
-model.load_state_dict(state_dict, strict=False)
+    def export(self):
+        if self.model_type == "yolo":
+            self._export_yolo()
+        elif self.model_type == "unet":
+            self._export_unet()
+        else:
+            raise ValueError("Invalid model_type. Use 'yolo' or 'unet'.")
 
-# ---- Example Input ----
-dummy_input = torch.randn(1, 3, 1024, 419).to(device)  # Batch size 1, 3 channels
+    def _export_yolo(self):
+        print(f"Loading YOLO model from {self.model_path}...")
+        model = YOLO(self.model_path)
 
-# ---- Export to ONNX ----
-torch.onnx.export(
-    model,
-    dummy_input,
-    onnx_path,
-    export_params=True,
-    opset_version=11,  # 11 or newer is widely supported
-    do_constant_folding=True,
-    input_names=['input'],
-    output_names=['output'],
-    dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}},
-)
+        print(f"Exporting YOLO to {self.onnx_path}...")
+        model.export(format='onnx', opset=12, simplify=False)
+        print("✅ YOLO ONNX export complete.")
 
-print(f"ONNX export complete: {onnx_path}")
+        # ---- Save classes.txt ----
+        if hasattr(model, "names") and isinstance(model.names, dict):
+            class_names = [name for _, name in sorted(model.names.items())]
+            self._save_class_names(class_names)
 
-import onnx
+    def _detect_unet_num_classes(self, state_dict):
+        """Try to infer num_classes from checkpoint."""
+        if isinstance(state_dict, dict) and "num_classes" in state_dict:
+            return state_dict["num_classes"]
 
-onnx_model = onnx.load(onnx_path)
-onnx.checker.check_model(onnx_model)
-print("ONNX model is valid!")
+        if "model" in state_dict and isinstance(state_dict["model"], dict) and "num_classes" in state_dict["model"]:
+            return state_dict["model"]["num_classes"]
 
-import onnxruntime as ort
-import numpy as np
-import cv2
+        for k, v in state_dict.items():
+            if any(x in k for x in ["final", "classifier", "out_conv"]):
+                if len(v.shape) == 4:  # Conv2d weights
+                    return v.shape[0]  # out_channels = num_classes
+        return 1
 
-# 1. Load the ONNX model
-session = ort.InferenceSession(onnx_path)
+    def _export_unet(self):
+        print(f"Loading UNet++ model from {self.model_path}...")
 
-# 2. Prepare an input image (match your training resolution!)
-img_path = "D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\Devendra\A_T_1_rangeDataFiltered-0000272-_crack.png"
-img = cv2.imread(img_path)
-img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-# img = cv2.resize(img, (512, 512))  # Adjust size as needed
+        ckpt = torch.load(self.model_path, map_location="cpu")
+        state_dict = ckpt["model"] if "model" in ckpt else ckpt
 
-# 3. Normalize as during training (use your mean/std)
-img = img.astype(np.float32) / 255.0
-# mean = [0.485, 0.456, 0.406]
-# std = [0.229, 0.224, 0.225]
-mean = [0.473, 0.493, 0.504]
-std = [0.100, 0.100, 0.099]
-mean = np.array(mean)
-std = np.array(std)
-img = (img - mean) / std
+        num_classes = self._detect_unet_num_classes(state_dict)
+        print(f"Detected num_classes = {num_classes}")
 
-# 4. HWC to CHW and add batch dimension
-input_tensor = np.transpose(img, (2, 0, 1))[None, :, :, :].astype(np.float32)  # Shape: [1, 3, H, W]
+        model_seg = UNetPP(in_channels=3, num_classes=num_classes).to(self.device)
+        model_seg.load_state_dict(state_dict, strict=False)
+        model_seg.eval()
 
-# 5. Get input and output names
-input_name = session.get_inputs()[0].name
-output_name = session.get_outputs()[0].name
+        dummy_input = torch.randn(1, 3, self.height, self.width).to(self.device)
 
-# 6. Run inference
-output = session.run([output_name], {input_name: input_tensor})[0]
+        print(f"Exporting UNet++ to {self.onnx_path}...")
+        torch.onnx.export(
+            model_seg,
+            dummy_input,
+            self.onnx_path,
+            export_params=True,
+            opset_version=11,
+            do_constant_folding=True,
+            input_names=['input'],
+            output_names=['output'],
+            dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}},
+        )
+        print("✅ UNet++ ONNX export complete.")
 
-# 7. Process output (get mask via argmax)
-# output shape: [1, num_classes, H, W]
-mask = np.argmax(output[0], axis=0).astype(np.uint8)  # Shape: [H, W]
+        # ---- Save classes.txt (if provided) ----
+        if self.class_names:
+            if len(self.class_names) != num_classes:
+                print(f"⚠️ Warning: Provided {len(self.class_names)} class names, "
+                      f"but model has {num_classes} outputs")
+            self._save_class_names(self.class_names)
 
-# 8. (Optional) Map mask to colors for visualization
-# Example: for 2 classes, background=0 (black), crack=1 (white)
-colors = np.array([[0, 0, 0], [255, 255, 255]], dtype=np.uint8)
-output_img = colors[mask]
+    def _save_class_names(self, class_names):
+        """Save class names to classes.txt next to ONNX."""
+        classes_txt_path = os.path.join(os.path.dirname(self.onnx_path), "classes.txt")
+        with open(classes_txt_path, "w") as f:
+            f.write("\n".join(class_names))
+        print(f"✅ Saved class names to {classes_txt_path}")
 
-cv2.imwrite("D:/segformer_onnx_prediction.png", cv2.cvtColor(output_img, cv2.COLOR_RGB2BGR))
 
-print("Inference completed. Output mask saved as segformer_onnx_prediction.png")
+# ---------------- Example Usage ----------------
+if __name__ == "__main__":
+    # YOLO Export
+    exporter_yolo = ONNXExporter(
+        model_type="yolo",
+        model_path=r"C:\Users\Admin\Code\survey-analytic\ai_model\guide_rcc_metal_median.pt",
+        onnx_path=r"C:\Users\Admin\Code\survey-analytic\ai_model\guide_rcc_metal_median.onnx"
+    )
+    exporter_yolo.export()
+
+    # UNet++ Export with class names
+    unet_classes = ["Background", "Alligator", "Longitudinal", "Transverse", "Multiple", "Joint Seal"]
+    exporter_unet = ONNXExporter(
+        model_type="unet",
+        model_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_hybrid\UNET_V2_best_epoch117_dice0.729.pth",
+        onnx_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_hybrid\UnetPP_14aug.onnx",
+        input_size=(1024, 419),
+        # class_names=unet_classes,
+        device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    )
+    exporter_unet.export()

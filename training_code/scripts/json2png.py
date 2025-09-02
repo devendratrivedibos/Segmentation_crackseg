@@ -64,4 +64,4 @@ def save_brush_masks(json_file, output_dir="./masks", use_rgb=False):
                 out_img.save(out_path, format="PNG")
                 print(f"Saved {out_path}")
 
-save_brush_masks(r"C:\Users\Admin\Downloads\project-16-at-2025-08-29-20-00-f2403a8d.json", output_dir="./masks", use_rgb=True)
+save_brush_masks(r"C:\Users\Admin\Downloads\multiple_output_labelstudio.json", output_dir="./masks", use_rgb=True)

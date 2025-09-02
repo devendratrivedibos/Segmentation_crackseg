@@ -8,22 +8,12 @@ from PIL import Image
 from collections import defaultdict
 
 # --- Paths ---
-root_folder = r"X:\DataSet\25-08-2025\Sharan"
-root_folder = r"C:\Users\Admin\Downloads"
-image_folder = os.path.join(root_folder, "project-36-at-2025-08-30-17-26-e16eb6dd")
-csv_file = os.path.join(root_folder, "project-36-at-2025-08-30-17-27-e16eb6dd.csv")
+root_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\Vishwas\New"
+image_folder = os.path.join(root_folder, "project-16-at-2025-08-30-11-08-3b6b5eae")
+csv_file = os.path.join(root_folder, "project-16-at-2025-08-30-11-08-3b6b5eae.csv")
 output_folder = os.path.join(root_folder, "Masks")
 os.makedirs(output_folder, exist_ok=True)
 
-# --- Step 1: Ensure all masks are binary ---
-# for file in os.listdir(image_folder):
-#     if file.lower().endswith(('.png', '.jpg', '.jpeg')):
-#         path = os.path.join(image_folder, file)
-#         img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-#         _, binary_img = cv2.threshold(img_gray, 127, 255, cv2.THRESH_BINARY)
-#         cv2.imwrite(path, binary_img)
-#
-# print("All masks converted to binary.")
 
 # --- Step 2: Read CSV mapping ---
 df = pd.read_csv(csv_file)
@@ -49,7 +39,7 @@ for img_file in list_dir:
 # --- Step 4: Color mapping ---
 def get_mask_color(filename):
     filename = filename.lower()
-    pdb.set_trace()
+
     if 'alligator crack' in filename:
         return (255, 0, 0)   # Red
     elif 'transverse crack' in filename:
@@ -59,13 +49,27 @@ def get_mask_color(filename):
     elif 'multiple crack' in filename:
         return (255, 0, 255) # Magenta
     elif 'pothole' in filename:
-        return (0, 42, 255)  # Orange
-    elif 'joint seal' in filename:
-        return (255, 204, 0) # Yellow
-    elif 'airplane' in filename:
-        return (255, 0, 0) # Yellow
-    elif 'car' in filename:
-        return (0, 255, 0) # Yellow
+        return (139, 69, 19)  # Orange
+    elif "patch" in filename:
+        return (255, 165, 0)
+
+    elif "punchout" in filename:
+        return (128, 0, 128)
+
+    elif "spalling" in filename:
+        return (0, 255, 255)
+
+    elif "corner break" in filename:
+         return (0, 128, 0)
+
+    elif "Sealed Joint – T" in filename:
+        return (255, 192, 203)
+
+    elif "Sealed Joint – L" in filename:
+        return (199, 21, 133)
+
+    if "cracking" in filename:
+        return (255, 215, 0)
     else:
         return None
 
