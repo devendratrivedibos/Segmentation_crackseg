@@ -7,26 +7,32 @@ import pandas as pd
 
 # Color map
 COLOR_MAP = {
-    (0, 0, 0): 0,  # Black   - Background
-    (255, 0, 0): 1,  # Red     - Alligator
-    (0, 0, 255): 2,  # Blue    - Transverse Crack
-    (0, 255, 0): 3,  # Green   - Longitudinal Crack
-    (255, 0, 255): 4,  # Magenta - Multiple Crack
-    (255, 204, 0): 5,  # Yellow  - Joint Seal
-    (0, 42, 255): 6  # Orange  - Pothole
+    (0, 0, 0): 0,  # Black   - Background     1139
+    (255, 0, 0): 1,  # Red     - Alligator      700
+    (0, 0, 255): 2,  # Blue    - Transverse Crack    90
+    (0, 255, 0): 3,  # Green   - Longitudinal Crack    522
+    (139, 69, 19): 4,  # Brown    -  POTHOLE
+    (255, 165, 0): 5,  # Orange   - PATCHES
+    (128, 0, 128): 6,  # Purple   - punchout
+    (0, 255, 255): 7,  # Cyan     -spalling
+    (0, 128, 0): 8,  # Dark Green   - COrner Break
+    (255, 100, 203): 9,  # Light Pink    - SEALED JOINT - T
+    (199, 21, 133): 10,  # Dark Pink  - SEALED JOINT - L
+    (255, 215, 0): 11,  # Gold    CRACKING
+    (255, 255, 255): 12,  # WHITE  UNCLASSIFIED
 }
 
 # Target classes
-target_classes = {2, 4}  # Blue and Magenta
+target_classes = {2, 4, 5, 12}  # Blue and Magenta
 
 # Colors corresponding to target classes (RGB)
 target_colors = [color for color, cls in COLOR_MAP.items() if cls in target_classes]
 
 # Paths
-mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\DATASET_MASKS"  # change to your folder
-output_mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\DATASET_MASKS_COPY"
-image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\DATASET_IMAGES"
-output_image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\DATASET_IMAGES_COPY"
+mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_TRAIN\DATASET_MASKS_"
+output_mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_TRAIN\DATASET_MASKS_COPY"
+image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_TRAIN\DATASET_IMAGES_"
+output_image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_TRAIN\DATASET_IMAGES_COPY"
 os.makedirs(output_mask_folder, exist_ok=True)
 os.makedirs(output_image_folder, exist_ok=True)
 matching_images = []
@@ -94,19 +100,19 @@ for filename in matching_images:
 
     # Copy mask duplicates
     shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy1{mask_ext}"))
-    # shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy2{mask_ext}"))
+    shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy2{mask_ext}"))
 
     # Copy image duplicates with original image extension
     shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy1{image_ext}"))
-    # shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy2{image_ext}"))
+    shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy2{image_ext}"))
     rows.append([image_src, mask_src])
 
-# ✅ Save all at once
-df_new = pd.DataFrame(rows, columns=["image_path", "mask_path"])
-
-df_new.to_csv(r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\data.csv", mode="a", index=False, header=False)
-print(f"✅ Done! {len(matching_images)} masks and images copied (with duplicates).")
-
-print(f"✅ Done! {len(matching_images)} matching masks found.")
-print(f"Copied masks to: {output_mask_folder}")
-print(f"Copied images to: {output_image_folder}")
+# # ✅ Save all at once
+# df_new = pd.DataFrame(rows, columns=["image_path", "mask_path"])
+#
+# df_new.to_csv(r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\data.csv", mode="a", index=False, header=False)
+# print(f"✅ Done! {len(matching_images)} masks and images copied (with duplicates).")
+#
+# print(f"✅ Done! {len(matching_images)} matching masks found.")
+# print(f"Copied masks to: {output_mask_folder}")
+# print(f"Copied images to: {output_image_folder}")

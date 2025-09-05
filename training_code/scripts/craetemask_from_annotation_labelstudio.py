@@ -8,12 +8,12 @@ from PIL import Image
 from collections import defaultdict
 
 # --- Paths ---
-root_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\Vishwas\New"
-image_folder = os.path.join(root_folder, "project-16-at-2025-08-30-11-08-3b6b5eae")
-csv_file = os.path.join(root_folder, "project-16-at-2025-08-30-11-08-3b6b5eae.csv")
+
+root_folder = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-4\04-09-2025\Jayesh (571-618)"
+image_folder = os.path.join(root_folder, "project-14-at-2025-09-04-18-20-45246c9c")
+csv_file = os.path.join(root_folder, "project-14-at-2025-09-04-18-19-dd13b956.csv")
 output_folder = os.path.join(root_folder, "Masks")
 os.makedirs(output_folder, exist_ok=True)
-
 
 # --- Step 2: Read CSV mapping ---
 df = pd.read_csv(csv_file)
@@ -37,41 +37,34 @@ for img_file in list_dir:
     result_mapping[img_file] = id_to_image_name.get(task_num, img_file)
 
 # --- Step 4: Color mapping ---
+COLOR_MAP = {
+    "alligator crack": (255, 0, 0),  # Red
+    "transverse crack": (0, 0, 255),  # Blue
+    "longitudinal crack": (0, 255, 0),  # Green
+    "longitudnal crack": (0, 255, 0),  # Green
+    "multiple crack": (255, 0, 255),  # Yellow
+    "pothole": (139, 69, 19),  # Brown
+    "patch": (255, 165, 0),  # Orange
+    "punchout": (128, 0, 128),  # Purple
+    "spalling": (0, 255, 255),  # Cyan
+    "corner break": (0, 128, 0),  # Dark green
+    "corner crack": (0, 128, 0),  # Dark green
+    "joint sealed  transverse": (255, 100, 203),  # Light pink
+    "joint sealed transverse": (255, 100, 203),  # Light pink
+    "joint sealed longitudinal": (199, 21, 133),  # Dark pink
+    "joint sealed longitudnal": (199, 21, 133),  # Dark pink
+    "cracking": (255, 215, 0),  # Gold
+    "unclassified": (255, 255, 255),  # White
+}
+
+
 def get_mask_color(filename):
-    filename = filename.lower()
+    fname = filename.lower()
+    for k, v in COLOR_MAP.items():
+        if k in fname:
+            return v
+    return None
 
-    if 'alligator crack' in filename:
-        return (255, 0, 0)   # Red
-    elif 'transverse crack' in filename:
-        return (0, 0, 255)   # Blue
-    elif 'longitudinal crack' in filename:
-        return (0, 255, 0)   # Green
-    elif 'multiple crack' in filename:
-        return (255, 0, 255) # Magenta
-    elif 'pothole' in filename:
-        return (139, 69, 19)  # Orange
-    elif "patch" in filename:
-        return (255, 165, 0)
-
-    elif "punchout" in filename:
-        return (128, 0, 128)
-
-    elif "spalling" in filename:
-        return (0, 255, 255)
-
-    elif "corner break" in filename:
-         return (0, 128, 0)
-
-    elif "Sealed Joint – T" in filename:
-        return (255, 192, 203)
-
-    elif "Sealed Joint – L" in filename:
-        return (199, 21, 133)
-
-    if "cracking" in filename:
-        return (255, 215, 0)
-    else:
-        return None
 
 # --- Step 5: Combine masks for each task ---
 def combine_mask_images_color(image_files, folder):

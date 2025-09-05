@@ -7,14 +7,30 @@ from torch.utils.data import Dataset
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
+# COLOR_MAP = {
+#     (0, 0, 0): 0,  # Black   Background
+#     (255, 0, 0): 1,  # Red      Alligator
+#     (0, 0, 255): 2,  # Blue     Transverse Crack
+#     (0, 255, 0): 3,  # Green    Longitudinal Crack
+#     (255, 0, 255): 4,  # Magenta  Multiple Crack
+#     (255, 204, 0): 5,  # Yellow   Joint Seal
+#     (0, 42, 255): 6,  # Orange   Pothole
+# }
+
 COLOR_MAP = {
-    (0, 0, 0): 0,  # Black   Background
-    (255, 0, 0): 1,  # Red      Alligator
-    (0, 0, 255): 2,  # Blue     Transverse Crack
-    (0, 255, 0): 3,  # Green    Longitudinal Crack
-    (255, 0, 255): 4,  # Magenta  Multiple Crack
-    (255, 204, 0): 5,  # Yellow   Joint Seal
-    (0, 42, 255): 6,  # Orange   Pothole
+    (0, 0, 0): 0,  # Black   - Background     1139
+    (255, 0, 0): 1,  # Red     - Alligator      700
+    (0, 0, 255): 2,  # Blue    - Transverse Crack    90
+    (0, 255, 0): 3,  # Green   - Longitudinal Crack    522
+    (139, 69, 19): 4,  # Brown    -  POTHOLE
+    (255, 165, 0): 5,  # Orange   - PATCHES
+    (128, 0, 128): 6,  # Purple   - punchout
+    (0, 255, 255): 7,  # Cyan     -spalling
+    (0, 128, 0): 8,  # Dark Green   - COrner Break
+    (255, 100, 203): 9,  # Light Pink    - SEALED JOINT - T
+    (199, 21, 133): 10,  # Dark Pink  - SEALED JOINT - L
+    (255, 215, 0): 11,  # Gold    CRACKING
+    (255, 255, 255): 12,  # WHITE  UNCLASSIFIED
 }
 
 
@@ -89,10 +105,10 @@ class CrackDataset(Dataset):
 class SegmentationPresetTrain:
     def __init__(self, img_size, mean, std):
         self.transforms = A.Compose([
-            A.HorizontalFlip(p=0.2),
-            A.VerticalFlip(p=0.2),
+            A.HorizontalFlip(p=0.3),
+            A.VerticalFlip(p=0.3),
             A.RandomBrightnessContrast(p=0.2),
-            A.GaussNoise(var_limit=(10.0, 40.0), p=0.3),
+            A.GaussNoise(var_limit=(5.0, 30.0), p=0.3),
             A.Blur(blur_limit=3, p=0.2),
             A.ElasticTransform(alpha=1, sigma=50, alpha_affine=50, p=0.2),
             A.CLAHE(p=0.2),

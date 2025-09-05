@@ -5,9 +5,22 @@ from PIL import Image
 from label_studio_converter.brush import decode_rle
 
 # Optional: RGB colormap
-LABEL_MAP = {
-    "Airplane": (255, 0, 0),   # Red
-    "Car": (0, 255, 0),        # Green
+COLOR_MAP = {
+    "alligator crack": (255, 0, 0),  # Red
+    "transverse crack": (0, 0, 255),  # Blue
+    "longitudinal crack": (0, 255, 0),  # Green
+    "multiple crack": (255, 255, 0),  # Yellow
+    "pothole": (139, 69, 19),  # Brown
+    "patch": (255, 165, 0),  # Orange
+    "punchout": (128, 0, 128),  # Purple
+    "spalling": (0, 255, 255),  # Cyan
+    "corner break": (0, 128, 0),  # Dark green
+    "corner crack": (0, 128, 0),  # Dark green
+    "joint sealed  transverse": (255, 100, 203),  # Light pink
+    "joint sealed transverse": (255, 100, 203),  # Light pink
+    "joint sealed longitudinal": (199, 21, 133),  # Dark pink
+    "cracking": (255, 215, 0),  # Gold
+    "unclassified": (255, 255, 255),  # White
 }
 
 def save_brush_masks(json_file, output_dir="./masks", use_rgb=False):
@@ -52,7 +65,8 @@ def save_brush_masks(json_file, output_dir="./masks", use_rgb=False):
 
                 # Save as RGB or grayscale
                 if use_rgb:
-                    color = LABEL_MAP.get(label, (255, 255, 255))
+                    label = label.lower()
+                    color = COLOR_MAP.get(label, (255, 255, 255))
                     mask_rgb = np.zeros((height, width, 3), dtype=np.uint8)
                     mask_rgb[mask == 1] = color
                     out_img = Image.fromarray(mask_rgb, mode="RGB")

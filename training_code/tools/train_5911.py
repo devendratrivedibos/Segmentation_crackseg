@@ -30,8 +30,8 @@ from models.unet.UnetPP import UNetPP
 
 # Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_hybrid'  # Change this to your desired output path
-model_name = "UNET_V2"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_concrete_12'  # Change this to your desired output path
+model_name = "UNET_concrete_12"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -263,9 +263,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"W:/cracks/Semantic-Segmentation of pavement distress dataset/Combined/DATASET_V2/DATASET_SPLIT",
+                        default=r"Q:/cracks/Semantic-Segmentation of pavement distress dataset/Combined/DATASET_CONCRETE/DATASET_SPLIT",
                         help="root")
-    parser.add_argument("--num-classes", default=5, type=int)  # exclude background
+    parser.add_argument("--num-classes", default=12, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
     parser.add_argument("--phi", default="b5", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')

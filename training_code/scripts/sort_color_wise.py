@@ -6,23 +6,29 @@ import pandas as pd
 
 # Color map
 COLOR_MAP = {
-    (0, 0, 0): 0,      # Black   - Background
-    (255, 0, 0): 1,    # Red     - Alligator
-    (0, 0, 255): 2,    # Blue    - Transverse Crack
-    (0, 255, 0): 3,    # Green   - Longitudinal Crack
-    (255, 0, 255): 4,  # Magenta - Multiple Crack
-    (255, 204, 0): 5,  # Yellow  - Joint Seal
-    (0, 42, 255): 6    # Orange  - Pothole
+    (0, 0, 0): 0,  # Black   - Background     1139
+    (255, 0, 0): 1,  # Red     - Alligator      700
+    (0, 0, 255): 2,  # Blue    - Transverse Crack    90
+    (0, 255, 0): 3,  # Green   - Longitudinal Crack    522
+    (139, 69, 19): 4,  # Brown    -  POTHOLE
+    (255, 165, 0): 5,  # Orange   - PATCHES
+    (128, 0, 128): 6,  # Purple   - punchout
+    (0, 255, 255): 7,  # Cyan     -spalling
+    (0, 128, 0): 8,  # Dark Green   - COrner Break
+    (255, 100, 203): 9,  # Light Pink    - SEALED JOINT - T
+    (199, 21, 133): 10,  # Dark Pink  - SEALED JOINT - L
+    (255, 215, 0): 11,  # Gold    CRACKING
+    (255, 255, 255): 12,  # WHITE  UNCLASSIFIED
 }
 
 # Target classes
-target_classes = {2, 4}  # Blue and Magenta
+target_classes = {2, 3, 4, 5, 12}  # Blue and Magenta
 target_colors = {cls: color for color, cls in COLOR_MAP.items() if cls in target_classes}
 
 # Paths
 base_output = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2"
-mask_folder = os.path.join(base_output, "DATASET_MASKS")
-image_folder = os.path.join(base_output, "DATASET_IMAGES")
+mask_folder = os.path.join(base_output, "DATASET_MASKS_")
+image_folder = os.path.join(base_output, "DATASET_IMAGES_")
 
 # Separate folders for each class
 output_folders = {}
@@ -34,12 +40,14 @@ for cls in target_classes:
     os.makedirs(output_folders[cls]["mask"], exist_ok=True)
     os.makedirs(output_folders[cls]["image"], exist_ok=True)
 
+
 def find_image_file(image_folder, base_name):
     for ext in ['.png', '.jpg', '.jpeg']:
         candidate = os.path.join(image_folder, base_name + ext)
         if os.path.exists(candidate):
             return candidate
     return None
+
 
 rows = []
 matching_images = []
@@ -55,7 +63,7 @@ for filename in os.listdir(mask_folder):
         for cls, color in target_colors.items():
             if np.any(np.all(mask == color, axis=-1)):
                 matching_images.append((filename, cls))
-                break   # assign to first found class only
+                # break  # assign to first found class only
 
 # Copy and log
 for filename, cls in matching_images:

@@ -5,7 +5,8 @@ import pandas as pd
 main_folder = r"F:\TRAINING_DATA\08_aug\segmentation_with_or_without_cracks_08_aug\ANNOTATION 08.08.2025"
 
 # Keywords to search
-keywords = ["alligator", "longitudinal", "transverse", "multiple"]
+keywords = ["alligator", "longitudinal", "transverse", "joint sealed transverse", "joint sealed longitudinal",
+            "corner break", "pothole", "patch", "punchout", "spalling"]
 
 # Allowed image extensions
 image_exts = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".webp"}

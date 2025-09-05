@@ -6,14 +6,28 @@ import numpy as np
 from PIL import Image, ImageDraw
 from label_studio_converter.brush import decode_rle
 
-# Define color map per class
-LABEL_MAP = {
-    "Alligator": (255, 0, 0),   # Red
-    "Longitudinal": (0, 255, 0),        # Green
-    "Tree": (0, 0, 255),       # Blue
-    "unknown": (255, 255, 255) # White fallback
+COLOR_MAP = {
+    "alligator crack": (255, 0, 0),  # Red
+    "transverse crack": (0, 0, 255),  # Blue
+    "longitudinal crack": (0, 255, 0),  # Green
+    "longitudnal crack": (0, 255, 0),  # Green
+    "multiple crack": (255, 0, 255),  # Yellow
+    "pothole": (139, 69, 19),  # Brown
+    "patch": (255, 165, 0),  # Orange
+    "punchout": (128, 0, 128),  # Purple
+    "spalling": (0, 255, 255),  # Cyan
+    "corner break": (0, 128, 0),  # Dark green
+    "corner crack": (0, 128, 0),  # Dark green
+    "joint sealed  transverse": (255, 100, 203),  # Light pink
+    "joint sealed transverse": (255, 100, 203),  # Light pink
+    "joint sealed longitudinal": (199, 21, 133),  # Dark pink
+    "joint sealed longitudnal": (199, 21, 133),  # Dark pink
+    "cracking": (255, 215, 0),  # Gold
+    "unclassified": (255, 255, 255),  # White
 }
 
+# track label
+unique_labels = set()
 def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
     with open(json_file, "r") as f:
         tasks = json.load(f)
@@ -52,7 +66,10 @@ def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
                 value = result.get("value", {})
                 label = value.get("brushlabels") or value.get("polygonlabels") or ["unknown"]
                 label = label[0]
-                color = LABEL_MAP.get(label, (255, 255, 255))
+                # track label
+                unique_labels.add(label)
+
+                color = COLOR_MAP.get(label.lower(), (255, 255, 255))
 
                 # --- Case 1: Brush (RLE) ---
                 if value.get("format") == "rle":
@@ -96,17 +113,24 @@ def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
                     else:
                         mask_img[polygon_mask == 1] = 255
 
+        parts = base_name.split("-", 1)  # split only on the first dash
+        if len(parts) == 2:
+            out_name = parts[1]
         # Save mask for this image
-        out_name = f"{base_name}_mask.png"
+        out_name = f"{out_name}.png"
         out_path = os.path.join(output_dir, out_name)
         out_img = Image.fromarray(mask_img.astype(np.uint8))
         out_img.save(out_path, format="PNG")
         print(f"Saved {out_path}")
 
+    print("\n=== Unique Labels Found ===")
+    for lbl in sorted(unique_labels):
+        print(lbl)
+
 
 # Run
 save_masks_from_json(
-    r"C:\Users\Admin\Downloads\multiple_output_labelstudio.json",
-    output_dir="./masks",
+    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-4\05-09-2025_multiple & spalling\SANISA(SEC-4_251-356)\project-10-at-2025-09-05-19-31-00cd508e.json",
+    output_dir=r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-4\05-09-2025_multiple & spalling\Masks",
     use_rgb=True
 )
