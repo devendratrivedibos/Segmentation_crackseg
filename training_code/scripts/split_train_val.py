@@ -3,15 +3,16 @@ import shutil
 import random
 
 # Paths
-images_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\AnnotationImages"
-masks_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\AnnotationMasks"
-output_base = r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATASET_SPLIT'
+images_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationImages"
+masks_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationMasks"
+output_base = r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\DATASET_SPLIT'
 split_ratio = 0.80  # 80% train, 20% val
 
 # Get matching base filenames (only those that have both .jpg and .png)
 image_filenames = [
     f for f in os.listdir(images_dir)
-    if f.lower().endswith('.png') and os.path.exists(os.path.join(masks_dir, os.path.splitext(f)[0] + '.png'))
+    # if f.lower().endswith('.png') and os.path.exists(os.path.join(masks_dir, os.path.splitext(f)[0] + '.png'))
+    if os.path.exists(os.path.join(masks_dir, os.path.splitext(f)[0] + '.png'))
 ]
 
 # Shuffle and split

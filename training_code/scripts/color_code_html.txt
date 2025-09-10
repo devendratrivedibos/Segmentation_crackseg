@@ -1,0 +1,21 @@
+<View>
+<Image name="image" value="$image" zoom="true"/>
+<BrushLabels name="tag" toName="image">
+ 
+<Label value="Alligator crack" background="#FF0000"/>
+<Label value="Longitudinal crack" background="#00FF00"/>
+<Label value="Transverse crack" background="#0000FF"/>
+<Label value="pothole" background="#8B4513"/>
+<Label value="patch" background="#FFA500"/>
+<Label value="punchout" background="#800080"/>
+<Label value="spalling" background="#00FFFF"/>
+<Label value="corner break" background="#008000"/>
+<Label value="joint sealed transverse crack" background="#FF64CB"/>
+<Label value="joint sealed longitudinal crack" background="#C71585"/>
+<Label value="cracking" background="#FFD700"/>
+<Label value="unclassified" background="#FFFFFF"/>
+<Label value="multiple crack" background="#FF00FF"/>
+<Label value="popout" background="#7066FF"/>
+ 
+</BrushLabels>
+</View>

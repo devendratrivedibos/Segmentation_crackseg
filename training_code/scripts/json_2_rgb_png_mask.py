@@ -7,27 +7,57 @@ from PIL import Image, ImageDraw
 from label_studio_converter.brush import decode_rle
 
 COLOR_MAP = {
+
     "alligator crack": (255, 0, 0),  # Red
     "transverse crack": (0, 0, 255),  # Blue
+    "transverse": (0, 0, 255),  # Blue
+    "transevrse crack": (0, 0, 255),  # Blue
+    "transeverse crack": (0, 0, 255),  # Blue
     "longitudinal crack": (0, 255, 0),  # Green
     "longitudnal crack": (0, 255, 0),  # Green
+    "longitudunal crack": (0, 255, 0),  # Green
+    "longitadinal crack": (0, 255, 0),  # Green
+    "longitudinal": (0, 255, 0),  # Green
     "multiple crack": (255, 0, 255),  # Yellow
+    "multiple": (255, 0, 255),  # Yellow
     "pothole": (139, 69, 19),  # Brown
+    "pathhole": (139, 69, 19),  # Brown
     "patch": (255, 165, 0),  # Orange
     "punchout": (128, 0, 128),  # Purple
+    "punchout crack": (128, 0, 128),  # Purple
     "spalling": (0, 255, 255),  # Cyan
+    "spallling": (0, 255, 255),  # Cyan
     "corner break": (0, 128, 0),  # Dark green
     "corner crack": (0, 128, 0),  # Dark green
-    "joint sealed  transverse": (255, 100, 203),  # Light pink
+    "croner crack": (0, 128, 0),  # Dark green
+    "corner breack": (0, 128, 0),  # Dark green
     "joint sealed transverse": (255, 100, 203),  # Light pink
+    "joint sealed transeverse": (255, 100, 203),  # Light pink
+    "joint sealed transverse crack": (255, 100, 203),  # Light pink
+    "joint seal transverse": (255, 100, 203),  # Light pink
+    "jiont sealed transverse": (255, 100, 203),  # Light pink
+    "joint sealed transvers": (255, 100, 203),  # Light pink
+    "join sealed transvrse": (255, 100, 203),  # Light pink
+    "join seal transevrse": (255, 100, 203),  # Light pink
+    "join sealed transvers": (255, 100, 203),  # Light pink
     "joint sealed longitudinal": (199, 21, 133),  # Dark pink
+    "joint sealed longitudinal crack": (199, 21, 133),  # Dark pink
+    "joint sealed longtudinal": (199, 21, 133),  # Dark pink
     "joint sealed longitudnal": (199, 21, 133),  # Dark pink
+    "joint seal longitudinal": (199, 21, 133),  # Dark pink
+    "joint seal longitudnal": (199, 21, 133),  # Dark pink
+    "jiont sealed longitadinal": (199, 21, 133),  # Dark pink
     "cracking": (255, 215, 0),  # Gold
     "unclassified": (255, 255, 255),  # White
+    "popsout": (112, 102, 255),
+    "popout": (112, 102, 255),
+    "popout crack": (112, 102, 255),
 }
 
 # track label
 unique_labels = set()
+
+
 def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
     with open(json_file, "r") as f:
         tasks = json.load(f)
@@ -127,10 +157,16 @@ def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
     for lbl in sorted(unique_labels):
         print(lbl)
 
+folderlist = [r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7\10-09-2025\Jayesh_S-7_p-3_500-585\project-20-at-2025-09-10-19-09-97388ceb.json",
+r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7\10-09-2025\SANISA _S-7_P-2_263-298\project-17-at-2025-09-10-18-28-5cfc52e3.json"
+              ]
 
-# Run
-save_masks_from_json(
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-4\05-09-2025_multiple & spalling\SANISA(SEC-4_251-356)\project-10-at-2025-09-05-19-31-00cd508e.json",
-    output_dir=r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-4\05-09-2025_multiple & spalling\Masks",
-    use_rgb=True
-)
+for i in folderlist:
+    save_masks_from_json(i,
+        r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7\Masks",
+        use_rgb=True)
+
+# save_masks_from_json(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3\10-09-2025\TANISHQ-274-300_S-3\project-4-at-2025-09-10-18-53-f3459e94.json",
+#                      r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3\Masks",
+#                         use_rgb=True
+# )

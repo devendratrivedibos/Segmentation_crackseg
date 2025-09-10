@@ -4,15 +4,13 @@ import numpy as np
 
 # --- Define Folders ---
 folders = [
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-4\Masks",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3\Masks",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-2\Masks",
+    r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\DayMasks"
 ]
 
 # Color replacement (BGR because OpenCV loads in BGR)
-old_color = (203, 192, 255)   # (R=255,G=192,B=203) → BGR order
-new_color = (203, 100, 255)   # (R=255,G=100,B=203) → BGR order
-
+old_color = (100, 100, 100)  # (R=255,G=192,B=203) → BGR order
+old_color = (112, 102, 255)  # (R=255,G=100,B=203) → BGR order
+new_color = (255, 102, 112)
 # Loop through folders
 for folder in folders:
     for f in os.listdir(folder):

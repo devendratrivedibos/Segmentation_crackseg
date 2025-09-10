@@ -40,8 +40,10 @@ for img_file in list_dir:
 COLOR_MAP = {
     "alligator crack": (255, 0, 0),  # Red
     "transverse crack": (0, 0, 255),  # Blue
+    "transverse": (0, 0, 255),  # Blue
     "longitudinal crack": (0, 255, 0),  # Green
     "longitudnal crack": (0, 255, 0),  # Green
+    "longitudinal": (0, 255, 0),  # Green
     "multiple crack": (255, 0, 255),  # Yellow
     "pothole": (139, 69, 19),  # Brown
     "patch": (255, 165, 0),  # Orange

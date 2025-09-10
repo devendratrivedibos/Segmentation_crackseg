@@ -139,6 +139,7 @@ if __name__ == "__main__":
     # copy_images_with_masks_folder(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7")
     # # Base projects folder
 
+
     process_section(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3", name_prefix="THANE_BELAPUR_SECTION3_")
     # process_section(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3", name_prefix="THANE_BELAPUR_SECTION3_")
     # process_section(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-2", name_prefix="THANE_BELAPUR_SECTION2_")
