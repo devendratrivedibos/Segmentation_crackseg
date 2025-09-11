@@ -1,17 +1,25 @@
 import os
 import json
-import pdb
 import numpy as np
 from PIL import Image
 from datetime import datetime
 from label_studio_converter import brush
 import glob
 
-image_files = glob.glob(r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\DATASET_CLASSMasks\*.png")
-json_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2\DATASET_CLASSMasks\_new_multiple_output_labelstudio.json"
-prefix_folder = r"C:\Users\Admin\AppData\Local\label-studio\label-studio\media\upload\50"  # folder containing prefixed PNG files
-newfolder = 50
+root_dir = r"C:\Users\Admin\Downloads\M"
+newfolder = 57
+username = 'Admin'
 
+# Collect both PNG and JPG images (ignore JSON files)
+image_files = []
+for ext in ("*.png", "*.jpg", "*.jpeg"):
+    image_files.extend(glob.glob(os.path.join(root_dir, ext)))
+
+# Or you can hardcode for debugging
+# image_files = [r"C:\Users\Admin\Downloads\M\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33_SECTION-1_IMG_0000000.png"]
+
+json_path = fr"{root_dir}/_new_multiple_output_labelstudio.json"
+prefix_folder = fr"C:/Users/{username}/AppData/Local/label-studio/label-studio/media/upload/{newfolder}"
 
 COLOR_TO_LABEL = {
     (255, 0, 0): "Alligator crack",
@@ -27,24 +35,12 @@ COLOR_TO_LABEL = {
     (255, 215, 0): "cracking",  # Gold
     (255, 255, 255): "unclassified",  # White
     (255, 0, 255): "multiple crack",  # Yellow
-    (100,100,100): "popout"    # Grey
+    (100, 100, 100): "popout"  # Grey
 }
 
 
-def print_structure(data, indent=0):
-    """Recursively print JSON structure (keys nesting)."""
-    prefix = "  " * indent
-    if isinstance(data, dict):
-        for key, value in data.items():
-            print(f"{prefix}- {key}")
-            print_structure(value, indent + 1)
-    elif isinstance(data, list):
-        print(f"{prefix}- [list]")
-        if len(data) > 0:
-            print_structure(data[0], indent + 1)  # show structure of first element only
-
-
 def rgb_masks_to_labelstudio_json(image_paths, output_json,
+                                  prefix_map,
                                   project_id=42, from_name="tag",
                                   to_name="image", completed_by=1,
                                   user_id=1):
@@ -52,16 +48,18 @@ def rgb_masks_to_labelstudio_json(image_paths, output_json,
     now = datetime.utcnow().isoformat() + "Z"
 
     for task_id, rgb_path in enumerate(image_paths, start=1):
-
         img = Image.open(rgb_path).convert("RGB")
         rgb = np.array(img)
         results = []
         start = 1
+
+        # Process each crack/pothole color
         for color, label in COLOR_TO_LABEL.items():
             class_mask = np.all(rgb == np.array(color, dtype=np.uint8), axis=-1).astype(np.uint8) * 255
             if np.sum(class_mask) == 0:
                 continue
-            tmp_mask_path = f"{os.path.splitext(rgb_path)[0]}_{label}.png"
+
+            tmp_mask_path = f"{os.path.splitext(rgb_path)[0]}_{label}.jpg"
             Image.fromarray(class_mask, mode="L").save(tmp_mask_path)
 
             rle = brush.image2rle(tmp_mask_path)
@@ -73,8 +71,8 @@ def rgb_masks_to_labelstudio_json(image_paths, output_json,
 
             results.append({
                 "image_rotation": 0,
-                "original_width": 419,
-                "original_height": 1024,
+                "original_width": img.width,
+                "original_height": img.height,
                 "value": {
                     "format": "rle",
                     "rle": rle,
@@ -87,13 +85,21 @@ def rgb_masks_to_labelstudio_json(image_paths, output_json,
                 "origin": "manual"
             })
 
-        if not results:  # skip image if no masks
+        # --- Match basename (ignore extension) ---
+        base_name = os.path.basename(rgb_path)
+        base_key = os.path.splitext(base_name)[0]  # without extension
+
+        if base_key in prefix_map:
+            rgb_name = prefix_map[base_key]  # use prefixed name with correct extension
+        else:
+            print(f"⚠️ Warning: {base_name} not found in prefix_map, skipping")
             continue
 
+        # ✅ Always include annotation, even if results is empty
         annotation = {
             "id": start,
             "completed_by": completed_by,
-            "result": results,
+            "result": results,   # may be []
             "was_cancelled": False,
             "ground_truth": False,
             "created_at": now,
@@ -110,10 +116,10 @@ def rgb_masks_to_labelstudio_json(image_paths, output_json,
         task = {
             "id": task_id,
             "annotations": [annotation],
-            "file_upload": os.path.basename(rgb_path),
+            "file_upload": rgb_name,
             "drafts": [],
             "predictions": [],
-            "data": {"image": f"/data/upload/{project_id}/{os.path.basename(rgb_path)}"},
+            "data": {"image": f"/data/upload/{project_id}/{rgb_name}"},
             "meta": {},
             "created_at": now,
             "updated_at": now,
@@ -125,6 +131,7 @@ def rgb_masks_to_labelstudio_json(image_paths, output_json,
 
         all_tasks.append(task)
         start += 1
+
     with open(output_json, "w") as f:
         json.dump(all_tasks, f, indent=2)
 
@@ -135,65 +142,35 @@ def update_task(task, newfolder):
     old_file = task.get("file_upload")
     if not old_file:
         return
-
-    # Find matching prefix file by suffix
-    new_file = prefix_map.get(old_file)
-    if new_file:
-        # Update file_upload
-        task["file_upload"] = new_file
-
-        # Update project field at task level
-        task["project"] = newfolder
-
-        # Update project inside annotations
-        if "annotations" in task:
-            for ann in task["annotations"]:
-                ann["project"] = newfolder
-
-        # Update data.image if exists
-        if "data" in task and "image" in task["data"]:
-            old_path = task["data"]["image"]
-
-            # Extract current upload folder (e.g. /data/upload/42)
-            old_folder = os.path.dirname(old_path)
-
-            # Replace the old upload folder number with the new one
-            parts = old_folder.split("/")
-            if len(parts) >= 3 and parts[-2] == "upload":
-                parts[-1] = str(newfolder)  # swap folder number
-            new_folder_path = "/".join(parts)
-
-            # Join with new file name
-            task["data"]["image"] = os.path.join(new_folder_path, new_file)
+    task["project"] = newfolder
+    for ann in task.get("annotations", []):
+        ann["project"] = newfolder
+    task["data"]["image"] = f"/data/upload/{newfolder}/{task['file_upload']}"
 
 
-rgb_masks_to_labelstudio_json(image_files, json_path)
+# --- Build prefix_map (basename_noext -> prefixed_name with extension) ---
+prefix_map = {}
+for fname in os.listdir(prefix_folder):
+    if fname.endswith((".png", ".jpg", ".jpeg")):
+        parts = fname.split("-", 1)
+        if len(parts) == 2:
+            original_name = parts[1]
+            key = os.path.splitext(original_name)[0]  # ignore extension
+            prefix_map[key] = fname
+print(prefix_map)
 
-# # Load JSON file
-# with open(r"C:\Users\Admin\Downloads\new_multiple_output_labelstudio.json", "r") as f:
-#     json_data = json.load(f)
-# # Print structure
-# print_structure(json_data)
+# --- Convert masks to JSON ---
+rgb_masks_to_labelstudio_json(image_files, json_path, prefix_map)
 
-
-# Load JSON
+# --- Load JSON & Update Tasks ---
 with open(json_path, "r") as f:
-    data = json.load(f)  # data is a list of tasks
+    data = json.load(f)
 
-    # Build a mapping: suffix -> prefixed_filename
-    prefix_map = {}
-    for fname in os.listdir(prefix_folder):
-        if fname.endswith(".png") or fname.endswith(".jpg"):
-            parts = fname.split("-", 1)  # split only on the first dash
-            if len(parts) == 2:
-                suffix = parts[1]  # e.g. A_T_1_rangeDataFiltered-0000022-_crack.png
-                prefix_map[suffix] = fname
+if isinstance(data, list):
+    for task in data:
+        update_task(task, newfolder=newfolder)
 
-# # Update each task in the list
-# if isinstance(data, list):
-#     for task in data:
-#         update_task(task, newfolder=newfolder)
-#
-# # Save updated JSON
-# with open(json_path, "w") as f:
-#     json.dump(data, f, indent=2)
+with open(json_path, "w") as f:
+    json.dump(data, f, indent=2)
+
+print(f"🎯 Updated JSON saved → {json_path}")

@@ -157,16 +157,13 @@ def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
     for lbl in sorted(unique_labels):
         print(lbl)
 
-folderlist = [r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7\10-09-2025\Jayesh_S-7_p-3_500-585\project-20-at-2025-09-10-19-09-97388ceb.json",
-r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7\10-09-2025\SANISA _S-7_P-2_263-298\project-17-at-2025-09-10-18-28-5cfc52e3.json"
+folderlist = [
+r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\11-9-25\Day_Damoh_S2_P1 (Payal)\project-28-at-2025-09-11-18-09-60e56fbe.json",
+r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\11-9-25\Day_Damoh_S2_P2(Tanishq)\project-22-at-2025-09-11-19-33-aacec160.json"
               ]
-
+folderlist=[r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-1\11-9-25\Sharan Sec-1 (1864-1950)\project-27-at-2025-09-11-18-47-32cc4095.json"]
 for i in folderlist:
     save_masks_from_json(i,
-        r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7\Masks",
+        r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-1\AnnotationMasks",
         use_rgb=True)
 
-# save_masks_from_json(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3\10-09-2025\TANISHQ-274-300_S-3\project-4-at-2025-09-10-18-53-f3459e94.json",
-#                      r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3\Masks",
-#                         use_rgb=True
-# )

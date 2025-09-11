@@ -18,24 +18,25 @@ from models.unet.UnetPP import UNetPP
 
 CLASS_COLOR_MAP = {
     0: [0, 0, 0],  # Black   - Background
-    # 1:  [255, 0, 0],      # Red     - Alligator
-    # 2:  [0, 0, 255],      # Blue    - Transverse Crack
-    # 3:  [0, 255, 0],      # Green   - Longitudinal Crack
-    # 4:  [139, 69, 19],    # Brown   - Pothole
-    # 5:  [255, 165, 0],    # Orange  - Patches
-    # 6:  [128, 0, 128],    # Purple  - Punchout
-    # 7:  [0, 255, 255],    # Cyan    - Spalling
-    # 8:  [0, 128, 0],      # Dark Green - Corner Break
+    1:  [255, 0, 0],      # Red     - Alligator
+    2:  [0, 0, 255],      # Blue    - Transverse Crack
+    3:  [0, 255, 0],      # Green   - Longitudinal Crack
+    4:  [139, 69, 19],    # Brown   - Pothole
+    5:  [255, 165, 0],    # Orange  - Patches
+    6:  [128, 0, 128],    # Purple  - Punchout
+    7:  [0, 255, 255],    # Cyan    - Spalling
+    8:  [0, 128, 0],      # Dark Green - Corner Break
     9: [255, 100, 203],  # Light Pink - Sealed Joint - T
     10: [199, 21, 133],  # Dark Pink  - Sealed Joint - L
-    # 11: [255, 215, 0],    # Gold       - Cracking
-    # 12: [255, 255, 255],  # White      - Unclassified
-    # 13: [255, 0, 255],    # Yellow     - multiple crack
+    11: [255, 215, 0],    # Gold       - Cracking
+    12: [255, 255, 255],  # White      - Unclassified
+    13: [255, 0, 255],    # Yellow     - multiple crack
+    14: [112, 102, 255],  # Grey       - popout
 }
 
 
 def main(imgs_root=None, prediction_save_path=None, batch_size=4):
-    num_classes = 13 + 1
+    num_classes = 14 + 1
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     mean = (0.493, 0.493, 0.493)
     std = (0.144, 0.144, 0.144)
@@ -50,7 +51,7 @@ def main(imgs_root=None, prediction_save_path=None, batch_size=4):
 
     # Model
     model = UNetPP(in_channels=3, num_classes=num_classes)
-    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_13\UNET_concrete_13_best_epoch171_dice0.902.pth"
+    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_mix_14\UNET_mix_13_best_epoch25_dice0.892.pth"
     pretrain_weights = torch.load(weights_path, map_location=device)
     if "model" in pretrain_weights:
         model.load_state_dict(pretrain_weights["model"])
@@ -138,22 +139,7 @@ def remove_small_components_multiclass(mask, min_area=400):
 
 
 if __name__ == '__main__':
-    main(imgs_root=r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-6\process_distress",
-         prediction_save_path=r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-6\SECTION_RESULTS",
+    main(imgs_root=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\MIX\DATASET_SPLIT\VAL\IMAGES",
+         prediction_save_path=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\MIX\DATASET_SPLIT\VAL\RESULT_IMAGES",
          batch_size=8)
 
-    main(imgs_root=r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-7\process_distress",
-         prediction_save_path=r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-7\SECTION_RESULTS",
-         batch_size=8)
-
-    main(imgs_root=r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-8\process_distress",
-         prediction_save_path=r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-8\SECTION_RESULTS",
-         batch_size=8)
-
-    main(imgs_root=r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-9\process_distress",
-         prediction_save_path=r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-9\SECTION_RESULTS",
-         batch_size=8)
-
-    main(imgs_root=r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-10\process_distress",
-         prediction_save_path=r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-10\SECTION_RESULTS",
-         batch_size=8)

@@ -1,11 +1,12 @@
 import os
+import pdb
 import shutil
 import random
 
 # Paths
-images_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationImages"
-masks_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationMasks"
-output_base = r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\DATASET_SPLIT'
+images_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\MIX\AnnotationImages"
+masks_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\MIX\AnnotationMasks"
+output_base = r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\MIX\DATASET_SPLIT'
 split_ratio = 0.80  # 80% train, 20% val
 
 # Get matching base filenames (only those that have both .jpg and .png)

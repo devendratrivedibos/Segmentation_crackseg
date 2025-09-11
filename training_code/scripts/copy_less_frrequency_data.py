@@ -25,16 +25,17 @@ COLOR_MAP = {
 }
 
 # Target classes
-target_classes = {13}  # Blue and Magenta
+target_classes = {2, 4, 5, 7, 8, 13, 14}  # Blue and Magenta
 
 # Colors corresponding to target classes (RGB)
 target_colors = [color for color, cls in COLOR_MAP.items() if cls in target_classes]
 
 # Paths
-mask_folder = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-5\AnnotationMasks"
-output_mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\AnnotationMasks_COPY"
-image_folder = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-5\AnnotationImages"
-output_image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\AnnotationImages_COPY"
+mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationMasks"
+output_mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationMasks_COPY"
+image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationImages"
+output_image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationImages_COPY"
+
 os.makedirs(output_mask_folder, exist_ok=True)
 os.makedirs(output_image_folder, exist_ok=True)
 matching_images = []
@@ -61,25 +62,24 @@ for filename in os.listdir(mask_folder):
         if any(np.any(np.all(mask == color, axis=-1)) for color in target_colors):
             matching_images.append(filename)
 
-rows = []
-for filename in matching_images:
-    name, _ = os.path.splitext(filename)
+# rows = []
+# for filename in matching_images:
+            name, _ = os.path.splitext(filename)
 
-    mask_src = os.path.join(mask_folder, filename)
-    image_src = find_image_file(image_folder, name)
+            mask_src = os.path.join(mask_folder, filename)
+            image_src = find_image_file(image_folder, name)
 
-    if image_src is None:
-        print(f"⚠ Image for {filename} not found, skipping.")
-        continue
+            if image_src is None:
+                print(f"⚠ Image for {filename} not found, skipping.")
+                continue
 
-    _, mask_ext = os.path.splitext(filename)
-    _, image_ext = os.path.splitext(image_src)
+            _, mask_ext = os.path.splitext(filename)
+            _, image_ext = os.path.splitext(image_src)
 
-    # Copy mask duplicates
-    shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy1{mask_ext}"))
-    shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy2{mask_ext}"))
+            # Copy mask duplicates
+            shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy1{mask_ext}"))
+            shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy2{mask_ext}"))
 
-    # Copy image duplicates with original image extension
-    shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy1{image_ext}"))
-    shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy2{image_ext}"))
-    rows.append([image_src, mask_src])
+            # Copy image duplicates with original image extension
+            shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy1{image_ext}"))
+            shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy2{image_ext}"))

@@ -22,31 +22,23 @@ from models.unet.vgg_unet import VGG16UNet
 from models.fcn.fcn import fcn_resnet101
 from models.unet.UnetPP import UNetPP
 
-# Define color map for classes (BGR for OpenCV)
-# CLASS_COLOR_MAP = {
-#     0: [0, 0, 0],        # background: black
-#     1: [255, 0, 0],      # red (BGR) for class 1
-#     2: [0, 0, 255],   # Blue     Transverse Crack
-#     3: [0, 255, 0],  # Green    Longitudinal Crack
-#     4: [255, 0, 255],  ## Magenta  Multiple Crack
-#     5: [255, 204, 0],  # Yellow   Joint Seal
-#     6: [0, 42, 255],  # Orange   Pothole
-# }
 
 CLASS_COLOR_MAP = {
     0:  [0, 0, 0],        # Black   - Background
     1:  [255, 0, 0],      # Red     - Alligator
-    2:  [0, 0, 255],      # Blue    - Transverse Crack
-    3:  [0, 255, 0],      # Green   - Longitudinal Crack
-    4:  [139, 69, 19],    # Brown   - Pothole
-    5:  [255, 165, 0],    # Orange  - Patches
-    6:  [128, 0, 128],    # Purple  - Punchout
-    7:  [0, 255, 255],    # Cyan    - Spalling
-    8:  [0, 128, 0],      # Dark Green - Corner Break
+    # 2:  [0, 0, 255],      # Blue    - Transverse Crack
+    # 3:  [0, 255, 0],      # Green   - Longitudinal Crack
+    # 4:  [139, 69, 19],    # Brown   - Pothole
+    # 5:  [255, 165, 0],    # Orange  - Patches
+    # 6:  [128, 0, 128],    # Purple  - Punchout
+    # 7:  [0, 255, 255],    # Cyan    - Spalling
+    # 8:  [0, 128, 0],      # Dark Green - Corner Break
     9:  [255, 100, 203],  # Light Pink - Sealed Joint - T
     10: [199, 21, 133],   # Dark Pink  - Sealed Joint - L
-    11: [255, 215, 0],    # Gold       - Cracking
-    12: [255, 255, 255],  # White      - Unclassified
+    # 11: [255, 215, 0],    # Gold       - Cracking
+    # 12: [255, 255, 255],  # White      - Unclassified
+    13: [255, 0, 255],    # Yellow     - multiple crack
+    # 14: [112, 102, 255],  # Grey       - popout
 }
 
 def time_synchronized():
@@ -54,8 +46,8 @@ def time_synchronized():
     return time.time()
 
 
-def main():
-    num_classes = 12 + 1
+def main(imgs_root=None, prediction_save_path=None):
+    num_classes = 14 + 1
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     mean = (0.493, 0.493, 0.493)
     std = (0.144, 0.144, 0.144)
@@ -66,10 +58,10 @@ def main():
 
     # load image
 
-    imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATASET_SPLIT\VAL\IMAGES"
+    imgs_root = imgs_root
     images_list = os.listdir(imgs_root)
     images_list = [img for img in images_list if img.lower().endswith(('.png', '.jpg', '.jpeg'))]
-    prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATASET_SPLIT\VAL/SECTION_RESULTS"
+    prediction_save_path = prediction_save_path
     os.makedirs(prediction_save_path, exist_ok=True)
 
     # create model
@@ -79,7 +71,7 @@ def main():
     # model = MobileV3Unet(num_classes=num_classes)
 
     # load model weights
-    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_12\UNET_concrete_12_best_epoch14_dice0.887.pth"
+    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_mix_14\UNET_mix_13_best_epoch25_dice0.892.pth"
 
     assert os.path.exists(weights_path), f"file: '{weights_path}' dose not exist."
 
@@ -117,16 +109,16 @@ def main():
 
             prediction = output['out'].argmax(1).squeeze(0)
             prediction = prediction.to("cpu").numpy().astype(np.uint8)
-
+            prediction = remove_small_components_multiclass(prediction, min_area=400)
             prediction_color = colorize_prediction(prediction)
             mask_save_path = os.path.join(prediction_save_path, image.split('.')[0] + '.png')
             cv2.imwrite(mask_save_path, cv2.cvtColor(prediction_color, cv2.COLOR_RGB2BGR))
 
             # Overlay on original image and save overlay
-            original_img_bgr = cv2.cvtColor(original_img, cv2.COLOR_RGB2BGR)
-            overlaid = overlay_mask_on_image(original_img_bgr, cv2.cvtColor(prediction_color, cv2.COLOR_RGB2BGR))
-            overlay_save_path = os.path.join(prediction_save_path, image.split('.')[0] + '_overlay.png')
-            cv2.imwrite(overlay_save_path, overlaid)
+            # original_img_bgr = cv2.cvtColor(original_img, cv2.COLOR_RGB2BGR)
+            # overlaid = overlay_mask_on_image(original_img_bgr, cv2.cvtColor(prediction_color, cv2.COLOR_RGB2BGR))
+            # overlay_save_path = os.path.join(prediction_save_path, image.split('.')[0] + '_overlay.png')
+            # cv2.imwrite(overlay_save_path, overlaid)
 
             print(f"\r[{image}] processed overlay [{index + 1}/{len(images_list)}]", end="")
 
@@ -153,5 +145,41 @@ def overlay_mask_on_image(image, color_mask, alpha=0.5):
     return overlay
 
 
+def remove_small_components_multiclass(mask, min_area=400):
+    """
+    Removes small connected components per class in a multi-class segmentation mask.
+
+    Args:
+        mask (np.ndarray): Segmentation mask (H×W, dtype int).
+                           0 = background, 1..N = classes.
+        min_area (int): Minimum number of pixels to keep.
+        min_width (int): Minimum bounding box width.
+        min_height (int): Minimum bounding box height.
+
+    Returns:
+        np.ndarray: Cleaned segmentation mask.
+    """
+    cleaned = np.zeros_like(mask, dtype=mask.dtype)
+
+    for cls in np.unique(mask):
+        if cls == 0:  # skip background
+            continue
+
+        class_mask = (mask == cls).astype(np.uint8)
+
+        num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(class_mask, connectivity=8)
+
+        for i in range(1, num_labels):  # skip background
+            area = stats[i, cv2.CC_STAT_AREA]
+            if area >= min_area:
+                cleaned[labels == i] = cls
+
+    return cleaned
+
+
 if __name__ == '__main__':
-    main()
+    # main(imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\MIX\DATASET_SPLIT\VAL\IMAGES",
+    # prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\MIX\DATASET_SPLIT\VAL\RESULT_IMAGES")
+
+    main(imgs_root = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-6\divided_output\part_1\img_197_230",
+    prediction_save_path = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-6\divided_output\part_1\197_230")

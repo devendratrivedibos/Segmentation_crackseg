@@ -7,8 +7,9 @@ from functools import partial
 from tqdm import tqdm
 
 # --- Define Folders ---
+# Concreete Day
 folders = [
-    r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-1\Masks",
+    r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-1\AnnotationMasks",
     r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\DayMasks",
     r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7\AnnotationMasks",
     r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-6\AnnotationMasks",
@@ -18,10 +19,22 @@ folders = [
     r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-2\AnnotationMasks",
 ]
 
-# folders1 = [r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3\Masks",
-#             r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4\Masks",
+##ASPHALT DAY
+folders = [
+    r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\AnnotationMasks",
+    r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\AnnotationMasks"
+]
+
+## CONCRETE DAY
+# folders = [r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3\AnnotationMasks",
+#             r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4\AnnotationMasks",
 # r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\AnnotationMasksNIGHT"
 # ]
+
+# folders=[
+#         # r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\AnnotationMasks",
+#         r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationMasks"
+#         ]
 
 # Collect (folder, filename) tuples
 image_files = []

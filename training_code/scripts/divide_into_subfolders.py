@@ -33,14 +33,12 @@ def divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=10
     print(f"✅ Done! Divided {total} matching pairs into {n_subfolders} subfolders (img/mask).")
 
 # Example usage:
-process_dir = r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3\process_distress"
-results_dir = r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3\SECTION_RESULTS"
-output_dir = r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3\divided_images"
-# divide_into_subfolders(process_dir, results_dir, output_dir)
+process_dir = r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\process_distress"
+results_dir = r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\Masks"
+output_dir = r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\divided_images"
+divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=15)
+process_dir = r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\process_distress"
+results_dir = r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\Masks"
+output_dir = r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\divided_images"
 
-
-process_dir = r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4\process_distress"
-results_dir = r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4\SECTION_RESULTS"
-output_dir = r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4\divided_images"
-
-divide_into_subfolders(process_dir, results_dir, output_dir)
+divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=15)
