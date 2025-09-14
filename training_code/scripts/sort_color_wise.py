@@ -6,19 +6,21 @@ import pandas as pd
 
 # Color map
 COLOR_MAP = {
-    (0, 0, 0): 0,  # Black   - Background     1139
-    (255, 0, 0): 1,  # Red     - Alligator      700
-    (0, 0, 255): 2,  # Blue    - Transverse Crack    90
-    (0, 255, 0): 3,  # Green   - Longitudinal Crack    522
-    (139, 69, 19): 4,  # Brown    -  POTHOLE
-    (255, 165, 0): 5,  # Orange   - PATCHES
-    (128, 0, 128): 6,  # Purple   - punchout
-    (0, 255, 255): 7,  # Cyan     -spalling
-    (0, 128, 0): 8,  # Dark Green   - COrner Break
-    (255, 100, 203): 9,  # Light Pink    - SEALED JOINT - T
-    (199, 21, 133): 10,  # Dark Pink  - SEALED JOINT - L
-    (255, 215, 0): 11,  # Gold    CRACKING
-    (255, 255, 255): 12,  # WHITE  UNCLASSIFIED
+    (0, 0, 0): 0,         # Black - Background
+    (255, 0, 0): 1,       # Red - Alligator
+    (0, 0, 255): 2,       # Blue - Transverse Crack
+    (0, 255, 0): 3,       # Green - Longitudinal Crack
+    (139, 69, 19): 4,     # Brown - Pothole
+    (255, 165, 0): 5,     # Orange - Patches
+    (255, 0, 255): 6,    # Violet - Multiple Crack
+    (0, 255, 255): 7,     # Cyan - Spalling
+    (0, 128, 0): 8,       # Dark Green - Corner Break
+    (255, 100, 203): 9,   # Light Pink - Sealed Joint - T
+    (199, 21, 133): 10,   # Dark Pink - Sealed Joint - L
+    (128, 0, 128): 11,     # Purple - Punchout
+    (112, 102, 255): 12,  #popout Grey
+    (255, 255, 255): 13,  # White - Unclassified
+    (255, 215, 0): 14,  # Gold - Cracking
 }
 
 # Target classes

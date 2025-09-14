@@ -5,36 +5,36 @@ import shutil
 import csv
 import pandas as pd
 
-# Color map
+# --- Color map (RGB) → ID ---
 COLOR_MAP = {
-    (0, 0, 0): 0,  # Black   - Background     1139
-    (255, 0, 0): 1,  # Red     - Alligator      700
-    (0, 0, 255): 2,  # Blue    - Transverse Crack    90
-    (0, 255, 0): 3,  # Green   - Longitudinal Crack    522
-    (139, 69, 19): 4,  # Brown    -  POTHOLE
-    (255, 165, 0): 5,  # Orange   - PATCHES
-    (128, 0, 128): 6,  # Purple   - punchout
-    (0, 255, 255): 7,  # Cyan     -spalling
-    (0, 128, 0): 8,  # Dark Green   - COrner Break
-    (255, 100, 203): 9,  # Light Pink    - SEALED JOINT - T
-    (199, 21, 133): 10,  # Dark Pink  - SEALED JOINT - L
-    (255, 215, 0): 11,  # Gold    CRACKING
-    (255, 255, 255): 12,  # WHITE  UNCLASSIFIED
-    (255, 0, 255): 13,  # Violet - Multiple Crack
-    (112, 102, 255): 14,  # Grey
+    (0, 0, 0): 0,         # Black - Background
+    (255, 0, 0): 1,       # Red - Alligator
+    (0, 0, 255): 2,       # Blue - Transverse Crack
+    (0, 255, 0): 3,       # Green - Longitudinal Crack
+    (139, 69, 19): 4,     # Brown - Pothole
+    (255, 165, 0): 5,     # Orange - Patches
+    (255, 0, 255): 6,    # Violet - Multiple Crack
+    (0, 255, 255): 7,     # Cyan - Spalling
+    (0, 128, 0): 8,       # Dark Green - Corner Break
+    (255, 100, 203): 9,   # Light Pink - Sealed Joint - T
+    (199, 21, 133): 10,   # Dark Pink - Sealed Joint - L
+    (128, 0, 128): 11,     # Purple - Punchout
+    (112, 102, 255): 12,  #popout Grey
+    (255, 255, 255): 13,  # White - Unclassified
+    (255, 215, 0): 14,  # Gold - Cracking
 }
 
 # Target classes
-target_classes = {2, 4, 5, 7, 8, 13, 14}  # Blue and Magenta
+target_classes = {2, 3, 4, 5, 6, 7, 8, 11, 12}  # Blue and Magenta
 
 # Colors corresponding to target classes (RGB)
 target_colors = [color for color, cls in COLOR_MAP.items() if cls in target_classes]
 
 # Paths
-mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationMasks"
-output_mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationMasks_COPY"
-image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationImages"
-output_image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationImages_COPY"
+mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationMasks"
+output_mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationMasks"
+image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationImages"
+output_image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationImages"
 
 os.makedirs(output_mask_folder, exist_ok=True)
 os.makedirs(output_image_folder, exist_ok=True)
@@ -79,7 +79,14 @@ for filename in os.listdir(mask_folder):
             # Copy mask duplicates
             shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy1{mask_ext}"))
             shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy2{mask_ext}"))
+            shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy3{mask_ext}"))
+            shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy4{mask_ext}"))
+            shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy5{mask_ext}"))
 
             # Copy image duplicates with original image extension
             shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy1{image_ext}"))
             shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy2{image_ext}"))
+            shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy3{image_ext}"))
+            shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy4{image_ext}"))
+            shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy5{image_ext}"))
+            print(f"✔ Copied duplicates for: {filename}")

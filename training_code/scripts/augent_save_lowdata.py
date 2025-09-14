@@ -2,12 +2,12 @@ import cv2
 import os
 import random
 # Input folders
-images_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationImages_COPY"
-masks_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationMasks_COPY"
+images_folder =  r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\AnnotationMasks_COPY"
+masks_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\AnnotationMasks_COPY"
 
 # Output folders (must be different from input to avoid overwrite)
-aug_images_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationImages_COPY"
-aug_masks_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationMasks_COPY"
+aug_images_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationImages"
+aug_masks_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationMasks"
 
 os.makedirs(aug_images_folder, exist_ok=True)
 os.makedirs(aug_masks_folder, exist_ok=True)

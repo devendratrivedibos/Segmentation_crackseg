@@ -78,9 +78,10 @@ class FocalCrossEntropy(nn.Module):
         loss = (1.0 - pt) ** self.gamma * ce
 
         if self.alpha is not None:
-            # index alpha by class id
             with torch.no_grad():
-                alpha_t = self.alpha.gather(0, targets.clamp_min(0))
+                flat_t = targets.view(-1).clamp_min(0)  # [B*H*W]
+                alpha_t = self.alpha.gather(0, flat_t)  # [B*H*W]
+                alpha_t = alpha_t.view_as(targets)  # [B,H,W]
             loss = loss * alpha_t
 
         if self.ignore_index >= 0:

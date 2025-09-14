@@ -18,6 +18,7 @@ for ext in ("*.png", "*.jpg", "*.jpeg"):
 # Or you can hardcode for debugging
 # image_files = [r"C:\Users\Admin\Downloads\M\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33_SECTION-1_IMG_0000000.png"]
 
+
 json_path = fr"{root_dir}/_new_multiple_output_labelstudio.json"
 prefix_folder = fr"C:/Users/{username}/AppData/Local/label-studio/label-studio/media/upload/{newfolder}"
 
@@ -35,7 +36,7 @@ COLOR_TO_LABEL = {
     (255, 215, 0): "cracking",  # Gold
     (255, 255, 255): "unclassified",  # White
     (255, 0, 255): "multiple crack",  # Yellow
-    (100, 100, 100): "popout"  # Grey
+    (112, 102, 255): "popout"  # Grey
 }
 
 

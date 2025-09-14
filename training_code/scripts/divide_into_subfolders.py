@@ -33,12 +33,7 @@ def divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=10
     print(f"✅ Done! Divided {total} matching pairs into {n_subfolders} subfolders (img/mask).")
 
 # Example usage:
-process_dir = r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\process_distress"
-results_dir = r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\Masks"
-output_dir = r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\divided_images"
-divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=15)
-process_dir = r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\process_distress"
-results_dir = r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\Masks"
-output_dir = r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\divided_images"
-
-divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=15)
+process_dir = r"W:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\process_distress"
+results_dir = r"W:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\Masks"
+output_dir = r"W:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\divided_images"
+divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=10)

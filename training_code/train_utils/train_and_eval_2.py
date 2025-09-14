@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 from typing import Union, Dict
-
+import numpy as np
 from . import distributed_utils as utils
 from .dice_coefficient_loss import dice_loss, build_target   # kept for compatibility if you use elsewhere
 from .hybrid_loss import build_crack_criterion               # your hybrid criterion builder
@@ -15,14 +15,40 @@ IGNORE_INDEX = 255
 # Device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-num_classes = 13
-
+num_classes = 14 + 1
+# class_counts = [
+#     11998,   # 0
+#     0,       # 1
+#     1346,    # 2
+#     1799,    # 3
+#     661,     # 4
+#     519,     # 5
+#     1879,    # 6
+#     1598,    # 7
+#     1052,    # 8
+#     11563,   # 9
+#     11745,   # 10
+#     27,      # 11
+#     418,     # 12
+#     21,      # 13
+#     0        # 14
+# ]
 class_counts = None
+# # Convert counts → tensor, avoid zero by replacing with 1
+# counts = np.array(class_counts, dtype=np.float32)
+# counts[counts == 0] = 1.0
+# counts_tensor = torch.tensor(counts, dtype=torch.float32, device=device)
+#
+# # Inverse frequency weighting
+# weights = 1.0 / counts
+# weights = weights / weights.sum() * len(counts)
+# class_weights = torch.tensor(weights, dtype=torch.float32, device=device)
 
-# Build the hybrid loss ONCE (don’t recreate inside the loop)
+# ✅ FIX: use counts_tensor, not the Python list
+counts_tensor = class_counts
 criterion = build_crack_criterion(
     num_classes=num_classes,
-    class_counts=class_counts,
+    class_counts=counts_tensor,
     device=device,
     ignore_index=IGNORE_INDEX
 )
@@ -121,6 +147,58 @@ def train_one_epoch(model,
     return metric_logger.meters["loss"].global_avg, lr
 
 
+
+def train_one_epoch_loss(model,
+                    optimizer,
+                    data_loader,
+                    device,
+                    epoch,
+                    num_classes,
+                    lr_scheduler,
+                    print_freq=10,
+                    scaler=None,
+                    grad_clip_norm: float = 0.0):
+    model.train()
+    metric_logger = utils.MetricLogger(delimiter="  ")
+    metric_logger.add_meter('lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
+    header = f'Epoch: [{epoch}]'
+
+    running_loss = 0.0
+    total_batches = 0
+
+    for image, target in metric_logger.log_every(data_loader, print_freq, header):
+        image, target = image.to(device), target.to(device)
+
+        with torch.cuda.amp.autocast(enabled=scaler is not None):
+            outputs = model(image)        # Tensor or {'out', 'aux'}
+            loss = criterion(outputs, target)
+
+        optimizer.zero_grad(set_to_none=True)
+
+        if scaler is not None:
+            scaler.scale(loss).backward()
+            if grad_clip_norm and grad_clip_norm > 0:
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            loss.backward()
+            if grad_clip_norm and grad_clip_norm > 0:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
+            optimizer.step()
+
+        lr_scheduler.step()
+
+        lr = optimizer.param_groups[0]["lr"]
+        metric_logger.update(loss=loss.item(), lr=lr)
+
+        # --- NEW: accumulate for epoch average ---
+        running_loss += loss.item()
+        total_batches += 1
+
+    epoch_loss = running_loss / total_batches
+    return epoch_loss, lr
 # -----------------------------
 # LR Scheduler (unchanged)
 # -----------------------------

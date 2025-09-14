@@ -1,3 +1,13 @@
+#@author: Devendra
+'''
+THIS 'copy_images_with_masks_folder' WILL COPY MASK AND IMAGES FROM process_distress AND Masks FOLDER
+TO AnnotationImages AND AnnotationMasks FOLDER
+
+process_section will copy prof-0000-crack mask and images after renaming into AnnotationImages and AnnotationMasks folder
+
+'''
+
+
 import os
 import pdb
 import re
@@ -141,14 +151,24 @@ if __name__ == "__main__":
     # copy_matched_images(main_folder)
 
 
-    copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-1")
-    copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3")
-    copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4")
+    # copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-1")
+    # copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3")
+    # copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4")
+
     # copy_images_with_masks_folder(r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1")
     # copy_images_with_masks_folder(r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2")
-    # copy_images_with_masks_folder(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7")
-    # copy_images_with_masks_folder(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7")
 
+    copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-1")
+    # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-2")
+    # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-3")
+
+    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1")
+    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2")
+    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3")
+    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4")
+    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5")
+    # copy_images_with_masks_folder(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7")
+    # copy_images_with_masks_folder(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7")
 
     # # Base projects folder
     # process_section(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3", name_prefix="THANE_BELAPUR_SECTION3_")

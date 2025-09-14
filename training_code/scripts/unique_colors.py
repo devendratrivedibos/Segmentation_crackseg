@@ -21,19 +21,25 @@ folders = [
 
 ##ASPHALT DAY
 folders = [
-    r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\AnnotationMasks",
-    r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\AnnotationMasks"
+r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\AnnotationMasks",
+r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\AnnotationMasks",
+r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-1\AnnotationMasks",
+r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-2\AnnotationMasks",
+r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-3\AnnotationMasks",
+r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\AnnotationMasks",
+r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\AnnotationMasks",
+r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\AnnotationMasks",
+r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\AnnotationMasks",
 ]
-
-## CONCRETE DAY
+# CONCRETE DAY
 # folders = [r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3\AnnotationMasks",
-#             r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4\AnnotationMasks",
+# r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4\AnnotationMasks",
 # r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\AnnotationMasksNIGHT"
 # ]
 
 # folders=[
-#         # r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\AnnotationMasks",
-#         r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\AnnotationMasks"
+#         # r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\DATASET_SPLIT\TEST\RESULT_IMAGES",
+# r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\DELETE_MASK'
 #         ]
 
 # Collect (folder, filename) tuples
@@ -53,15 +59,15 @@ COLOR_MAP = {
     (0, 255, 0): 3,       # Green - Longitudinal Crack
     (139, 69, 19): 4,     # Brown - Pothole
     (255, 165, 0): 5,     # Orange - Patches
-    (128, 0, 128): 6,     # Purple - Punchout
+    (255, 0, 255): 6,    # Violet - Multiple Crack
     (0, 255, 255): 7,     # Cyan - Spalling
     (0, 128, 0): 8,       # Dark Green - Corner Break
     (255, 100, 203): 9,   # Light Pink - Sealed Joint - T
     (199, 21, 133): 10,   # Dark Pink - Sealed Joint - L
-    (255, 215, 0): 11,    # Gold - Cracking
-    (255, 255, 255): 12,  # White - Unclassified
-    (255, 0, 255): 13,    # Violet - Multiple Crack
-    (112, 102, 255): 14,  # Grey
+    (128, 0, 128): 11,     # Purple - Punchout
+    (112, 102, 255): 12,  #popout Grey
+    (255, 255, 255): 13,  # White - Unclassified
+    (255, 215, 0): 14,  # Gold - Cracking
 }
 
 # --- Worker function ---
@@ -106,7 +112,7 @@ if __name__ == "__main__":
     # --- Aggregate results ---
     id_image_count = defaultdict(int)
     invalid_color_files = {}
-    id12_files = []
+    unclassified = []
 
     for res in results:
         if res["error"]:
@@ -119,8 +125,9 @@ if __name__ == "__main__":
         if res["unknown_colors"]:
             invalid_color_files[res["path"]] = res["unknown_colors"]
 
-        if 12 in res["known_ids"]:
-            id12_files.append(res["path"])
+        # if any([10,11,13]) in res["known_ids"]:
+        if any(x in res["known_ids"] for x in [13]):
+            unclassified.append(res["path"])
 
     # --- Summary Report ---
     print("\n✔️ Image count per known class ID:")
@@ -134,6 +141,6 @@ if __name__ == "__main__":
     else:
         print("\n✅ All images use only valid colors.")
 
-    print("\n📂 Files containing ID=12 (Unclassified, White):")
-    for f in id12_files:
+    print("\n📂 Files containing ID=13 (Unclassified, White):")
+    for f in unclassified:
         print(f)

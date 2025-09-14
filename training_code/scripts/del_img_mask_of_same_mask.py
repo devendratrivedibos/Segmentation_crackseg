@@ -51,7 +51,7 @@ def find_image(mask_name):
 def process_mask(mask_name: str):
     """Move mask & corresponding image if only unwanted IDs."""
     if not mask_name.lower().endswith(".png"):
-        return None
+        return None  # masks are png only
 
     mask_path = os.path.join(mask_dir, mask_name)
     if not os.path.exists(mask_path):
@@ -61,6 +61,7 @@ def process_mask(mask_name: str):
     if mask is None:
         return None
 
+    # Get unique IDs from mask
     mask_rgb = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
     pixels = mask_rgb.reshape(-1, 3)
     unique_colors = {tuple(color) for color in pixels}

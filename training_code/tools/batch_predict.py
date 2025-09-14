@@ -2,6 +2,7 @@ import os
 import pdb
 import time
 import sys
+
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(project_root, '..'))
 import cv2
@@ -12,7 +13,6 @@ from PIL import Image
 import train_utils.transforms as T
 import sys
 
-
 from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
 from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
 from models.segformer.segformer import SegFormer
@@ -22,23 +22,24 @@ from models.unet.vgg_unet import VGG16UNet
 from models.fcn.fcn import fcn_resnet101
 from models.unet.UnetPP import UNetPP
 
-
 CLASS_COLOR_MAP = {
-    0:  [0, 0, 0],        # Black   - Background
-    1:  [255, 0, 0],      # Red     - Alligator
+    0: [0, 0, 0],  # Black   - Background
+    1: [255, 0, 0],  # Red     - Alligator
     # 2:  [0, 0, 255],      # Blue    - Transverse Crack
     # 3:  [0, 255, 0],      # Green   - Longitudinal Crack
     # 4:  [139, 69, 19],    # Brown   - Pothole
     # 5:  [255, 165, 0],    # Orange  - Patches
-    # 6:  [128, 0, 128],    # Purple  - Punchout
+
+    4: [255, 0, 255],  # violet     - multiple crack
+    5: [255, 0, 255],  # Grey       - popout
     # 7:  [0, 255, 255],    # Cyan    - Spalling
     # 8:  [0, 128, 0],      # Dark Green - Corner Break
-    9:  [255, 100, 203],  # Light Pink - Sealed Joint - T
-    10: [199, 21, 133],   # Dark Pink  - Sealed Joint - L
-    # 11: [255, 215, 0],    # Gold       - Cracking
-    # 12: [255, 255, 255],  # White      - Unclassified
-    13: [255, 0, 255],    # Yellow     - multiple crack
-    # 14: [112, 102, 255],  # Grey       - popout
+    # 9: [255, 100, 203],  # Light Pink - Sealed Joint - T
+    # 10: [199, 21, 133],  # Dark Pink  - Sealed Joint - L
+    # 11:  [128, 0, 128],    # Purple  - Punchout
+    12: [112, 102, 255],  # popout Grey
+    # 13: [255, 255, 255],  # White      - Unclassified
+    # 14: [255, 215, 0],    # Gold       - Cracking
 }
 
 def time_synchronized():
@@ -47,14 +48,18 @@ def time_synchronized():
 
 
 def main(imgs_root=None, prediction_save_path=None):
-    num_classes = 14 + 1
+    num_classes = 5 + 1
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     mean = (0.493, 0.493, 0.493)
     std = (0.144, 0.144, 0.144)
+
+    mean=(0.54159361, 0.54159361, 0.54159361)
+    std=(0.14456673, 0.14456673, 0.14456673)
+
     data_transform = T.Compose([
         # T.Resize(512),
-         T.ToTensor(),
-         T.Normalize(mean=mean, std=std),])
+        T.ToTensor(),
+        T.Normalize(mean=mean, std=std), ])
 
     # load image
 
@@ -72,7 +77,7 @@ def main(imgs_root=None, prediction_save_path=None):
 
     # load model weights
     weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_mix_14\UNET_mix_13_best_epoch25_dice0.892.pth"
-
+    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_hybrid\UNET_V2_best_epoch117_dice0.729.pth"
     assert os.path.exists(weights_path), f"file: '{weights_path}' dose not exist."
 
     pretrain_weights = torch.load(weights_path, map_location='cuda:0')
@@ -102,7 +107,7 @@ def main(imgs_root=None, prediction_save_path=None):
             original_img = cv2.imread(os.path.join(imgs_root, image))
             original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB)
             # original_img = cv2.resize(original_img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
-            img , _= data_transform(original_img, original_img)
+            img, _ = data_transform(original_img, original_img)
             img = torch.unsqueeze(img, dim=0)
 
             output = model(img.to(device))
@@ -136,6 +141,7 @@ def colorize_prediction(prediction):
     for class_id, color in CLASS_COLOR_MAP.items():
         color_mask[prediction == class_id] = color
     return color_mask
+
 
 def overlay_mask_on_image(image, color_mask, alpha=0.5):
     """
@@ -181,5 +187,6 @@ if __name__ == '__main__':
     # main(imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\MIX\DATASET_SPLIT\VAL\IMAGES",
     # prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\MIX\DATASET_SPLIT\VAL\RESULT_IMAGES")
 
-    main(imgs_root = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-6\divided_output\part_1\img_197_230",
-    prediction_save_path = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-6\divided_output\part_1\197_230")
+
+    main(imgs_root=r"W:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\process_distress",
+                      prediction_save_path=r"W:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\Masks")

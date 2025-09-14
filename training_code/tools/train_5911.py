@@ -12,7 +12,7 @@ sys.path.append(os.path.join(project_root, '..'))
 from pathlib import Path
 
 from torch.utils.data import DataLoader
-from train_utils.train_and_eval_2 import train_one_epoch, evaluate, create_lr_scheduler
+from train_utils.train_and_eval_2 import train_one_epoch, evaluate, create_lr_scheduler, train_one_epoch_loss
 from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
 import train_utils.transforms as T
 from train_utils.utils import plot, show_config
@@ -30,12 +30,12 @@ from models.unet.UnetPP import UNetPP
 
 # Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_mix_14'  # Change this to your desired output path
-model_name = "UNET_mix_13"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_asp_14'  # Change this to your desired output path
+model_name = "UNET_asp_14"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
-def get_transform(train, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
+def get_transform(train, mean=(0.54159361, 0.54159361, 0.54159361), std=(0.14456673, 0.14456673, 0.14456673)):
     img_size = 512
 
     if train:
@@ -75,11 +75,10 @@ def main(args):
 
     # mean = (0.473, 0.493, 0.504)
     # std = (0.100, 0.100, 0.099)
+    mean=(0.54159361, 0.54159361, 0.54159361)
+    std=(0.14756673, 0.14456673, 0.14456673)
 
-    mean = (0.493, 0.493, 0.493)
-    std = (0.144, 0.144, 0.144)
-
-    num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
+    num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 16])
 
     train_dataset = CrackDataset(args.data_path,
                                  train=True,
@@ -209,7 +208,7 @@ def main(args):
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs):
         epoch_start_time = time.time()
-        mean_loss, lr = train_one_epoch(model, optimizer, train_loader, device, epoch, num_classes,
+        mean_loss, lr = train_one_epoch_loss(model, optimizer, train_loader, device, epoch, num_classes,
                                         lr_scheduler=lr_scheduler, print_freq=args.print_freq, scaler=scaler)
 
         confmat, dice = evaluate(model, val_loader, device=device, num_classes=num_classes)
@@ -234,7 +233,11 @@ def main(args):
                         f"dice coefficient: {dice:.3f}\n" \
                         f"epoch time: {one_epoch_time}\n"
             f.write(train_info + val_info + "\n\n")
-            
+            torch.save(model.state_dict(), OUTPUT_SAVE_PATH / f"{model_name}_best_epoch{epoch}_dice{dice:.3f}.pth")
+            best_model_info = OUTPUT_SAVE_PATH / f"{model_name}_best_epoch{epoch}_dice{dice:.3f}.txt"
+            with open(best_model_info, "w") as f:
+                f.write(train_info + val_info)
+
         if args.save_best is True:
             if best_dice < dice:
                 best_dice = dice
@@ -245,6 +248,7 @@ def main(args):
                     f.write(train_info + val_info)
             else:
                 continue
+
         # if args.save_best is True:
         #     torch.save(model.state_dict(), OUTPUT_SAVE_PATH/"{}-best_model.pth".format(model_name))
         #     best_model_info = OUTPUT_SAVE_PATH /"{}-best_model_info.txt".format(model_name)
@@ -263,7 +267,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"Q:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\MIX\DATASET_SPLIT",
+                        default=r"Z:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\REDUCED_DATASET_SPLIT" ,
                         help="root")
     parser.add_argument("--num-classes", default=14, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
@@ -287,7 +291,7 @@ def parse_args():
                         help="number of total epochs to train")
     parser.add_argument('--print-freq', default=1, type=int, help='print frequency')
 
-    parser.add_argument('--save-best', default=True, type=bool, help='only save best dice weights')
+    parser.add_argument('--save-best', default=False, type=bool, help='only save best dice weights')
 
     parser.add_argument('--resume', default='', help='resume from checkpoint')
     # Mixed precision training parameters
