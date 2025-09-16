@@ -5,34 +5,35 @@ import numpy as np
 from multiprocessing import Pool, cpu_count
 
 # --- Paths ---
-BASE_DIR = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA"
+BASE_DIR = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7"
 mask_dir = os.path.join(BASE_DIR, "AnnotationMasks")
 img_dir = os.path.join(BASE_DIR, "AnnotationImages")
 
-delete_mask_dir = os.path.join(BASE_DIR, "DELETE_MASK")
-delete_image_dir = os.path.join(BASE_DIR, "DELETE_IMAGE")
+delete_mask_dir = os.path.join(BASE_DIR, "only_JS_MASK")
+delete_image_dir = os.path.join(BASE_DIR, "only_JS_IMAGE")
 
 os.makedirs(delete_mask_dir, exist_ok=True)
 os.makedirs(delete_image_dir, exist_ok=True)
 
 # --- Color map (RGB) → ID ---
 COLOR_MAP = {
-    (0, 0, 0): 0,  # Background
-    (255, 0, 0): 1,  # Alligator
-    (0, 0, 255): 2,  # Transverse Crack
-    (0, 255, 0): 3,  # Longitudinal Crack
-    (139, 69, 19): 4,  # Pothole
-    (255, 165, 0): 5,  # Patches
-    (255, 0, 255): 6,  # Multiple Crack
-    (0, 255, 255): 7,  # Spalling
-    (0, 128, 0): 8,  # Corner Break
-    (255, 100, 203): 9,  # Sealed Joint - T
-    (199, 21, 133): 10,  # Sealed Joint - L
-    (128, 0, 128): 11,  # Punchout
-    (112, 102, 255): 12,  # Popout
-    (255, 255, 255): 13,  # Unclassified
-    (255, 215, 0): 14,  # Cracking
+    (0, 0, 0): 0,         # Black - Background
+    (255, 0, 0): 1,       # Red - Alligator
+    (0, 0, 255): 2,       # Blue - Transverse Crack
+    (0, 255, 0): 3,       # Green - Longitudinal Crack
+    (139, 69, 19): 4,     # Brown - Pothole
+    (255, 165, 0): 5,     # Orange - Patches
+    (255, 0, 255): 6,    # Violet - Multiple Crack
+    (0, 255, 255): 7,     # Cyan - Spalling
+    (0, 128, 0): 8,       # Dark Green - Corner Break
+    (255, 100, 203): 9,   # Light Pink - Sealed Joint - T
+    (199, 21, 133): 10,   # Dark Pink - Sealed Joint - L
+    (128, 0, 128): 11,     # Purple - Punchout
+    (112, 102, 255): 12,  #popout Grey
+    (255, 255, 255): 13,  # White - Unclassified
+    (255, 215, 0): 14,  # Gold - Cracking
 }
+
 COLOR_TO_ID = {k: v for k, v in COLOR_MAP.items()}
 
 DELETE_SETS = [{0, 9}, {0, 10}, {0, 9, 10}]

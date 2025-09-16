@@ -159,13 +159,16 @@ def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
 
 
 folderlist = [
-r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-1\divided_images\part_6\YASIR 12.09.2025\project-21-at-2025-09-14-00-44-24a930e5.json",
-r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-1\divided_images\part_7\Shravan 12.09.2025\project-20-at-2025-09-14-01-24-91317121.json",
-r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-1\divided_images\part_1\12.9.2025\project-28-at-2025-09-13-09-45-97b00f35.json"
+r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\15.09.25_night\ANKIT S2_P7\project-13-at-2025-09-16-05-29-bed27ad3.json",
+r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\15.09.25_night\SHAHID S2_P9_\project-23-at-2025-09-16-03-45-ca3d94ce.json",
+r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\15.09.25_night\sidhharth s2_p6\project-32-at-2025-09-16-06-00-2d072948.json",
+r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\16-02-2025\BUSHRA S2-P2 _984-1327\project-21-at-2025-09-16-17-23-eba76595.json",
+r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\16-02-2025\PAYALS2-P1_411-663\project-22-at-2025-09-16-16-00-f8d39353.json"
+
 ]
 
 for i in folderlist:
     save_masks_from_json(i,
-        "V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-1\AnnotationMasks",
+                         r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\AnnotationMasks",
         use_rgb=True)
 

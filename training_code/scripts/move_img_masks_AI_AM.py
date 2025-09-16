@@ -13,9 +13,6 @@ import pdb
 import re
 import shutil
 
-import os
-import shutil
-
 # Regex to extract number from filename
 number_pattern = re.compile(r"(\d+)")
 
@@ -145,6 +142,16 @@ def copy_images_with_masks_folder(section_path: str):
     print(f"Processed section: {section_path}")
 
 
+# --- Function to copy matching files ---
+def copy_matching(src_dir, dst_dir, keyword):
+    for f in os.listdir(src_dir):
+        if f.lower().endswith(('.png', '.jpg', '.jpeg')) and keyword in f:
+            src_path = os.path.join(src_dir, f)
+            dst_path = os.path.join(dst_dir, f)
+            shutil.copy2(src_path, dst_path)
+            print(f"Copied: {src_path} -> {dst_path}")
+
+
 # Example usage
 if __name__ == "__main__":
     main_folder = r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33"
@@ -158,7 +165,7 @@ if __name__ == "__main__":
     # copy_images_with_masks_folder(r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1")
     # copy_images_with_masks_folder(r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2")
 
-    copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-1")
+    # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-1")
     # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-2")
     # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-3")
 
@@ -174,3 +181,19 @@ if __name__ == "__main__":
     # process_section(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3", name_prefix="THANE_BELAPUR_SECTION3_")
     # process_section(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3", name_prefix="THANE_BELAPUR_SECTION3_")
     # process_section(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-2", name_prefix="THANE_BELAPUR_SECTION2_")
+
+    # --- Process both ---
+    # --- Paths ---
+    src_images = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\AnnotationImages"  # change to your actual source path
+    src_masks = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\AnnotationMasks"
+    dst_images = r"V:\CHAS-RAMGARH_2024-11-14_11-09-22\SECTION-1/AnnotationImages"
+    dst_masks = r"V:\CHAS-RAMGARH_2024-11-14_11-09-22\SECTION-1/AnnotationMasks"
+    # --- Create destination dirs if not exist ---
+    os.makedirs(dst_images, exist_ok=True)
+    os.makedirs(dst_masks, exist_ok=True)
+    # --- Keyword to search ---
+    keyword = "C_S_1"
+
+    copy_matching(src_images, dst_images, keyword)
+    copy_matching(src_masks, dst_masks, keyword)
+    print("✅ Done copying all matching files.")

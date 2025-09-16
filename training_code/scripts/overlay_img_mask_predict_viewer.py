@@ -7,17 +7,17 @@ import re
 import random
 
 # --- CONFIG ---
-start_number = 0   # <<< starting image number
+start_number = 0  # <<< starting image number
 root_dir = "D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\REDUCED_DATASET_SPLIT\TEST"
 # root_dir = "D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\REDUCED_DATASET_SPLIT\TEST"
-image_dir  = os.path.join(root_dir, 'IMAGES')
+image_dir = os.path.join(root_dir, 'IMAGES')
 orig_mask_dir = os.path.join(root_dir, 'MASKS')
 pred_mask_dir = os.path.join(root_dir, 'RESULTS')
 
-accepted_img_dir = os.path.join(root_dir,"ACCEPTED_IMAGES")
-accepted_mask_dir = os.path.join(root_dir,"ACCEPTED_MASKS")
-rework_img_dir = os.path.join(root_dir,"REWORK_IMAGES")
-rework_mask_dir = os.path.join(root_dir,"REWORK_MASKS")
+accepted_img_dir = os.path.join(root_dir, "ACCEPTED_IMAGES")
+accepted_mask_dir = os.path.join(root_dir, "ACCEPTED_MASKS")
+rework_img_dir = os.path.join(root_dir, "REWORK_IMAGES")
+rework_mask_dir = os.path.join(root_dir, "REWORK_MASKS")
 
 # Ensure dirs exist
 for d in [accepted_img_dir, accepted_mask_dir, rework_img_dir, rework_mask_dir]:
@@ -47,15 +47,17 @@ assert len(images) == len(orig_masks) == len(pred_masks), "Images and masks coun
 
 # --- Shuffle together ---
 combined = list(zip(images, orig_masks, pred_masks))
-random.shuffle(combined)   # Shuffle once
+random.shuffle(combined)  # Shuffle once
 images, orig_masks, pred_masks = zip(*combined)
 images, orig_masks, pred_masks = list(images), list(orig_masks), list(pred_masks)
+
 
 def find_start_index(files, number):
     for i, f in enumerate(files):
         if re.search(rf"{number}", f):
             return i
     return 0
+
 
 # --- Viewer Class ---
 class ImageMaskViewer:
@@ -138,7 +140,7 @@ class ImageMaskViewer:
         self.axs[3].set_title("Overlay (Pred)")
         self.axs[3].axis("off")
 
-        self.fig.suptitle(f"[{self.index+1}/{len(self.images)}] {self.images[self.index]}")
+        self.fig.suptitle(f"[{self.index + 1}/{len(self.images)}] {self.images[self.index]}")
         self.fig.canvas.draw()
 
     def move_files(self, dest_img_dir, dest_mask_dir):
@@ -177,4 +179,5 @@ class ImageMaskViewer:
 start_index = find_start_index(images, start_number)
 
 # --- Run Viewer ---
-viewer = ImageMaskViewer(images, orig_masks, pred_masks, image_dir, orig_mask_dir, pred_mask_dir, start_index=start_index)
+viewer = ImageMaskViewer(images, orig_masks, pred_masks, image_dir, orig_mask_dir, pred_mask_dir,
+                         start_index=start_index)

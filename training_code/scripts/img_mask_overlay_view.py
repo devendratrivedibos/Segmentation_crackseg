@@ -1,17 +1,22 @@
 import os
+import pdb
+
 import cv2
 import shutil
 import csv
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button, TextBox
 import re
+import random
 
 # --- CONFIG ---
-root_dir = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3"
+root_dir = r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-2"
+root_dir = r"Y:\NSV_DATA\HAZARIBAGH-RANCHI_2024-10-07_11-25-27\SECTION-4"
 image_dir = os.path.join(root_dir, 'AnnotationImages')
 mask_dir = os.path.join(root_dir, 'AnnotationMasks')
-start_number = 0   # <<< put the number you want to start with
-
+pcams_dir = os.path.join(root_dir, 'pcams')   # <<< pcams folder
+# pcams_dir = r"Y:\NSV_DATA\HAZARIBAGH-RANCHI_2024-10-07_11-25-27\SECTION-2\pcams"
+start_number = 4800   # <<< put the number you want to start with
 
 # Output dirs
 accepted_img_dir = os.path.join(root_dir, "ACCEPTED_IMAGES")
@@ -25,8 +30,15 @@ for d in [accepted_img_dir, accepted_mask_dir, rework_img_dir, rework_mask_dir]:
     os.makedirs(d, exist_ok=True)
 
 # --- Load file names ---
-images = sorted([f for f in os.listdir(image_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg'))])
-masks  = sorted([f for f in os.listdir(mask_dir) if f.lower().endswith('.png')])
+images = sorted([
+    f for f in os.listdir(image_dir)
+    if f.lower().endswith(('.png', '.jpg', '.jpeg')) # and 'HAZARIBAGH-RANCHI_2024-10-07_11-25-27_SECTION-2' in f
+])
+
+masks = sorted([
+    f for f in os.listdir(mask_dir)
+    if f.lower().endswith('.png') #and 'HAZARIBAGH-RANCHI_2024-10-07_11-25-27_SECTION-2' in f
+])
 
 # --- Strip extensions for matching ---
 image_stems = {os.path.splitext(f)[0]: f for f in images}
@@ -37,32 +49,40 @@ common_keys = sorted(set(image_stems.keys()) & set(mask_stems.keys()))
 images = [image_stems[k] for k in common_keys]
 masks = [mask_stems[k]  for k in common_keys]
 
-
 assert len(images) == len(masks), "Images and masks count mismatch!"
+
+# --- Shuffle together ---
+# combined = list(zip(images, masks))
+# random.shuffle(combined)
+# images, masks = zip(*combined)
+# images, masks = list(images), list(masks)
 
 def find_start_index(files, number):
     """Find index of file containing the given number."""
     for i, f in enumerate(files):
-        if re.search(rf"{number}", f):  # match number inside filename
+        if re.search(rf"{number}", f):
             return i
-    return 0  # fallback to first image if not found
+    return 0
 
 # --- Find start index ---
 start_index = find_start_index(images, start_number)
 
 # --- Viewer Class ---
 class ImageMaskViewer:
-    def __init__(self, images, masks, image_dir, mask_dir, start_index=0):
+    def __init__(self, images, masks, image_dir, mask_dir, pcams_dir, start_index=0):
         self.images = images
         self.masks = masks
         self.image_dir = image_dir
         self.mask_dir = mask_dir
+        self.pcams_dir = pcams_dir
         self.index = start_index
         self.comment = ""
 
-        self.fig, self.axs = plt.subplots(1, 3, figsize=(15, 5))
+        self.fig, self.axs = plt.subplots(1, 4, figsize=(30, 10))  # 4 panels now
         plt.subplots_adjust(bottom=0.25)
-
+        # Make the 4th axis (pcam) bigger square
+        pos = self.axs[3].get_position()  # get current position [left, bottom, width, height]
+        self.axs[3].set_position([pos.x0-0.05 , pos.y0-0.05 , pos.width * 1.6, pos.height * 1.6])
         # Buttons
         axprev   = plt.axes([0.15, 0.15, 0.1, 0.07])
         axnext   = plt.axes([0.30, 0.15, 0.1, 0.07])
@@ -85,24 +105,46 @@ class ImageMaskViewer:
         self.update_display()
         plt.show()
 
+    def get_number_from_name(self, filename):
+        """Extract last numeric ID without leading zeros (e.g. 190 from *_0000190.png)."""
+        matches = re.findall(r"(\d+)", filename)
+        if matches:
+            return str(int(matches[-1]))  # remove leading zeros
+        return None
+
     def load_images(self, idx):
         img_path = os.path.join(self.image_dir, self.images[idx])
         mask_path = os.path.join(self.mask_dir, self.masks[idx])
 
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
+        img = cv2.flip(img, 0)
         mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
+        mask = cv2.flip(mask, 0)
         if len(mask.shape) == 2:
             mask_colored = cv2.applyColorMap(mask, cv2.COLORMAP_JET)
         else:
             mask_colored = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
 
-        overlay = cv2.addWeighted(img, 0.5, mask_colored, 0.5, 0)
-        return img, mask_colored, overlay
+        overlay = cv2.addWeighted(img, 0.7, mask_colored, 0.3, 0)
+
+        # --- load pcams image (only LL) ---
+        number = self.get_number_from_name(self.images[idx])
+
+        pcams_img = None
+        if number:
+            number = number.zfill(6)
+            for f in os.listdir(self.pcams_dir):
+                if "LL" in f and re.search(rf"{number}", f):
+                    pcams_img = cv2.imread(os.path.join(self.pcams_dir, f))
+                    pcams_img = cv2.cvtColor(pcams_img, cv2.COLOR_BGR2RGB)
+                    break
+
+        return img, mask_colored, overlay, pcams_img
 
     def update_display(self):
         if not self.images:
+
             self.fig.suptitle("No more images left!", fontsize=14, color="red")
             for ax in self.axs:
                 ax.clear()
@@ -110,17 +152,29 @@ class ImageMaskViewer:
             self.fig.canvas.draw()
             return
 
-        img, mask, overlay = self.load_images(self.index)
+        img, mask, overlay, pcams_img = self.load_images(self.index)
 
-        self.axs[0].imshow(img);     self.axs[0].set_title("Image");   self.axs[0].axis("off")
-        self.axs[1].imshow(mask);    self.axs[1].set_title("Mask");    self.axs[1].axis("off")
-        self.axs[2].imshow(overlay); self.axs[2].set_title("Overlay"); self.axs[2].axis("off")
+        # Always clear before drawing (avoids stale images)
+        for ax in self.axs:
+            ax.clear()
+            ax.axis("off")
 
-        self.fig.suptitle(f"Image {self.index+1}/{len(self.images)}: {self.images[self.index]}")
+        self.axs[0].imshow(img);
+        self.axs[0].set_title("Image")
+        self.axs[1].imshow(mask);
+        self.axs[1].set_title("Mask")
+        self.axs[2].imshow(overlay);
+        self.axs[2].set_title("Overlay")
+        if pcams_img is not None:
+            self.axs[3].imshow(pcams_img);
+            self.axs[3].set_title("Pcams (LL)")
+        else:
+            self.axs[3].set_title("Pcams Missing")
+
+        self.fig.suptitle(f"Image {self.index + 1}/{len(self.images)}: {self.images[self.index]}")
         self.fig.canvas.draw()
-
     def update_text(self, text):
-        self.comment = text  # store current comment
+        self.comment = text
 
     def move_files(self, target_img_dir, target_mask_dir, log_comment=False):
         img_name  = self.images[self.index]
@@ -134,18 +188,16 @@ class ImageMaskViewer:
         shutil.move(src_img, dst_img)
         shutil.move(src_mask, dst_mask)
 
-        # Log if rework
-        if log_comment:
-            with open(csv_log, "a", newline="") as f:
-                writer = csv.writer(f)
-                writer.writerow([img_name, self.comment])
-            print(f"Logged: {img_name} | {self.comment}")
+        if not log_comment:
+            self.comment = "Accepted"
+        with open(csv_log, "a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([img_name, self.comment])
+        print(f"Logged: {img_name} | {self.comment}")
 
-        # Remove from list
         del self.images[self.index]
         del self.masks[self.index]
 
-        # Adjust index
         if self.index >= len(self.images):
             self.index = max(0, len(self.images) - 1)
 
@@ -173,4 +225,4 @@ class ImageMaskViewer:
 
 
 # --- Run Viewer ---
-viewer = ImageMaskViewer(images, masks, image_dir, mask_dir, start_index=start_index)
+viewer = ImageMaskViewer(images, masks, image_dir, mask_dir, pcams_dir, start_index=start_index)
