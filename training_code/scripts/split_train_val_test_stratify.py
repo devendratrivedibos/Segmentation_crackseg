@@ -7,9 +7,10 @@ from iterstrat.ml_stratifiers import MultilabelStratifiedShuffleSplit
 from tqdm import tqdm
 
 # ===================== CONFIG =====================
-images_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\AnnotationImages"   # your images folder
-masks_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\AnnotationMasks"         # your masks folder
-output_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\REDUCED_DATASET_SPLIT"  # output folder
+
+images_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_IMAGES"   # your images folder
+masks_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_MASKS"         # your masks folder
+output_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\SPLITTED"  # output folder
 
 test_size = 0.10
 val_size = 0.15

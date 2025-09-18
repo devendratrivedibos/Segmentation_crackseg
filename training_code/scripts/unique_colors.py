@@ -38,10 +38,6 @@ r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\Annotati
 # r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\AnnotationMasksNIGHT"
 # ]
 
-# folders=[
-#         # r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\DATASET_SPLIT\TEST\RESULT_IMAGES",
-# r'D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\DELETE_MASK'
-#         ]
 
 # Collect (folder, filename) tuples
 image_files = []

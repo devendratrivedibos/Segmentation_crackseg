@@ -10,13 +10,12 @@ import re
 import random
 
 # --- CONFIG ---
-root_dir = r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-2"
-root_dir = r"Y:\NSV_DATA\HAZARIBAGH-RANCHI_2024-10-07_11-25-27\SECTION-4"
+root_dir = r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5"
 image_dir = os.path.join(root_dir, 'AnnotationImages')
 mask_dir = os.path.join(root_dir, 'AnnotationMasks')
 pcams_dir = os.path.join(root_dir, 'pcams')   # <<< pcams folder
-# pcams_dir = r"Y:\NSV_DATA\HAZARIBAGH-RANCHI_2024-10-07_11-25-27\SECTION-2\pcams"
-start_number = 4800   # <<< put the number you want to start with
+start_number = 0   # <<< put the number you want to start with
+
 
 # Output dirs
 accepted_img_dir = os.path.join(root_dir, "ACCEPTED_IMAGES")
@@ -32,14 +31,14 @@ for d in [accepted_img_dir, accepted_mask_dir, rework_img_dir, rework_mask_dir]:
 # --- Load file names ---
 images = sorted([
     f for f in os.listdir(image_dir)
-    if f.lower().endswith(('.png', '.jpg', '.jpeg')) # and 'HAZARIBAGH-RANCHI_2024-10-07_11-25-27_SECTION-2' in f
+    # if f.lower().endswith(('.png', '.jpg', '.jpeg')) and 'YDSHI-AURANGABAD' in f
 ])
 
 masks = sorted([
     f for f in os.listdir(mask_dir)
-    if f.lower().endswith('.png') #and 'HAZARIBAGH-RANCHI_2024-10-07_11-25-27_SECTION-2' in f
+    if f.lower().endswith('.png') # and 'YDSHI-AURANGABAD' in f
 ])
-
+print(images)
 # --- Strip extensions for matching ---
 image_stems = {os.path.splitext(f)[0]: f for f in images}
 mask_stems = {os.path.splitext(f)[0]: f for f in masks}
@@ -133,7 +132,8 @@ class ImageMaskViewer:
 
         pcams_img = None
         if number:
-            number = number.zfill(6)
+            # number= int(number)+1
+            # number = number.zfill(6)
             for f in os.listdir(self.pcams_dir):
                 if "LL" in f and re.search(rf"{number}", f):
                     pcams_img = cv2.imread(os.path.join(self.pcams_dir, f))

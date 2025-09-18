@@ -159,16 +159,11 @@ def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
 
 
 folderlist = [
-r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\15.09.25_night\ANKIT S2_P7\project-13-at-2025-09-16-05-29-bed27ad3.json",
-r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\15.09.25_night\SHAHID S2_P9_\project-23-at-2025-09-16-03-45-ca3d94ce.json",
-r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\15.09.25_night\sidhharth s2_p6\project-32-at-2025-09-16-06-00-2d072948.json",
-r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\16-02-2025\BUSHRA S2-P2 _984-1327\project-21-at-2025-09-16-17-23-eba76595.json",
-r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\16-02-2025\PAYALS2-P1_411-663\project-22-at-2025-09-16-16-00-f8d39353.json"
-
+r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\17.09.2025_night\SUMED_S2_P1 (71-414)\project-28-at-2025-09-18-05-37-794cd549.json",
+"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\17.09.2025_night\yasir_s2_p2_(545-977)\project-22-at-2025-09-18-05-23-cef77fe7.json"
 ]
-
 for i in folderlist:
     save_masks_from_json(i,
-                         r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\AnnotationMasks",
+                         r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\\AnnotationMasks",
         use_rgb=True)
 

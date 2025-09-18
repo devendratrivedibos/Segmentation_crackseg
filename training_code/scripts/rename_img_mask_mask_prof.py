@@ -42,8 +42,25 @@ def process_section(section_path, name_prefix="DAMOH_"):
         print(f"✔ Renamed pair: {mask_file} + {image_file} → {new_name}")
 
 
-process_section(
-    r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2",
-    name_prefix='DAMOH_SIMARIYA_SECTION-2_'
-)
+# process_section(
+#     r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2",
+#     name_prefix='DAMOH_SIMARIYA_SECTION-2_'
+# )
+#
+import os
 
+# --- update paths here ---
+image_dir = r"V:\CHAS-RAMGARH_2024-11-14_11-09-22\SECTION-3\AnnotationImages"
+mask_dir  = r"V:\CHAS-RAMGARH_2024-11-14_11-09-22\SECTION-3\AnnotationMasks"
+
+def rename_files(folder, old_prefix="C_S_1", new_prefix="C_S_3"):
+    for filename in os.listdir(folder):
+        if filename.startswith(old_prefix):
+            old_path = os.path.join(folder, filename)
+            new_filename = filename.replace(old_prefix, new_prefix, 1)
+            new_path = os.path.join(folder, new_filename)
+            os.rename(old_path, new_path)
+            print(f"Renamed: {filename} -> {new_filename}")
+# Run for both folders
+rename_files(image_dir)
+rename_files(mask_dir)

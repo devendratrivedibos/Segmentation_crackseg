@@ -162,18 +162,18 @@ if __name__ == "__main__":
     # copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3")
     # copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4")
 
-    # copy_images_with_masks_folder(r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1")
-    # copy_images_with_masks_folder(r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2")
+    copy_images_with_masks_folder(r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1")
+    copy_images_with_masks_folder(r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2")
 
     # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-1")
     # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-2")
     # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-3")
 
-    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1")
-    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2")
-    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3")
-    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4")
-    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5")
+    copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1")
+    copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2")
+    copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3")
+    copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4")
+    copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5")
     # copy_images_with_masks_folder(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7")
     # copy_images_with_masks_folder(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7")
 
@@ -184,16 +184,16 @@ if __name__ == "__main__":
 
     # --- Process both ---
     # --- Paths ---
-    src_images = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\AnnotationImages"  # change to your actual source path
-    src_masks = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\AnnotationMasks"
-    dst_images = r"V:\CHAS-RAMGARH_2024-11-14_11-09-22\SECTION-1/AnnotationImages"
-    dst_masks = r"V:\CHAS-RAMGARH_2024-11-14_11-09-22\SECTION-1/AnnotationMasks"
-    # --- Create destination dirs if not exist ---
-    os.makedirs(dst_images, exist_ok=True)
-    os.makedirs(dst_masks, exist_ok=True)
-    # --- Keyword to search ---
-    keyword = "C_S_1"
-
-    copy_matching(src_images, dst_images, keyword)
-    copy_matching(src_masks, dst_masks, keyword)
-    print("✅ Done copying all matching files.")
+    # src_images = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\AnnotationImages"  # change to your actual source path
+    # src_masks = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\AnnotationMasks"
+    # dst_images = r"V:\CHAS-RAMGARH_2024-11-14_11-09-22\SECTION-1/AnnotationImages"
+    # dst_masks = r"V:\CHAS-RAMGARH_2024-11-14_11-09-22\SECTION-1/AnnotationMasks"
+    # # --- Create destination dirs if not exist ---
+    # os.makedirs(dst_images, exist_ok=True)
+    # os.makedirs(dst_masks, exist_ok=True)
+    # # --- Keyword to search ---
+    # keyword = "C_S_1"
+    #
+    # copy_matching(src_images, dst_images, keyword)
+    # copy_matching(src_masks, dst_masks, keyword)
+    # print("✅ Done copying all matching files.")

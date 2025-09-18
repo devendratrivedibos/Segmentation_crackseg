@@ -34,7 +34,7 @@ for folder in folders:
             print(f"Skipped (no target color): {path}")
 
 img_paths = [
-r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\AnnotationMasksNIGHT\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33_SECTION-4_IMG_0000173.png"
+# r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\AnnotationMasksNIGHT\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33_SECTION-4_IMG_0000173.png"
 ]
 old_color = (255, 255, 255)
 new_color = (0, 255, 255)
@@ -53,3 +53,10 @@ for img_path in img_paths:
         print(f"✅ Fixed: {img_path}")
     else:
         print(f"Skipped (no target color): {img_path}")
+
+
+img = cv2.imread(r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_MASKS\HAZARIBAGH-RANCHI_2024-10-07_11-25-27_SECTION-2_IMG_0002097.png ")
+img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+result = np.zeros_like(img)
+result[np.all(img == (0,255,0), axis=-1)] = (0,255,0)
+img = cv2.imwrite(r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_MASKS\HAZARIBAGH-RANCHI_2024-10-07_11-25-27_SECTION-2_IMG_0002097.png", result)

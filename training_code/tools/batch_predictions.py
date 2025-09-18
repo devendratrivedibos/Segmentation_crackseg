@@ -149,13 +149,15 @@ def remove_small_components_multiclass(mask, min_area=400):
 
 
 if __name__ == '__main__':
-    main(imgs_root=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\REDUCED_DATASET_SPLIT\TEST\IMAGES",
-         prediction_save_path=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\REDUCED_DATASET_SPLIT\TEST\RESULTS",
-         weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asp_14\UNET_asp_14_best_epoch61_dice0.898.pth",
+
+    main(imgs_root=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\SPLITTED\TEST\IMAGES",
+         prediction_save_path=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\SPLITTED\TEST\RESULTS",
+         weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asp_14\UNET_asp_14_best_epoch120_dice0.906.pth",
+         batch_size=8)
+    #
+    main(imgs_root=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\SPLITTED\VAL\IMAGES",
+         prediction_save_path=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\SPLITTED\VAL\RESULTS",
+         weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asp_14\UNET_asp_14_best_epoch120_dice0.906.pth",
          batch_size=8)
 
-    main(imgs_root=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\REDUCED_DATASET_SPLIT\TEST\IMAGES",
-         prediction_save_path=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\REDUCED_DATASET_SPLIT\TEST\RESULTS",
-         weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_14\UNET_concrete_14_best_epoch139_dice0.764.pth",
-         batch_size=8)
 

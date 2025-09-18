@@ -8,8 +8,8 @@ import random
 
 # --- CONFIG ---
 start_number = 0  # <<< starting image number
-root_dir = "D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_ASPHALT_OLD\REDUCED_DATASET_SPLIT\TEST"
-# root_dir = "D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\REDUCED_DATASET_SPLIT\TEST"
+root_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\SPLITTED\VAL"
+
 image_dir = os.path.join(root_dir, 'IMAGES')
 orig_mask_dir = os.path.join(root_dir, 'MASKS')
 pred_mask_dir = os.path.join(root_dir, 'RESULTS')
@@ -20,8 +20,8 @@ rework_img_dir = os.path.join(root_dir, "REWORK_IMAGES")
 rework_mask_dir = os.path.join(root_dir, "REWORK_MASKS")
 
 # Ensure dirs exist
-for d in [accepted_img_dir, accepted_mask_dir, rework_img_dir, rework_mask_dir]:
-    os.makedirs(d, exist_ok=True)
+# for d in [accepted_img_dir, accepted_mask_dir, rework_img_dir, rework_mask_dir]:
+#     os.makedirs(d, exist_ok=True)
 
 # --- Load file names ---
 images = sorted([f for f in os.listdir(image_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg'))])
