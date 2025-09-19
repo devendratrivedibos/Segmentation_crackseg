@@ -10,9 +10,9 @@ import re
 import random
 
 # --- CONFIG ---
-root_dir = r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5"
-image_dir = os.path.join(root_dir, 'AnnotationImages')
-mask_dir = os.path.join(root_dir, 'AnnotationMasks')
+root_dir = r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1"
+image_dir = os.path.join(root_dir, 'AnnotationImages_1')
+mask_dir = os.path.join(root_dir, 'AnnotationMasks_1')
 pcams_dir = os.path.join(root_dir, 'pcams')   # <<< pcams folder
 start_number = 0   # <<< put the number you want to start with
 
@@ -38,7 +38,7 @@ masks = sorted([
     f for f in os.listdir(mask_dir)
     if f.lower().endswith('.png') # and 'YDSHI-AURANGABAD' in f
 ])
-print(images)
+
 # --- Strip extensions for matching ---
 image_stems = {os.path.splitext(f)[0]: f for f in images}
 mask_stems = {os.path.splitext(f)[0]: f for f in masks}
@@ -51,10 +51,10 @@ masks = [mask_stems[k]  for k in common_keys]
 assert len(images) == len(masks), "Images and masks count mismatch!"
 
 # --- Shuffle together ---
-# combined = list(zip(images, masks))
-# random.shuffle(combined)
-# images, masks = zip(*combined)
-# images, masks = list(images), list(masks)
+combined = list(zip(images, masks))
+random.shuffle(combined)
+images, masks = zip(*combined)
+images, masks = list(images), list(masks)
 
 def find_start_index(files, number):
     """Find index of file containing the given number."""
@@ -189,7 +189,9 @@ class ImageMaskViewer:
         shutil.move(src_mask, dst_mask)
 
         if not log_comment:
-            self.comment = "Accepted"
+            self.comment = "Devendra Accepted"
+        else:
+            self.comment = "Devendra Rejected"
         with open(csv_log, "a", newline="") as f:
             writer = csv.writer(f)
             writer.writerow([img_name, self.comment])

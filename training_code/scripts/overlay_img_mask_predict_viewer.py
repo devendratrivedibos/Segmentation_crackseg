@@ -8,7 +8,7 @@ import random
 
 # --- CONFIG ---
 start_number = 0  # <<< starting image number
-root_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\SPLITTED\VAL"
+root_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\SPLITTED\TEST"
 
 image_dir = os.path.join(root_dir, 'IMAGES')
 orig_mask_dir = os.path.join(root_dir, 'MASKS')

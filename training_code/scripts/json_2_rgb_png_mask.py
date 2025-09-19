@@ -159,9 +159,13 @@ def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
 
 
 folderlist = [
-r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\17.09.2025_night\SUMED_S2_P1 (71-414)\project-28-at-2025-09-18-05-37-794cd549.json",
-"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\17.09.2025_night\yasir_s2_p2_(545-977)\project-22-at-2025-09-18-05-23-cef77fe7.json"
+r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\18.09.2025_NIGHT\RAJESH_S2_P12 (5379-5622)\project-16-at-2025-09-19-04-30-e440f4a6.json",
+r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\18.09.2025_NIGHT\SHAHID_S2_P15 (6849-6920)\project-27-at-2025-09-19-05-35-5b917494.json",
+r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\18.09.2025_NIGHT\shravan_s2_p14 (6357-6449)\project-25-at-2025-09-19-05-13-dc3de8cd.json",
+r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\18.09.2025_NIGHT\sumed_s2_p1\project-28-at-2025-09-19-04-56-b5ec02f5.json",
+r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\18.09.2025_NIGHT\YASIR_S2_P13 (5868-5940)\project-31-at-2025-09-19-05-09-c544b1ad.json"
 ]
+
 for i in folderlist:
     save_masks_from_json(i,
                          r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\\AnnotationMasks",
