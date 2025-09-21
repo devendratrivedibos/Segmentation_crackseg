@@ -26,11 +26,13 @@ from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
 from models.fcn.fcn import fcn_resnet50
 from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
 from models.unet.UnetPP import UNetPP
+from models.dinov3.dinov3 import DINODeepLab
+
 
 # Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_concrete_14'  # Change this to your desired output path
-model_name = "UNET_concrete_14"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_asp_14_4030'  # Change this to your desired output path
+model_name = "UNET_asp_14_4030"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -52,6 +54,7 @@ def create_model(aux, num_classes, pretrained=True):
     # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
     # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
+    # model = DINODeepLab(num_classes=num_classes, backbone_name="dinov2_vitl14")
     model = UNetPP(in_channels=3, num_classes=num_classes)
     # if args.pretrained_weights != "":
     #     weights_dict = torch.load(args.pretrained_weights, map_location='cpu')
@@ -77,6 +80,7 @@ def main(args):
 
     mean = (0.54159361, 0.54159361, 0.54159361)
     std = (0.14456673, 0.14456673, 0.14456673)
+
     num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
 
     train_dataset = CrackDataset(args.data_path,
@@ -258,7 +262,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"W:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\REDUCED_DATASET_SPLIT",
+                        default=r"Z:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\New\process_4030\\SPLITTED",
                         help="root")
     parser.add_argument("--num-classes", default=14, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
@@ -276,7 +280,7 @@ def parse_args():
     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
 
-    parser.add_argument("-b", "--batch-size", default=8, type=int)
+    parser.add_argument("-b", "--batch-size", default=16, type=int)
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
     parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")

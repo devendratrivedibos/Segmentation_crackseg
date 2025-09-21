@@ -2,9 +2,9 @@ import os
 from PIL import Image
 
 # Folder containing your JPG mask images
-jpg_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\segmentation_dataset_08_aug\Masks"
+jpg_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4040"
 # Folder to save PNG images (can be same as jpg_folder if you want)
-png_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\segmentation_dataset_08_aug\Masks"
+png_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4040"
 os.makedirs(png_folder, exist_ok=True)
 
 # List all JPG files in the folder

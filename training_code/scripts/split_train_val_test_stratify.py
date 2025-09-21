@@ -8,9 +8,9 @@ from tqdm import tqdm
 
 # ===================== CONFIG =====================
 
-images_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_IMAGES"   # your images folder
-masks_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_MASKS"         # your masks folder
-output_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\SPLITTED"  # output folder
+images_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\New\process_4030\IMAGES_4030"   # your images folder
+masks_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\New\process_4030\MASKS_4030"         # your masks folder
+output_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\New\process_4030\\SPLITTED"  # output folder
 
 test_size = 0.10
 val_size = 0.15
@@ -91,7 +91,8 @@ for f in tqdm(os.listdir(masks_dir)):
 
     filenames.append(img_name)
     labels.append(label_vec)
-
+if len(filenames) == 0:
+    raise ValueError("No matching images and masks found. Check your directories!")
 labels = np.array(labels)
 
 # ===================== STEP 2: Stratified Split =====================

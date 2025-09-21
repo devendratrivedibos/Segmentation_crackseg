@@ -2,8 +2,11 @@ import os
 import shutil
 
 # --- Directories ---
-img_dir = r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\ACCEPTED_MASKS"
-mask_dir = r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\ACCEPTED_IMAGES"
+img_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_OG_ACCEPTED\ACCEPTED_MASKS"
+mask_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_OG_ACCEPTED\ACCEPTED_IMAGES"
+
+img_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\New\process_4040\IMAGES_4040"
+mask_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\New\process_4040\MASKS_4040"
 
 # --- Collect names without extension ---
 img_files = {os.path.splitext(f)[0] for f in os.listdir(img_dir)}
@@ -15,5 +18,19 @@ only_in_mask = mask_files - img_files
 mismatched = only_in_img.union(only_in_mask)
 
 print(f"Found {len(mismatched)} mismatched files", mismatched)
-
 # --- Copy matching originals from OLD dataset ---
+
+print(f"Found {len(mismatched)} mismatched files")
+
+# --- Delete extra files ---
+for f in os.listdir(img_dir):
+    name, ext = os.path.splitext(f)
+    if name in only_in_img:
+        os.remove(os.path.join(img_dir, f))
+        print(f"Deleted from IMAGES: {f}")
+
+for f in os.listdir(mask_dir):
+    name, ext = os.path.splitext(f)
+    if name in only_in_mask:
+        os.remove(os.path.join(mask_dir, f))
+        print(f"Deleted from MASKS: {f}")

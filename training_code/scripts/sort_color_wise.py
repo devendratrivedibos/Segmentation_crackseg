@@ -24,13 +24,13 @@ COLOR_MAP = {
 }
 
 # Target classes
-target_classes = {2, 3, 4, 5, 12}  # Blue and Magenta
+target_classes = {4}  # Blue and Magenta
 target_colors = {cls: color for color, cls in COLOR_MAP.items() if cls in target_classes}
 
 # Paths
-base_output = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_V2"
-mask_folder = os.path.join(base_output, "DATASET_MASKS_")
-image_folder = os.path.join(base_output, "DATASET_IMAGES_")
+base_output = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\OG_DATASET_ASPHALT_OLD"
+mask_folder = os.path.join(base_output, "AnnotationMasks")
+image_folder = os.path.join(base_output, "AnnotationImages")
 
 # Separate folders for each class
 output_folders = {}
@@ -81,8 +81,8 @@ for filename, cls in matching_images:
     _, image_ext = os.path.splitext(image_src)
 
     # Output dirs by class
-    mask_out = os.path.join(output_folders[cls]["mask"], f"{name}_copy1{mask_ext}")
-    img_out = os.path.join(output_folders[cls]["image"], f"{name}_copy1{image_ext}")
+    mask_out = os.path.join(output_folders[cls]["mask"], f"{name}{mask_ext}")
+    img_out = os.path.join(output_folders[cls]["image"], f"{name}{image_ext}")
 
     # Copy
     shutil.copy2(mask_src, mask_out)

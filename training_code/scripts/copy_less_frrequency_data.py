@@ -2,33 +2,7 @@ import cv2
 import os
 import numpy as np
 import shutil
-import csv
-import pandas as pd
 
-# --- Color map (RGB) → ID ---
-COLOR_MAP = {
-    (0, 0, 0): 0,         # Black - Background
-    (255, 0, 0): 1,       # Red - Alligator
-    (0, 0, 255): 2,       # Blue - Transverse Crack
-    (0, 255, 0): 3,       # Green - Longitudinal Crack
-    (139, 69, 19): 4,     # Brown - Pothole
-    (255, 165, 0): 5,     # Orange - Patches
-    (255, 0, 255): 6,    # Violet - Multiple Crack
-    (0, 255, 255): 7,     # Cyan - Spalling
-    (0, 128, 0): 8,       # Dark Green - Corner Break
-    (255, 100, 203): 9,   # Light Pink - Sealed Joint - T
-    (199, 21, 133): 10,   # Dark Pink - Sealed Joint - L
-    (128, 0, 128): 11,     # Purple - Punchout
-    (112, 102, 255): 12,  #popout Grey
-    (255, 255, 255): 13,  # White - Unclassified
-    (255, 215, 0): 14,  # Gold - Cracking
-}
-
-# Target classes
-target_classes = {2, 3, 4, 5, 6, 7, 8, 11, 12}  # Blue and Magenta
-
-# Colors corresponding to target classes (RGB)
-target_colors = [color for color, cls in COLOR_MAP.items() if cls in target_classes]
 
 # Paths
 mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationMasks"
@@ -38,7 +12,33 @@ output_image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dat
 
 os.makedirs(output_mask_folder, exist_ok=True)
 os.makedirs(output_image_folder, exist_ok=True)
+
+# --- Target classes (IDs) ---
+target_classes = {2, 3, 4, 5, 6, 7, 8, 11, 12}
+
+# --- Color map (RGB) → (ID, Name) ---
+COLOR_MAP = {
+    (0, 0, 0): (0, "Background"),
+    (255, 0, 0): (1, "Alligator"),
+    (0, 0, 255): (2, "Transverse Crack"),
+    (0, 255, 0): (3, "Longitudinal Crack"),
+    (139, 69, 19): (4, "Pothole"),
+    (255, 165, 0): (5, "Patches"),
+    (255, 0, 255): (6, "Multiple Crack"),
+    (0, 255, 255): (7, "Spalling"),
+    (0, 128, 0): (8, "Corner Break"),
+    (255, 100, 203): (9, "Sealed Joint Transverse"),
+    (199, 21, 133): (10, "Sealed Joint Longitudinal"),
+    (128, 0, 128): (11, "Punchout"),
+    (112, 102, 255): (12, "Popout"),
+    (255, 255, 255): (13, "Unclassified"),
+    (255, 215, 0): (14, "Cracking"),
+}
 matching_images = []
+
+
+# Colors corresponding to target classes (RGB)
+target_colors = [color for color, (cls_id, cls_name) in COLOR_MAP.items() if cls_id in target_classes]
 
 
 def find_image_file(image_folder, base_name):
@@ -49,21 +49,23 @@ def find_image_file(image_folder, base_name):
     return None
 
 
-# Find matching masks
+# --- Find matching masks ---
 for filename in os.listdir(mask_folder):
     if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
         mask_path = os.path.join(mask_folder, filename)
 
         # Read mask in RGB
         mask = cv2.imread(mask_path)
+        if mask is None:
+            print(f"⚠ Could not read mask: {mask_path}")
+            continue
+
         mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
 
         # Check for target colors
         if any(np.any(np.all(mask == color, axis=-1)) for color in target_colors):
             matching_images.append(filename)
 
-# rows = []
-# for filename in matching_images:
             name, _ = os.path.splitext(filename)
 
             mask_src = os.path.join(mask_folder, filename)
@@ -77,16 +79,11 @@ for filename in os.listdir(mask_folder):
             _, image_ext = os.path.splitext(image_src)
 
             # Copy mask duplicates
-            shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy1{mask_ext}"))
-            shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy2{mask_ext}"))
-            shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy3{mask_ext}"))
-            shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy4{mask_ext}"))
-            shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy5{mask_ext}"))
+            for i in range(1, 6):
+                shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy{i}{mask_ext}"))
 
             # Copy image duplicates with original image extension
-            shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy1{image_ext}"))
-            shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy2{image_ext}"))
-            shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy3{image_ext}"))
-            shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy4{image_ext}"))
-            shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy5{image_ext}"))
+            for i in range(1, 6):
+                shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy{i}{image_ext}"))
+
             print(f"✔ Copied duplicates for: {filename}")

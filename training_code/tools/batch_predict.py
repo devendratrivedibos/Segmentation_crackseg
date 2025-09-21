@@ -28,10 +28,10 @@ CLASS_COLOR_MAP = {
     # 2:  [0, 0, 255],      # Blue    - Transverse Crack
     # 3:  [0, 255, 0],      # Green   - Longitudinal Crack
     # 4:  [139, 69, 19],    # Brown   - Pothole
-    # 5:  [255, 165, 0],    # Orange  - Patches
+    5:  [255, 165, 0],    # Orange  - Patches
 
-    4: [255, 0, 255],  # violet     - multiple crack
-    5: [255, 0, 255],  # Grey       - popout
+    # 4: [255, 0, 255],  # violet     - multiple crack
+    # 5: [255, 0, 255],  # Grey       - popout
     # 7:  [0, 255, 255],    # Cyan    - Spalling
     # 8:  [0, 128, 0],      # Dark Green - Corner Break
     # 9: [255, 100, 203],  # Light Pink - Sealed Joint - T
@@ -42,19 +42,20 @@ CLASS_COLOR_MAP = {
     # 14: [255, 215, 0],    # Gold       - Cracking
 }
 
+
 def time_synchronized():
     torch.cuda.synchronize() if torch.cuda.is_available() else None
     return time.time()
 
 
 def main(imgs_root=None, prediction_save_path=None):
-    num_classes = 5 + 1
+    num_classes = 14 + 1
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     mean = (0.493, 0.493, 0.493)
     std = (0.144, 0.144, 0.144)
 
-    mean=(0.54159361, 0.54159361, 0.54159361)
-    std=(0.14456673, 0.14456673, 0.14456673)
+    mean = (0.54159361, 0.54159361, 0.54159361)
+    std = (0.14456673, 0.14456673, 0.14456673)
 
     data_transform = T.Compose([
         # T.Resize(512),
@@ -66,6 +67,7 @@ def main(imgs_root=None, prediction_save_path=None):
     imgs_root = imgs_root
     images_list = os.listdir(imgs_root)
     images_list = [img for img in images_list if img.lower().endswith(('.png', '.jpg', '.jpeg'))]
+
     prediction_save_path = prediction_save_path
     os.makedirs(prediction_save_path, exist_ok=True)
 
@@ -78,6 +80,7 @@ def main(imgs_root=None, prediction_save_path=None):
     # load model weights
     weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_mix_14\UNET_mix_13_best_epoch25_dice0.892.pth"
     weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_hybrid\UNET_V2_best_epoch117_dice0.729.pth"
+    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asp_14\UNET_asp_14_best_epoch102_dice0.908.pth"
     assert os.path.exists(weights_path), f"file: '{weights_path}' dose not exist."
 
     pretrain_weights = torch.load(weights_path, map_location='cuda:0')
@@ -110,10 +113,20 @@ def main(imgs_root=None, prediction_save_path=None):
             img, _ = data_transform(original_img, original_img)
             img = torch.unsqueeze(img, dim=0)
 
-            output = model(img.to(device))
+            # output = model(img.to(device))
+            # prediction = output['out'].argmax(1).squeeze(0)
+            # prediction = prediction.to("cpu").numpy().astype(np.uint8)
 
-            prediction = output['out'].argmax(1).squeeze(0)
-            prediction = prediction.to("cpu").numpy().astype(np.uint8)
+            output = model(img.to(device))
+            # handle dict or tensor
+            if isinstance(output, dict) and "out" in output:
+                pred = output["out"]
+            elif isinstance(output, torch.Tensor):
+                pred = output
+            else:
+                raise RuntimeError("Unexpected model output format")
+            prediction = pred.argmax(1).squeeze(0).cpu().numpy().astype(np.uint8)
+
             prediction = remove_small_components_multiclass(prediction, min_area=400)
             prediction_color = colorize_prediction(prediction)
             mask_save_path = os.path.join(prediction_save_path, image.split('.')[0] + '.png')
@@ -184,9 +197,5 @@ def remove_small_components_multiclass(mask, min_area=400):
 
 
 if __name__ == '__main__':
-    # main(imgs_root = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\MIX\DATASET_SPLIT\VAL\IMAGES",
-    # prediction_save_path = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATA_V2\MIX\DATASET_SPLIT\VAL\RESULT_IMAGES")
-
-
-    main(imgs_root=r"W:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\process_distress",
-                      prediction_save_path=r"W:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\Masks")
+    main(imgs_root=r"C:\Users\Admin\Desktop\New folder",
+         prediction_save_path=r"C:\Users\Admin\Desktop\Newfolder")
