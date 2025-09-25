@@ -5,12 +5,12 @@ import numpy as np
 from multiprocessing import Pool, cpu_count
 
 # --- Paths ---
-BASE_DIR = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7"
+BASE_DIR = r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2"
 mask_dir = os.path.join(BASE_DIR, "AnnotationMasks")
 img_dir = os.path.join(BASE_DIR, "AnnotationImages")
 
-delete_mask_dir = os.path.join(BASE_DIR, "only_JS_MASK")
-delete_image_dir = os.path.join(BASE_DIR, "only_JS_IMAGE")
+delete_mask_dir = os.path.join(BASE_DIR, "only_Alligator_MASK")
+delete_image_dir = os.path.join(BASE_DIR, "only_Alligator_IMAGE")
 
 os.makedirs(delete_mask_dir, exist_ok=True)
 os.makedirs(delete_image_dir, exist_ok=True)
@@ -36,7 +36,7 @@ COLOR_MAP = {
 
 COLOR_TO_ID = {k: v for k, v in COLOR_MAP.items()}
 
-DELETE_SETS = [{0, 9}, {0, 10}, {0, 9, 10}]
+DELETE_SETS = [{0, 1}]
 
 
 def find_image(mask_name):

@@ -162,8 +162,8 @@ if __name__ == "__main__":
     # copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3")
     # copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4")
 
-    copy_images_with_masks_folder(r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1")
-    copy_images_with_masks_folder(r"W:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2")
+    copy_images_with_masks_folder(r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1")
+    copy_images_with_masks_folder(r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2")
 
     # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-1")
     # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-2")

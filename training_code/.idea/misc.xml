@@ -3,5 +3,8 @@
   <component name="Black">
     <option name="sdkName" value="obj_Det" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="obj_Det" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="obj_Det (2)" project-jdk-type="Python SDK" />
+  <component name="PyCharmProfessionalAdvertiser">
+    <option name="shown" value="true" />
+  </component>
 </project>

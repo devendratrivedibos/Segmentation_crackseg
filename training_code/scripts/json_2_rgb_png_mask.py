@@ -159,35 +159,18 @@ def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
 
 
 folderlist = [
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\20-09-2025\Ankit s1-p15(7181-7392)\project-16-at-2025-09-21-05-24-0c447ce5.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\20-09-2025\Fazal s1 p11(5366-5409)\project-28-at-2025-09-21-05-00-77c82392.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\20-09-2025\Gayatri S1-P10(4482-4513)\project-27-at-2025-09-20-18-52-7f202f36.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\20-09-2025\Hakeek s1p2(721-901)\project-25-at-2025-09-21-05-13-d2d8e718.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\20-09-2025\JITU S1,P8(3747-\project-23-at-2025-09-21-06-38-26b6e215.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\20-09-2025\Rudra S1 p12(5538-5548)\project-15-at-2025-09-21-06-19-3054d8b4.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\20-09-2025\TANISHQ S1-P10(4733-4771)\project-17-at-2025-09-20-18-48-9392d3b3 - Copy.json",
+r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_divided_new\part_1\PRASAD 23-9-25\project-29-at-2025-09-23-17-26-84906c75.json",
+r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_divided_new\part_2\Prathamesh 23-9-2025\project-45-at-2025-09-23-17-23-42317a2c.json",
+r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_divided_new\part_3\PAYAL_23-09-2025\project-34-at-2025-09-23-16-36-ca4a31be.json",
+r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_divided_new\part_4\AKASH\project-28-at-2025-09-22-19-25-48048798.json",
+r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_divided_new\part_5\Bushra_23-09-2025\project-26-at-2025-09-23-16-04-fa7a9242.json",
+r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_divided_new\part_6\GAYATRI_23-09-2025\project-29-at-2025-09-23-15-06-3ad2e760.json",
+r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_divided_new\part_7\RUTUJA_23-09-2025\project-33-at-2025-09-23-12-18-0cef3a8a.json",
+r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_divided_new\part_8\TANISHQ_23-09-2025\project-1-at-2025-09-23-13-42-399ce242.json",
+r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_divided_new\part_9\Jayesh 22-9-25\project-33-at-2025-09-22-19-42-a9109566.json",
+r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_divided_new\part_10\SHARAN_23-09-2025\project-19-at-2025-09-23-14-41-dd188ec7.json",
 ]
 for i in folderlist:
-    save_masks_from_json(i,
-                         r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\\AnnotationMasks",
-        use_rgb=True)
-
-
-
-folderlist = [
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\20-9-25\AKASH S2 P9-(4022-4084)\project-26-at-2025-09-20-18-48-01aa7009.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\20-9-25\Jayesh S1 P10 559-588\project-30-at-2025-09-20-17-23-19e39fdc.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\20-9-25\nagaraju-s2-p7(2934-2969)\project-44-at-2025-09-21-06-59-2a1686e1.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\20-9-25\Payal_S2_P8 (3458-3487)\project-33-at-2025-09-20-18-53-827c6919.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\20-9-25\PRASAD S2 P6(2695-2745)\project-28-at-2025-09-20-18-12-411a50b7.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\20-9-25\PRATHAMESH S2 P7 (3137-3153)\project-44-at-2025-09-20-18-23-ef5c38c0.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\20-9-25\Rajesh_s2_p12(5703-5740)\project-16-at-2025-09-21-06-01-c8421539.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\20-9-25\rutuja_S2_P5 (2202-2339)\project-32-at-2025-09-20-18-52-ded5433f.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\20-9-25\Sharan_s2_p5 (1960-2201)\project-23-at-2025-09-20-19-07-70b6c73e.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\20-9-25\SUMED_S2_P11 (4890-4911)\project-14-at-2025-09-21-05-25-1053d447.json",
-r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\20-9-25\yasir s2 p13 ( 5980, 5995)\project-31-at-2025-09-21-07-15-8fed4d15.json",
-]
-for i in folderlist:
-    save_masks_from_json(i,
-                         r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\\AnnotationMasks",
-        use_rgb=True)
+        save_masks_from_json(i,
+                             r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_MASKS",
+                             use_rgb=True)

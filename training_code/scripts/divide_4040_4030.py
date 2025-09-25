@@ -2,16 +2,16 @@ import os
 import shutil
 
 # Base path containing all SECTION folders
-base_folder = r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51"
+base_folder = r"z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51"
 
 # Loop over all SECTION folders
 for section_name in os.listdir(base_folder):
     section_path = os.path.join(base_folder, section_name)
-    if not os.path.isdir(section_path) or not section_name.lower().startswith("section-5"):
+    if not os.path.isdir(section_path) or not section_name.lower().startswith("section-4"):
         continue
     print(f"Handling section: {section_name}")
 
-    process_distress = os.path.join(section_path, "process_distress")
+    process_distress = os.path.join(section_path, "process_distress_40")
     process_4030 = os.path.join(section_path, "IMAGES_4030")
     process_4040 = os.path.join(section_path, "IMAGES_4040")
 

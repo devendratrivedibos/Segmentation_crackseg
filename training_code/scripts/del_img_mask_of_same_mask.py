@@ -5,8 +5,8 @@ import numpy as np
 from multiprocessing import Pool, cpu_count
 
 # --- Paths ---
-BASE_DIR = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA"
-mask_dir = os.path.join(BASE_DIR, "AnnotationMasks")
+BASE_DIR = r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-1"
+mask_dir = os.path.join(BASE_DIR, "ACCEPTED_RESULTS")
 img_dir = os.path.join(BASE_DIR, "AnnotationImages")
 
 delete_mask_dir = os.path.join(BASE_DIR, "DELETE_MASK")
@@ -35,7 +35,7 @@ COLOR_MAP = {
 }
 COLOR_TO_ID = {k: v for k, v in COLOR_MAP.items()}
 
-DELETE_SETS = [{0, 9}, {0, 10}, {0, 9, 10}]
+DELETE_SETS = [{0}]
 
 
 def find_image(mask_name):

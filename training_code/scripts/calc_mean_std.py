@@ -4,9 +4,7 @@ import numpy as np
 from tqdm import tqdm
 from multiprocessing import Pool, cpu_count
 
-# Folder containing annotation images
-# image_folder = r"Z:/cracks/Semantic-Segmentation of pavement distress dataset/Combined/DATASET_CONCRETE/AnnotationImages"
-image_folder = r"D:/cracks/Semantic-Segmentation of pavement distress dataset/Combined/DATASET_ASPHALT_OLD/AnnotationImages"
+image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\IMAGES_4040"
 
 # List all image files
 image_files = [os.path.join(image_folder, f)

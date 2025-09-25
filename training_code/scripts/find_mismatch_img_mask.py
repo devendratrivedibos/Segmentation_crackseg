@@ -2,11 +2,8 @@ import os
 import shutil
 
 # --- Directories ---
-img_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_OG_ACCEPTED\ACCEPTED_MASKS"
-mask_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_OG_ACCEPTED\ACCEPTED_IMAGES"
-
-img_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\New\process_4040\IMAGES_4040"
-mask_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\New\process_4040\MASKS_4040"
+img_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\IMAGES_4040"
+mask_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4040"
 
 # --- Collect names without extension ---
 img_files = {os.path.splitext(f)[0] for f in os.listdir(img_dir)}
@@ -16,8 +13,9 @@ mask_files = {os.path.splitext(f)[0] for f in os.listdir(mask_dir)}
 only_in_img = img_files - mask_files
 only_in_mask = mask_files - img_files
 mismatched = only_in_img.union(only_in_mask)
+print(len(only_in_mask), len(only_in_img))
 
-print(f"Found {len(mismatched)} mismatched files", mismatched)
+print(f"Found {len(mismatched)} matched files", mismatched)
 # --- Copy matching originals from OLD dataset ---
 
 print(f"Found {len(mismatched)} mismatched files")

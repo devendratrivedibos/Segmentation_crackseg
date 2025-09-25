@@ -100,45 +100,8 @@ if __name__ == "__main__":
     # --- CONFIG ---
     predicted_dir = None
 
-    image_dir = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1/process_distress_og"
-    mask_dir = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1/process_distress_results"
-    output_video = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\Amrawati-Talegaon_segmentation_s1.mp4"
-    processor = ImageMaskOverlay(image_dir, mask_dir, predicted_dir, output_video)
-    processor.process()
-
-    image_dir = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2/process_distress_og"
-    mask_dir = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2/process_distress_results"
-    output_video = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\Amrawati-Talegaon_segmentation_s2.mp4"
-    processor = ImageMaskOverlay(image_dir, mask_dir, predicted_dir, output_video)
-    processor.process()
-
-    image_dir = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3/process_distress_og"
-    mask_dir = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3/process_distress_results"
-    output_video = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\Amrawati-Talegaon_segmentation_s3.mp4"
-    processor = ImageMaskOverlay(image_dir, mask_dir, predicted_dir, output_video)
-    processor.process()
-
-    image_dir = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4/process_distress_og"
-    mask_dir = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4/process_distress_results"
-    output_video = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\Amrawati-Talegaon_segmentation_s4.mp4"
-    processor = ImageMaskOverlay(image_dir, mask_dir, predicted_dir, output_video)
-    processor.process()
-
-    image_dir = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5/process_distress_og"
-    mask_dir = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5/process_distress_results"
-    output_video = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\Amrawati-Talegaon_segmentation_s5.mp4"
-    processor = ImageMaskOverlay(image_dir, mask_dir, predicted_dir, output_video)
-    processor.process()
-
-
-    image_dir = r"F:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01/SECTION-1/process_distress"
-    mask_dir = r"F:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01/SECTION-1/process_distress_results"
-    output_video = r"F:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01/SECTION-1\Damoh-Simariya_segmentation_s1.mp4"
-    processor = ImageMaskOverlay(image_dir, mask_dir, predicted_dir, output_video)
-    processor.process()
-
-    image_dir = r"F:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01/SECTION-2/process_distress"
-    mask_dir = r"F:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01/SECTION-2/process_distress_results"
-    output_video = r"F:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01/SECTION-2\Damoh-Simariya_segmentation_s2.mp4"
+    image_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1/process_distress_og"
+    mask_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1/process_distress_results_skeleton"
+    output_video = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\Amrawati-Talegaon_segmentation_s1.mp4"
     processor = ImageMaskOverlay(image_dir, mask_dir, predicted_dir, output_video)
     processor.process()

@@ -8,32 +8,42 @@ def divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=10
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Collect base names (without extension)
-    process_files = {f.stem: f for f in process_dir.iterdir() if f.is_file()}
-    results_files = {f.stem: f for f in results_dir.iterdir() if f.is_file()}
+    # Allow only image extensions
+    valid_ext = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
+
+    # Collect base names (without extension), ignoring Thumbs.db or non-images
+    process_files = {
+        f.stem: f for f in process_dir.iterdir()
+        if f.is_file() and f.suffix.lower() in valid_ext
+    }
+    results_files = {
+        f.stem: f for f in results_dir.iterdir()
+        if f.is_file() and f.suffix.lower() in valid_ext
+    }
 
     # Find matching base names
     matching_keys = sorted(set(process_files.keys()) & set(results_files.keys()))
     total = len(matching_keys)
     chunk_size = (total + n_subfolders - 1) // n_subfolders  # ceil division
-
+    part = 1
     for i in range(n_subfolders):
-        subfolder = output_dir / f"part_{i+1}"
-        img_folder = subfolder / "img"
-        mask_folder = subfolder / "mask"
+        # Separate folders for images and masks
+        output_dir = Path(output_dir)
+
+        img_folder = output_dir/ f"{part}" / f"AnnotationImages{i+1}"
+        mask_folder = output_dir/f"{part}" / f"AnnotationMasks{i+1}"
         img_folder.mkdir(parents=True, exist_ok=True)
         mask_folder.mkdir(parents=True, exist_ok=True)
-
+        part += 1
         for key in matching_keys[i*chunk_size:(i+1)*chunk_size]:
-            # Copy from process_distress → img
             shutil.copy(process_files[key], img_folder / process_files[key].name)
-            # Copy from sectionresults → mask
             shutil.copy(results_files[key], mask_folder / results_files[key].name)
 
     print(f"✅ Done! Divided {total} matching pairs into {n_subfolders} subfolders (img/mask).")
 
+
 # Example usage:
-process_dir = r"W:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\process_distress"
-results_dir = r"W:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\Masks"
-output_dir = r"W:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\divided_images"
-divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=10)
+process_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_IMAGES"
+results_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_MASKS"
+output_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_divided"
+divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=5)

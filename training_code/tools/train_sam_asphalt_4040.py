@@ -31,8 +31,8 @@ from models.dinov3.dinov3 import DINODeepLab
 
 # Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_asp_14_4030'  # Change this to your desired output path
-model_name = "UNET_asp_14_4030"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_asphalt_4040'  # Change this to your desired output path
+model_name = "UNET_asp_4040"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -75,12 +75,8 @@ def main(args):
     # segmentation nun_classes + background
     num_classes = args.num_classes + 1
 
-    # mean = (0.473, 0.493, 0.504)
-    # std = (0.100, 0.100, 0.099)
-
-    mean = (0.54159361, 0.54159361, 0.54159361)
-    std = (0.14456673, 0.14456673, 0.14456673)
-
+    mean = (0.39071578, 0.39071578, 0.39071578)
+    std =  (0.12008598, 0.12008598, 0.12008598)
     num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
 
     train_dataset = CrackDataset(args.data_path,
@@ -107,19 +103,6 @@ def main(args):
     model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
     model.to(device)
 
-    # unique_colors = set()
-    # for idx in range(len(train_dataset)):
-    #     mask_path = train_dataset.masks_path[idx]
-    #     mask = cv2.imread(mask_path, cv2.IMREAD_COLOR)  # <-- Load as color
-    #     mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
-    #     pixels = mask.reshape(-1, 3)
-    #     for color in np.unique(pixels, axis=0):
-    #         unique_colors.add(tuple(color))  # Convert to tuple for set
-
-    # print("Unique RGB colors in all masks:", unique_colors)
-    # for color in sorted(unique_colors):
-    #     print(color)
-
     if args.pretrained_weights != "":
         assert os.path.exists(args.pretrained_weights), "weights file: '{}' not exist.".format(args.pretrained_weights)
         model_dict = model.state_dict()
@@ -137,14 +120,6 @@ def main(args):
         model.load_state_dict(model_dict)
 
     params_to_optimize = [p for p in model.parameters() if p.requires_grad]
-
-    # params_to_optimize = [
-    #     {"params": [p for p in model.backbone.parameters() if p.requires_grad]},
-    #     {"params": [p for p in model.classifier.parameters() if p.requires_grad]}
-    # ]
-    # if args.aux:
-    #     params = [p for p in model.aux_classifier.parameters() if p.requires_grad]
-    #     params_to_optimize.append({"params": params, "lr": args.lr * 10})
 
     optimizer = {
         'adam': torch.optim.Adam(params_to_optimize, lr=args.lr, betas=(args.momentum, 0.999),
@@ -262,7 +237,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"Z:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\New\process_4030\\SPLITTED",
+                        default=r"Z:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\SPLITTED",
                         help="root")
     parser.add_argument("--num-classes", default=14, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
@@ -280,7 +255,7 @@ def parse_args():
     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
 
-    parser.add_argument("-b", "--batch-size", default=16, type=int)
+    parser.add_argument("-b", "--batch-size", default=8, type=int)
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
     parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")

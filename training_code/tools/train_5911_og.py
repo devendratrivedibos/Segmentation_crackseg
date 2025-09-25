@@ -13,7 +13,7 @@ from pathlib import Path
 
 from torch.utils.data import DataLoader
 from train_utils.train_and_eval_2 import train_one_epoch, evaluate, create_lr_scheduler, train_one_epoch_loss
-from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
+from train_utils.my_dataset_augment import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
 import train_utils.transforms as T
 from train_utils.utils import plot, show_config
 
@@ -31,8 +31,8 @@ from models.unet.UnetPP import UNetPP
 
 # Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_asp_14'  # Change this to your desired output path
-model_name = "UNET_asp_14"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / '23Sept_Asphalt_Augment'  # Change this to your desired output path
+model_name = "23Sept_Asphalt_Augment_"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -48,7 +48,7 @@ def get_transform(train, mean=(0.54159361, 0.54159361, 0.54159361), std=(0.14456
 def create_model(aux, num_classes, pretrained=True):
     # model = deeplabv3_resnet50(aux=aux, num_classes=num_classes)
     # model = fcn_resnet50(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
-    # model = deeplabv3_resnet101(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
+    model = deeplabv3_resnet101(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
     # model = deeplabv3_mobilenetv3_large(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
     # model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
     # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
@@ -238,7 +238,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"Z:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_OG_ACCEPTED\SPLITTED",
+                        default=r"F:/SPLITTED",
                         help="root")
     parser.add_argument("--num-classes", default=14, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")

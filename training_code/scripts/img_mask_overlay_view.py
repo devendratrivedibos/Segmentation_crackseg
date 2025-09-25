@@ -14,14 +14,13 @@ from concurrent.futures import ThreadPoolExecutor
 import gc
 
 # --- CONFIG ---
-root_dir = r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2"
-root_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\OG_DATASET_ASPHALT_OLD"
-
-image_dir = os.path.join(root_dir, 'DATASET_IMAGES_CLASS_4')
-mask_dir = os.path.join(root_dir, 'DATASET_MASKS_CLASS_4')
+root_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-2"
+image_dir = os.path.join(root_dir, 'ACCEPTED_IMAGES')
+mask_dir = os.path.join(root_dir, 'ACCEPTED_MASKS')
 pcams_dir = os.path.join(root_dir, 'pcams')
 start_number = 0
-
+# image_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\IMAGES_4030"
+# mask_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4030"
 # Create output folders if they don't exist
 accepted_img_dir = os.path.join(root_dir, "ACCEPTED_IMAGES")
 accepted_mask_dir = os.path.join(root_dir, "ACCEPTED_MASKS")
@@ -35,7 +34,7 @@ os.makedirs(rework_mask_dir, exist_ok=True)
 
 # --- Load file names (same as before) ---
 images = sorted([f for f in os.listdir(image_dir)])
-masks = sorted([f for f in os.listdir(mask_dir) if f.lower().endswith('.png')])
+masks = sorted([f for f in os.listdir(mask_dir)])
 
 image_stems = {os.path.splitext(f)[0]: f for f in images}
 mask_stems = {os.path.splitext(f)[0]: f for f in masks}
@@ -45,7 +44,7 @@ images = [image_stems[k] for k in common_keys]
 masks = [mask_stems[k] for k in common_keys]
 
 assert len(images) == len(masks), "Images and masks count mismatch!"
-
+print(len(images), "image-mask pairs found.")
 combined = list(zip(images, masks))
 random.shuffle(combined)
 images, masks = zip(*combined)
@@ -120,19 +119,24 @@ class ImageMaskViewerOptimized:
         axnext = plt.axes([0.30, 0.15, 0.1, 0.07])
         axaccept = plt.axes([0.55, 0.15, 0.12, 0.07])
         axrework = plt.axes([0.70, 0.15, 0.12, 0.07])
-        axbox = plt.axes([0.15, 0.05, 0.67, 0.05])
+        # Textbox for comment (existing)
+        axbox = plt.axes([0.15, 0.05, 0.5, 0.05])
+        # 🔹 New textbox for number-based jump
+        axnum = plt.axes([0.70, 0.05, 0.2, 0.05])
 
         self.bnext = Button(axnext, 'Next')
         self.bprev = Button(axprev, 'Previous')
         self.baccept = Button(axaccept, 'Accept')
         self.brework = Button(axrework, 'Rework')
         self.textbox = TextBox(axbox, "Comment: ")
+        self.num_box = TextBox(axnum, "Go to #: ")
 
         self.bnext.on_clicked(self.next)
         self.bprev.on_clicked(self.prev)
         self.baccept.on_clicked(self.accept)
         self.brework.on_clicked(self.rework)
         self.textbox.on_submit(self.update_text)
+        self.num_box.on_submit(self.go_to_number)
 
         # Load initial images and start prefetching
         self._prefetch_around_index(self.index)
@@ -147,7 +151,8 @@ class ImageMaskViewerOptimized:
                 if "LL" in f:
                     numbers = re.findall(r"(\d+)", f)
                     if numbers:
-                        number = str(int(numbers[-1])+1)  # Remove leading zeros
+
+                        number = str(int(numbers[-1]))  # Remove leading zeros
                         lookup[number] = f
         return lookup
 
@@ -156,6 +161,22 @@ class ImageMaskViewerOptimized:
         if matches:
             return str(int(matches[-1]))
         return None
+
+    def go_to_number(self, text):
+        """Jump to image that contains this number in its filename"""
+        number = text.strip()
+        if not number.isdigit():
+            print(f"Invalid number: {number}")
+            return
+
+        for i, fname in enumerate(self.images):
+            if re.search(rf"{number}", fname):
+                self.index = i
+                self.update_display()
+                print(f"Jumped to image {fname}")
+                return
+
+        print(f"No image found with number {number}")
 
     def load_images_sync(self, idx):
         """Synchronously load images for given index"""
@@ -190,7 +211,7 @@ class ImageMaskViewerOptimized:
         pcams_img = None
         number = self.get_number_from_name(self.images[idx])
         if number:
-            adjusted_number = str(int(number) + 1)
+            adjusted_number = str(int(number))   #+1
             if adjusted_number in self.pcams_lookup:
                 pcams_path = os.path.join(self.pcams_dir, self.pcams_lookup[adjusted_number])
                 pcams_img = cv2.imread(pcams_path)
@@ -287,6 +308,7 @@ class ImageMaskViewerOptimized:
         shutil.move(src_mask, dst_mask)
 
         comment = self.comment + ("- Devendra Rejected" if log_comment else " - Devendra Accepted")
+        # if log_comment:
         with open(csv_log, "a", newline="") as f:
             writer = csv.writer(f)
             writer.writerow([img_name, comment])

@@ -97,13 +97,37 @@ class CrackDataset(Dataset):
 class SegmentationPresetTrain:
     def __init__(self, img_size, mean, std):
         self.transforms = A.Compose([
+            # --- Geometric ---
             A.HorizontalFlip(p=0.4),
-            A.VerticalFlip(p=0.4),
-            # A.RandomBrightnessContrast(p=0.2),
-            # A.GaussNoise(var_limit=(5.0, 30.0), p=0.3),
-            # A.Blur(blur_limit=3, p=0.2),
-            # A.ElasticTransform(alpha=1, sigma=50, alpha_affine=50, p=0.2),
-            # A.CLAHE(p=0.2),
+            A.VerticalFlip(p=0.4),  # vertical cracks possible, but rare
+            A.ShiftScaleRotate(
+                shift_limit=0.02,   # small shifts only
+                scale_limit=0.1,    # mild zoom in/out
+                rotate_limit=5,    # small rotations
+                border_mode=0,      # fill with zeros (black)
+                p=0.5
+            ),
+
+            # --- Photometric ---
+            A.RandomBrightnessContrast(
+                brightness_limit=0.2,
+                contrast_limit=0.2,
+                p=0.4
+            ),
+            A.CLAHE(clip_limit=2, tile_grid_size=(8,8), p=0.3),  # enhance faint cracks
+            A.RandomGamma(gamma_limit=(80, 120), p=0.3),         # simulate different lighting
+            A.HueSaturationValue(hue_shift_limit=5, sat_shift_limit=10, val_shift_limit=10, p=0.2),
+
+            # --- Noise & blur (light) ---
+            A.GaussNoise(var_limit=(5.0, 15.0), p=0.3),   # simulate sensor noise
+            A.MotionBlur(blur_limit=3, p=0.2),            # cracks under motion blur (vehicle speed)
+
+            # --- Advanced distortions ---
+            A.ElasticTransform(alpha=20, sigma=5, alpha_affine=10, p=0.2),  # realistic surface distortions
+            A.GridDistortion(num_steps=5, distort_limit=0.05, p=0.2),       # mild surface warps
+            A.Perspective(scale=(0.02, 0.05), p=0.2),                       # simulate road tilt
+
+            # --- Normalize & convert ---
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ])

@@ -3,10 +3,10 @@ import cv2
 import numpy as np
 
 # --- CONFIG ---
-image_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\IMAGES_4030"
-mask_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4030"
+image_dir = r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-2\process_distress"
+mask_dir = r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-2\ACCEPTED_RESULTS"
 predicted_dir = None #r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\OG_DATASET_CONCRETE\AnnotationMasks"  # or "None"
-output_video = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\output_videoq.mp4"
+output_video = r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-2\output_videoq.mp4"
 frame_width = 419
 frame_height = 1024
 fps = 4

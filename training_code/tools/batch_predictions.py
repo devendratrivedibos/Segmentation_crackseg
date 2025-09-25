@@ -43,9 +43,6 @@ CLASS_COLOR_MAP = {
 def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_size=4):
     num_classes = 14 + 1  #14
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    mean = (0.493, 0.493, 0.493)
-    std = (0.144, 0.144, 0.144)
-
     mean = (0.54159361, 0.54159361, 0.54159361)
     std = (0.14456673, 0.14456673, 0.14456673)
 
@@ -61,7 +58,7 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
 
     # Model
     model = UNetPP(in_channels=3, num_classes=num_classes)
-
+    # model = deeplabv3_resnet101(aux=True, num_classes=num_classes, pretrain_backbone=True)
     pretrain_weights = torch.load(weights_path, map_location=device)
     if "model" in pretrain_weights:
         model.load_state_dict(pretrain_weights["model"])
@@ -149,13 +146,14 @@ def remove_small_components_multiclass(mask, min_area=400):
 
 
 if __name__ == '__main__':
-    main(imgs_root=r"F:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01/SECTION-1/process_distress",
-        prediction_save_path=r"F:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01/SECTION-1/process_distress_results",
-        weights_path=r"Z:\Devendra_Files\CrackSegFormer-main\weights\UNET_asp_14_sam\UNET_asp_14_sam_best_epoch195_dice0.914.pth",
-        batch_size=8)
+    main(imgs_root=r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-1\process_distress",
+        prediction_save_path=r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-1\ACCEPTED_RESULTS",
+        weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt\UNET_asp_14_23sept_best_epoch166_dice0.890.pth",
+        batch_size=4)
 
-    main(imgs_root=r"F:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01/SECTION-2/process_distress",
-        prediction_save_path=r"F:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01/SECTION-2/process_distress_results",
-        weights_path=r"Z:\Devendra_Files\CrackSegFormer-main\weights\UNET_asp_14_sam\UNET_asp_14_sam_best_epoch195_dice0.914.pth",
-        batch_size=8)
+    main(imgs_root=r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-2\process_distress",
+        prediction_save_path=r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-2\ACCEPTED_RESULTS",
+        weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt\UNET_asp_14_23sept_best_epoch166_dice0.890.pth",
+        batch_size=4)
+
 

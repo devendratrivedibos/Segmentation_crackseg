@@ -3,59 +3,48 @@ import shutil
 import re
 
 # ==== CONFIG ====
-src_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\OG_DATASET_ASPHALT_OLD\AnnotationMasks"
-dst_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4030"
+src_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4040"
+dst_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4040"
 
 os.makedirs(dst_folder, exist_ok=True)
 
-# for f in os.listdir(src_folder):
-#     old_path = os.path.join(src_folder, f)
-#
-#     if os.path.isfile(old_path) and f.startswith("A_T_3_rangeDataFiltered"):
-#         # extract the number (e.g. 0000207)
-#         match = re.search(r"-(\d+)-", f)
-#         if match:
-#             number = match.group(1)
-#
-#             # build new filename
-#             new_name = f"A_T_3_rangeDataFiltered-_IMG_404020_{number}-_crack.png"
-#             new_path = os.path.join(dst_folder, new_name)
-#
-#             # copy with new name
-#             shutil.copy(old_path, new_path)
-#             print(f"Copied & renamed: {f} → {new_name}")
-#
+for i in os.listdir(src_folder):
+    old_path = os.path.join(src_folder, i)
 
-# print(len(region_indexes))
-# print(sorted(region_indexes))
-# folder = r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\process_distress"
-# for f in os.listdir(folder):
-#     old_path = os.path.join(folder, f)
-#
-#     if os.path.isfile(old_path) and "A_T__" in f:
-#         new_name = f.replace("A_T__", "A_T_2_")
-#         new_path = os.path.join(folder, new_name)
-#
-#         os.rename(old_path, new_path)
-#         print(f"Renamed: {f} → {new_name}")
-
-# ==== CONFIG ====
-src_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4030"
-dst_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\Masks_4040"
-
-os.makedirs(dst_folder, exist_ok=True)
-
-for f in os.listdir(src_folder):
-    old_path = os.path.join(src_folder, f)
-
-    if os.path.isfile(old_path) and f.lower().endswith(".png"):
-        # Replace A_T_<number> with A_T_4
-        # new_name = re.sub(r"A_T_\d+", "A_T", f)
-
-        # Replace IMG_403030 with IMG_404020 (if exists)
-        new_name = f.replace("IMG_403030", "IMG_404020")
-
+    if os.path.isfile(old_path) and i.startswith("A_T_1_rangeDataFiltered"):
+        # just replace A_T_1 with A_T_2
+        new_name = i.replace("A_T_1_rangeDataFiltered-_IMG_404020_", "A_T_1_rangeDataFiltered-", 1)
         new_path = os.path.join(dst_folder, new_name)
 
-        shutil.copy(old_path, new_path)
-        print(f"Copied & renamed: {f} → {new_name}")
+        os.rename(old_path, new_path)
+
+
+import os
+# import re
+#
+# # update this to your folder containing all images
+# img_folder = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\ALL_IMAGES"
+# img_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4040"
+# camera_id = "404020"
+#
+# for fname in os.listdir(img_folder):
+#     old_path = os.path.join(img_folder, fname)
+#
+#     if os.path.isfile(old_path) and fname.startswith("AMRAVTI-TALEGAON"):
+#         # match pattern: ..._IMG_<number>...
+#         match = re.match(r"(.+_IMG_)(\d+)(\..+)?", fname)
+#         if match:
+#             prefix, number, ext = match.groups()
+#             if ext is None:
+#                 ext = ""  # in case no extension
+#
+#             # skip if camera_id already present
+#             if camera_id in fname:
+#                 continue
+#
+#             # new name with camera_id injected
+#             new_name = f"{prefix}{camera_id}_{number}{ext}"
+#             new_path = os.path.join(img_folder, new_name)
+#
+#             print(f"{fname}  -->  {new_name}")
+#             os.rename(old_path, new_path)
