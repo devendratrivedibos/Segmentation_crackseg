@@ -1,93 +1,67 @@
 import torch
 from torch import nn
+from typing import Union, Dict
+import numpy as np
 from . import distributed_utils as utils
-from .dice_coefficient_loss import dice_loss, build_target
+from .dice_coefficient_loss import dice_loss, build_target   # kept for compatibility if you use elsewhere
+from .hybrid_loss import build_crack_criterion               # your hybrid criterion builder
 
 
-class FocalLoss(nn.Module):
+# -----------------------------
+# Global config
+# -----------------------------
+IGNORE_INDEX = 255
+
+# Device
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+num_classes = 14 + 1
+
+class_counts = None
+
+# ✅ FIX: use counts_tensor, not the Python list
+counts_tensor = class_counts
+criterion = build_crack_criterion(
+    num_classes=num_classes,
+    class_counts=counts_tensor,
+    device=device,
+    ignore_index=IGNORE_INDEX
+)
+
+
+# -----------------------------
+# Helpers
+# -----------------------------
+def _main_output(outputs: Union[torch.Tensor, Dict[str, torch.Tensor]]) -> torch.Tensor:
     """
-    Focal Loss for multi-class segmentation.
+    Return the primary logits tensor [B, C, H, W] from either a Tensor or a dict with 'out'.
     """
-    def __init__(self, alpha=None, gamma=2.0, ignore_index=-100, reduction='mean'):
-        super(FocalLoss, self).__init__()
-        self.alpha = alpha
-        self.gamma = gamma
-        self.ignore_index = ignore_index
-        self.reduction = reduction
-
-    def forward(self, inputs, targets):
-        # inputs: (N, C, H, W)
-        # targets: (N, H, W)
-        ce_loss = nn.functional.cross_entropy(
-            inputs, targets,
-            weight=self.alpha,
-            ignore_index=self.ignore_index,
-            reduction='none'
-        )
-        pt = torch.exp(-ce_loss)  # p_t = e^(-CE)
-        focal_loss = ((1 - pt) ** self.gamma) * ce_loss
-
-        if self.reduction == 'mean':
-            return focal_loss.mean()
-        elif self.reduction == 'sum':
-            return focal_loss.sum()
-        else:
-            return focal_loss
+    if isinstance(outputs, dict):
+        assert "out" in outputs, "Model dict output must contain key 'out'."
+        return outputs["out"]
+    return outputs
 
 
-def criterion(inputs, target, loss_weight=None, num_classes: int = 2,
-              use_ce: bool = True, use_focal: bool = False, use_dice: bool = True,
-              focal_gamma: float = 2.0, ignore_index: int = -100):
-    """
-    Flexible criterion to enable/disable CrossEntropy, FocalLoss, and DiceLoss.
-    """
-    losses = {}
-    focal_loss_fn = FocalLoss(alpha=loss_weight, gamma=focal_gamma, ignore_index=ignore_index)
-
-    for name, x in inputs.items():
-        total_loss = 0.0
-
-        # CrossEntropy Loss
-        if use_ce:
-            ce_loss = nn.functional.cross_entropy(
-                x, target,
-                ignore_index=ignore_index,
-                weight=loss_weight
-            )
-            total_loss += ce_loss
-
-        # Focal Loss
-        if use_focal:
-            fl = focal_loss_fn(x, target)
-            total_loss += fl
-
-        # Dice Loss
-        if use_dice:
-            dice_target = build_target(target, num_classes, ignore_index)
-            dl = dice_loss(x, dice_target, multiclass=True, ignore_index=ignore_index)
-            total_loss += dl
-
-        losses[name] = total_loss
-
-    if len(losses) == 1:
-        return losses['out']
-    return losses['out'] + 0.5 * losses['aux']
-
-
+# -----------------------------
+# Evaluation
+# -----------------------------
 def evaluate(model, data_loader, device, num_classes):
     model.eval()
     confmat = utils.ConfusionMatrix(num_classes)
-    dice = utils.DiceCoefficient(num_classes=num_classes, ignore_index=255)
+    dice = utils.DiceCoefficient(num_classes=num_classes, ignore_index=IGNORE_INDEX)
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Test:'
+
     with torch.no_grad():
         for image, target in metric_logger.log_every(data_loader, 50, header):
             image, target = image.to(device), target.to(device)
-            output = model(image)
-            output = output['out']
 
-            confmat.update(target.flatten(), output.argmax(1).flatten())
-            dice.update(output, target)
+            outputs = model(image)                 # Tensor or dict
+            logits = _main_output(outputs)         # [B, C, H, W]
+            pred = logits.argmax(1)                # [B, H, W]
+
+            confmat.update(target.flatten(), pred.flatten())
+            dice.update(logits, target)
 
         confmat.reduce_from_all_processes()
         dice.reduce_from_all_processes()
@@ -95,41 +69,49 @@ def evaluate(model, data_loader, device, num_classes):
     return confmat, dice.value.item()
 
 
-def train_one_epoch(model, optimizer, data_loader, device, epoch, num_classes, lr_scheduler,
-                    print_freq=10, scaler=None):
+# -----------------------------
+# Training (one epoch)
+# -----------------------------
+def train_one_epoch(model,
+                    optimizer,
+                    data_loader,
+                    device,
+                    epoch,
+                    num_classes,
+                    lr_scheduler,
+                    print_freq=10,
+                    scaler=None,
+                    grad_clip_norm: float = 0.0):
+    """
+    Trains one epoch using the global `criterion` built above (hybrid crack loss).
+    - Supports Tensor or dict outputs (with optional 'aux')
+    - Optional gradient clipping via grad_clip_norm > 0
+    """
     model.train()
     metric_logger = utils.MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
-    header = 'Epoch: [{}]'.format(epoch)
-
-    if num_classes == 2:
-        loss_weight = torch.as_tensor([1.0, 1.0], device=device)
-    else:
-        # Example: adjust weights according to dataset
-        loss_weight = torch.tensor([
-            0.1480,  # Background
-            4.8054,  # Alligator
-            544.9000,  # Transverse
-            38.5770,  # Longitudinal
-            136.5000,  # Multiple
-            5784.7000  # Joint Seal
-        ], dtype=torch.float32).to(device)
+    header = f'Epoch: [{epoch}]'
 
     for image, target in metric_logger.log_every(data_loader, print_freq, header):
         image, target = image.to(device), target.to(device)
-        with torch.cuda.amp.autocast(enabled=scaler is not None):
-            output = model(image)
-            loss = criterion(output, target, loss_weight, num_classes=num_classes,
-                            use_ce=True, use_focal=False, use_dice=True,
-                            ignore_index=255, focal_gamma=2.0)
 
-        optimizer.zero_grad()
+        with torch.cuda.amp.autocast(enabled=scaler is not None):
+            outputs = model(image)        # Tensor or {'out', 'aux'}
+            loss = criterion(outputs, target)
+
+        optimizer.zero_grad(set_to_none=True)
+
         if scaler is not None:
             scaler.scale(loss).backward()
+            if grad_clip_norm and grad_clip_norm > 0:
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
             scaler.step(optimizer)
             scaler.update()
         else:
             loss.backward()
+            if grad_clip_norm and grad_clip_norm > 0:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
             optimizer.step()
 
         lr_scheduler.step()
@@ -140,6 +122,61 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, num_classes, l
     return metric_logger.meters["loss"].global_avg, lr
 
 
+
+def train_one_epoch_loss(model,
+                    optimizer,
+                    data_loader,
+                    device,
+                    epoch,
+                    num_classes,
+                    lr_scheduler,
+                    print_freq=10,
+                    scaler=None,
+                    grad_clip_norm: float = 0.0):
+    model.train()
+    metric_logger = utils.MetricLogger(delimiter="  ")
+    metric_logger.add_meter('lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
+    header = f'Epoch: [{epoch}]'
+
+    running_loss = 0.0
+    total_batches = 0
+
+    for image, target in metric_logger.log_every(data_loader, print_freq, header):
+        image, target = image.to(device), target.to(device)
+
+        with torch.cuda.amp.autocast(enabled=scaler is not None):
+            outputs = model(image)        # Tensor or {'out', 'aux'}
+            loss = criterion(outputs, target)
+
+        optimizer.zero_grad(set_to_none=True)
+
+        if scaler is not None:
+            scaler.scale(loss).backward()
+            if grad_clip_norm and grad_clip_norm > 0:
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            loss.backward()
+            if grad_clip_norm and grad_clip_norm > 0:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip_norm)
+            optimizer.step()
+
+        lr_scheduler.step()
+
+        lr = optimizer.param_groups[0]["lr"]
+        metric_logger.update(loss=loss.item(), lr=lr)
+
+        # --- NEW: accumulate for epoch average ---
+        running_loss += loss.item()
+        total_batches += 1
+
+    epoch_loss = running_loss / total_batches
+    return epoch_loss, lr
+# -----------------------------
+# LR Scheduler (unchanged)
+# -----------------------------
 def create_lr_scheduler(optimizer,
                         num_step: int,
                         epochs: int,

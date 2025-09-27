@@ -5,16 +5,16 @@ import shutil
 
 
 # Paths
-mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationMasks"
-output_mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationMasks"
-image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationImages"
-output_image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\DATASET_CONCRETE\DATA\AnnotationImages"
+mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_MASKS"
+output_mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_MASKS_COPY"
+image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_IMAGES"
+output_image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_IMAGES_COPY"
 
 os.makedirs(output_mask_folder, exist_ok=True)
 os.makedirs(output_image_folder, exist_ok=True)
 
 # --- Target classes (IDs) ---
-target_classes = {2, 3, 4, 5, 6, 7, 8, 11, 12}
+target_classes = {2}
 
 # --- Color map (RGB) → (ID, Name) ---
 COLOR_MAP = {
@@ -79,11 +79,8 @@ for filename in os.listdir(mask_folder):
             _, image_ext = os.path.splitext(image_src)
 
             # Copy mask duplicates
-            for i in range(1, 6):
+            for i in range(1, 3):
                 shutil.copy2(mask_src, os.path.join(output_mask_folder, f"{name}_copy{i}{mask_ext}"))
-
-            # Copy image duplicates with original image extension
-            for i in range(1, 6):
                 shutil.copy2(image_src, os.path.join(output_image_folder, f"{name}_copy{i}{image_ext}"))
 
             print(f"✔ Copied duplicates for: {filename}")

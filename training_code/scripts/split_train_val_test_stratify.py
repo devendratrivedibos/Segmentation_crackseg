@@ -8,9 +8,14 @@ from tqdm import tqdm
 
 # ===================== CONFIG =====================
 
-images_dir = (r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\IMAGES_4040") # your images folder
+images_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\IMAGES_4040" # your images folder
 masks_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4040"  # your masks folder
-output_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\SPLITTED"  # output folder
+output_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\SPLITTED_4040"  # output folder
+
+images_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_IMAGES" # your images folder
+masks_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_MASKS"  # your masks folder
+output_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\SPLITTED"  # output folder
+
 
 test_size = 0.10
 val_size = 0.15

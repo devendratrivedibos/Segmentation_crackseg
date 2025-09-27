@@ -3,7 +3,7 @@ import re
 
 # Replace with your actual folder paths
 folders = [
-r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\ACCEPTED_MASKS",
+r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\ACCEPTED_MASKS",
 ]
 
 region_indexes = []

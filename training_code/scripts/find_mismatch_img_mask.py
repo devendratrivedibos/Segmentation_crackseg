@@ -2,8 +2,8 @@ import os
 import shutil
 
 # --- Directories ---
-img_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\IMAGES_4040"
-mask_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4040"
+img_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\IMAGES_4030"
+mask_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4030"
 
 # --- Collect names without extension ---
 img_files = {os.path.splitext(f)[0] for f in os.listdir(img_dir)}

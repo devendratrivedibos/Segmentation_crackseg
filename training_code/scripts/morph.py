@@ -19,8 +19,7 @@ pcams_dir = os.path.join(root_dir, "SECTION-1", 'pcams')
 
 # --- Example multiple folders ---
 image_dirs = [
-    os.path.join(root_dir, "SECTION-1", 'process_distress_og'),
-    # os.path.join(root_dir, "SECTION-1", 'IMAGES_4040'),
+    os.path.join(root_dir, "SECTION-1", 'ACCEPTED_MASKS'),
 ]
 
 
@@ -31,8 +30,6 @@ orig_mask_dirs = [
 
 pred_mask_dirs = [
     os.path.join(root_dir, "SECTION-1", 'process_distress_results'),
-    # os.path.join(root_dir, "SECTION-1", 'process_distress_results_4040'),
-
 ]
 
 # --- Output dirs ---
@@ -58,6 +55,11 @@ def load_files(dirs, exts):
     return sorted(files)
 
 
+def morph(image):
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15,30))
+    morphed = cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel)
+    return morphed
+
 images = load_files(image_dirs, ('.png', '.jpg', '.jpeg'))
 orig_masks = load_files(orig_mask_dirs, ('.png',))
 pred_masks = load_files(pred_mask_dirs, ('.png',))
@@ -78,7 +80,7 @@ assert len(images) == len(orig_masks) == len(pred_masks)
 
 # --- Shuffle together ---
 combined = list(zip(images, orig_masks, pred_masks))
-random.shuffle(combined)
+# random.shuffle(combined)
 images, orig_masks, pred_masks = zip(*combined)
 images, orig_masks, pred_masks = list(images), list(orig_masks), list(pred_masks)
 
@@ -199,7 +201,7 @@ class ImageMaskViewerOptimized:
             orig_mask_colored = cv2.applyColorMap(orig_mask, cv2.COLORMAP_JET)
         else:
             orig_mask_colored = cv2.cvtColor(orig_mask, cv2.COLOR_BGR2RGB)
-
+        orig_mask_colored = morph(img)
         pred_mask = cv2.imread(pred_mask_path, cv2.IMREAD_UNCHANGED)
         pred_mask = cv2.flip(pred_mask, 0)
         if len(pred_mask.shape) == 2:
@@ -208,7 +210,7 @@ class ImageMaskViewerOptimized:
             pred_mask_colored = cv2.cvtColor(pred_mask, cv2.COLOR_BGR2RGB)
 
         overlay = cv2.addWeighted(img, 0.5, pred_mask_colored, 0.5, 0)
-
+        overlay = morph(pred_mask_colored)
         # --- Load pcams (LL) ---
         pcams_img = None
         number = self.get_number_from_name(os.path.basename(img_path))
@@ -244,13 +246,13 @@ class ImageMaskViewerOptimized:
             ax.axis("off")
 
         self.axs[0].imshow(img);
-        self.axs[0].set_title("Image")
+        self.axs[0].set_title("Original Image")
         self.axs[1].imshow(orig_mask);
-        self.axs[1].set_title("Original Mask")
+        self.axs[1].set_title("MOrph Mask")
         self.axs[2].imshow(pred_mask);
         self.axs[2].set_title("Predicted Mask")
         self.axs[3].imshow(overlay);
-        self.axs[3].set_title("Overlay")
+        self.axs[3].set_title("Morph Predicted")
         if pcams_img is not None:
             self.axs[4].imshow(pcams_img);
             self.axs[4].set_title("Pcams (LL)")

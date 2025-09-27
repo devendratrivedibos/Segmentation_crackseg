@@ -8,9 +8,9 @@ from tqdm import tqdm
 
 # ================== CONFIG ==================
 root_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1"
-GT_DIRS = [os.path.join(root_dir, "ACCEPTED_MASKS")]
+GT_DIRS = [os.path.join(root_dir, "ACCEPTED_MASKS"), os.path.join(root_dir, "ACCEPTED_MASKS_1"), os.path.join(root_dir, "ACCEPTED_MASKS_2"), ]
 PRED_DIR = os.path.join(root_dir, "process_distress_results")
-SAVE_CSV = os.path.join(root_dir, "AMRAWATI-TALEGAON_s1_mask_metrics.csv")
+SAVE_CSV = os.path.join(root_dir, "AMRAWATI-TALEGAON_1000.csv")
 
 COLOR_MAP = {
     (0, 0, 0): (0, "Background"),
@@ -38,7 +38,7 @@ IGNORE_CLASSES = {
 
 FILTER_PIXELS = {
     # "Alligator": 0,
-    "Pothole": 1500,
+    "Pothole": 1000,
     # "Patches": 0
 }
 
@@ -150,6 +150,8 @@ def compute_detection_metrics(gt_mask, pred_mask, color_map, iou_thresh=0.5, min
             "F1": f1
         })
     return stats
+
+
 
 # ================== MAIN ==================
 # Collect GT and Pred files

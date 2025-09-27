@@ -14,17 +14,17 @@ from concurrent.futures import ThreadPoolExecutor
 import gc
 
 # --- CONFIG ---
-root_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-2"
-image_dir = os.path.join(root_dir, 'ACCEPTED_IMAGES')
-mask_dir = os.path.join(root_dir, 'ACCEPTED_MASKS')
+root_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-3"
+image_dir = os.path.join(root_dir, 'IMAGES_4030')
+# image_dir = os.path.join(root_dir, 'process_distress_40')
+mask_dir = os.path.join(root_dir, 'MASKS_4030')
 pcams_dir = os.path.join(root_dir, 'pcams')
 start_number = 0
-# image_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\IMAGES_4030"
-# mask_dir = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4030"
-# Create output folders if they don't exist
+
 accepted_img_dir = os.path.join(root_dir, "ACCEPTED_IMAGES")
 accepted_mask_dir = os.path.join(root_dir, "ACCEPTED_MASKS")
 rework_img_dir = os.path.join(root_dir, "REWORK_IMAGES")
+
 rework_mask_dir = os.path.join(root_dir, "REWORK_MASKS")
 csv_log = os.path.join(root_dir, "rework_log.csv")
 os.makedirs(accepted_img_dir, exist_ok=True)
@@ -33,8 +33,8 @@ os.makedirs(rework_img_dir, exist_ok=True)
 os.makedirs(rework_mask_dir, exist_ok=True)
 
 # --- Load file names (same as before) ---
-images = sorted([f for f in os.listdir(image_dir)])
-masks = sorted([f for f in os.listdir(mask_dir)])
+images = sorted([f for f in os.listdir(image_dir) ])
+masks = sorted([f for f in os.listdir(mask_dir) ])
 
 image_stems = {os.path.splitext(f)[0]: f for f in images}
 mask_stems = {os.path.splitext(f)[0]: f for f in masks}

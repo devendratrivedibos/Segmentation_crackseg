@@ -15,34 +15,9 @@ IGNORE_INDEX = 255
 # Device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-num_classes = 14 + 1
-# class_counts = [
-#     11998,   # 0
-#     0,       # 1
-#     1346,    # 2
-#     1799,    # 3
-#     661,     # 4
-#     519,     # 5
-#     1879,    # 6
-#     1598,    # 7
-#     1052,    # 8
-#     11563,   # 9
-#     11745,   # 10
-#     27,      # 11
-#     418,     # 12
-#     21,      # 13
-#     0        # 14
-# ]
+num_classes = 5 + 1
+
 class_counts = None
-# # Convert counts → tensor, avoid zero by replacing with 1
-# counts = np.array(class_counts, dtype=np.float32)
-# counts[counts == 0] = 1.0
-# counts_tensor = torch.tensor(counts, dtype=torch.float32, device=device)
-#
-# # Inverse frequency weighting
-# weights = 1.0 / counts
-# weights = weights / weights.sum() * len(counts)
-# class_weights = torch.tensor(weights, dtype=torch.float32, device=device)
 
 # ✅ FIX: use counts_tensor, not the Python list
 counts_tensor = class_counts

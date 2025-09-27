@@ -15,15 +15,15 @@ COLOR_MAP = {
     (0, 255, 0): (3, "Longitudinal Crack"),
     (139, 69, 19): (4, "Pothole"),
     (255, 165, 0): (5, "Patches"),
-    (255, 0, 255): (6, "Multiple Crack"),
-    (0, 255, 255): (7, "Spalling"),
-    (0, 128, 0): (8, "Corner Break"),
-    (255, 100, 203): (9, "Sealed Joint - T"),
-    (199, 21, 133): (10, "Sealed Joint - L"),
-    (128, 0, 128): (11, "Punchout"),
-    (112, 102, 255): (12, "Popout"),
-    (255, 255, 255): (13, "Unclassified"),
-    (255, 215, 0): (14, "Cracking"),
+    # (255, 0, 255): (6, "Multiple Crack"),
+    # (0, 255, 255): (7, "Spalling"),
+    # (0, 128, 0): (8, "Corner Break"),
+    # (255, 100, 203): (9, "Sealed Joint - T"),
+    # (199, 21, 133): (10, "Sealed Joint - L"),
+    # (128, 0, 128): (11, "Punchout"),
+    # (112, 102, 255): (12, "Popout"),
+    # (255, 255, 255): (13, "Unclassified"),
+    # (255, 215, 0): (14, "Cracking"),
 }
 
 class CrackDataset(Dataset):
@@ -60,11 +60,11 @@ class CrackDataset(Dataset):
         # Load image using OpenCV and convert to RGB
         img = cv2.imread(self.images_path[idx])
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        # img = cv2.resize(img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
+        img = cv2.resize(img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
         # Load mask in color and convert to RGB
         mask_rgb = cv2.imread(self.masks_path[idx], cv2.IMREAD_COLOR)
         mask_rgb = cv2.cvtColor(mask_rgb, cv2.COLOR_BGR2RGB)
-        # mask_rgb = cv2.resize(mask_rgb, (1024, 1024), interpolation=cv2.INTER_NEAREST)
+        mask_rgb = cv2.resize(mask_rgb, (1024, 1024), interpolation=cv2.INTER_NEAREST)
         # Convert RGB mask to class ID map
         mask = self.rgb_to_class_id(mask_rgb, COLOR_MAP)
         if self.transforms is not None:
@@ -97,13 +97,35 @@ class CrackDataset(Dataset):
 class SegmentationPresetTrain:
     def __init__(self, img_size, mean, std):
         self.transforms = A.Compose([
+            # --- Geometric ---
             A.HorizontalFlip(p=0.4),
-            A.VerticalFlip(p=0.4),
-            # A.RandomBrightnessContrast(p=0.2),
-            # A.GaussNoise(var_limit=(5.0, 30.0), p=0.3),
-            # A.Blur(blur_limit=3, p=0.2),
-            # A.ElasticTransform(alpha=1, sigma=50, alpha_affine=50, p=0.2),
-            # A.CLAHE(p=0.2),
+            A.VerticalFlip(p=0.4),  # vertical cracks possible, but rare
+            A.ShiftScaleRotate(
+                shift_limit=0.02,  # small shifts only
+                scale_limit=0.1,  # mild zoom in/out
+                rotate_limit=5,  # small rotations
+                border_mode=0,  # fill with zeros (black)
+                p=0.5
+            ),
+
+            # --- Photometric ---
+            A.RandomBrightnessContrast(
+                brightness_limit=0.2,
+                contrast_limit=0.2,
+                p=0.4
+            ),
+            A.CLAHE(clip_limit=2, tile_grid_size=(8, 8), p=0.3),  # enhance faint cracks
+            A.RandomGamma(gamma_limit=(80, 120), p=0.3),  # simulate different lighting
+            A.HueSaturationValue(hue_shift_limit=5, sat_shift_limit=10, val_shift_limit=10, p=0.2),
+
+            # --- Noise & blur (light) ---
+            A.GaussNoise(var_limit=(5.0, 15.0), p=0.3),  # simulate sensor noise
+            A.MotionBlur(blur_limit=3, p=0.2),  # cracks under motion blur (vehicle speed)
+
+            # --- Advanced distortions ---
+            A.ElasticTransform(alpha=20, sigma=5, alpha_affine=10, p=0.2),  # realistic surface distortions
+            A.GridDistortion(num_steps=5, distort_limit=0.05, p=0.2),  # mild surface warps
+            A.Perspective(scale=(0.02, 0.05), p=0.2),  # simulate road tilt
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ])

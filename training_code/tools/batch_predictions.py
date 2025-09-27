@@ -41,11 +41,12 @@ CLASS_COLOR_MAP = {
 
 
 def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_size=4):
-    num_classes = 14 + 1  #14
+    num_classes = 14 + 1  #14 #5
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    mean = (0.54159361, 0.54159361, 0.54159361)
-    std = (0.14456673, 0.14456673, 0.14456673)
-
+    mean = (0.456, 0.456, 0.456)
+    std = (0.145, 0.145, 0.145)
+    mean =  (0.389, 0.389, 0.389)
+    std =  (0.120, 0.120, 0.120)
     data_transform = T.Compose([
         T.ToTensor(),
         T.Normalize(mean=mean, std=std),
@@ -58,7 +59,6 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
 
     # Model
     model = UNetPP(in_channels=3, num_classes=num_classes)
-    # model = deeplabv3_resnet101(aux=True, num_classes=num_classes, pretrain_backbone=True)
     pretrain_weights = torch.load(weights_path, map_location=device)
     if "model" in pretrain_weights:
         model.load_state_dict(pretrain_weights["model"])
@@ -76,6 +76,7 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
             for image in batch_files:
                 original_img = cv2.imread(os.path.join(imgs_root, image))
                 original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB)
+                # original_img = cv2.resize(original_img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
                 img = data_transform(original_img)
                 batch_imgs.append(img)
                 orig_names.append(image)
@@ -146,14 +147,34 @@ def remove_small_components_multiclass(mask, min_area=400):
 
 
 if __name__ == '__main__':
-    main(imgs_root=r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-1\process_distress",
-        prediction_save_path=r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-1\ACCEPTED_RESULTS",
-        weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt\UNET_asp_14_23sept_best_epoch166_dice0.890.pth",
+
+    main(imgs_root=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\IMAGES_4040",
+        prediction_save_path=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results_4040",
+        weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt_4040\UNET_asp_4040_best_epoch153_dice0.885.pth",
         batch_size=4)
 
-    main(imgs_root=r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-2\process_distress",
-        prediction_save_path=r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-2\ACCEPTED_RESULTS",
-        weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt\UNET_asp_14_23sept_best_epoch166_dice0.890.pth",
+    main(imgs_root=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\IMAGES_4040",
+        prediction_save_path=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\process_distress_results_4040",
+        weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt_4040\UNET_asp_4040_best_epoch153_dice0.885.pth",
         batch_size=4)
 
+    main(imgs_root=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\IMAGES_4040",
+        prediction_save_path=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\process_distress_results_4040",
+        weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt_4040\UNET_asp_4040_best_epoch153_dice0.885.pth",
+        batch_size=4)
+
+    main(imgs_root=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\IMAGES_4040",
+        prediction_save_path=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\process_distress_results_4040",
+        weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt_4040\UNET_asp_4040_best_epoch153_dice0.885.pth",
+        batch_size=4)
+
+    main(imgs_root=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\IMAGES_4040",
+        prediction_save_path=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\process_distress_results_4040",
+        weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt_4040\UNET_asp_4040_best_epoch153_dice0.885.pth",
+        batch_size=4)
+
+    # main(imgs_root=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\SPLITTED\TEST\IMAGES",
+    #     prediction_save_path=r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\SPLITTED\TEST\IMAGESRESULTS",
+    #     weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\26Sept_Asphalt_1024\26Sept_Asphalt_1024_best_epoch77_dice0.659.pth",
+    #     batch_size=4)
 

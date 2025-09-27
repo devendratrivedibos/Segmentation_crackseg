@@ -2,21 +2,62 @@ import os
 import shutil
 import re
 
-# ==== CONFIG ====
-src_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4040"
-dst_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\MASKS_4040"
 
-os.makedirs(dst_folder, exist_ok=True)
+folder = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\MASKS_4040"
+camera_id = "404020"
+#
+# for fname in os.listdir(folder):
+#     old_path = os.path.join(folder, fname)
+#
+#     if os.path.isfile(old_path) and fname.startswith("A_T_1_rangeDataFiltered"):
+#         # match pattern: -0000020-
+#         match = re.search(r"-(\d+)-", fname)
+#         if match:
+#             number = match.group(1)
+#
+#             # build new name
+#             new_name = fname.replace(f"-{number}-", f"-_IMG_{camera_id}_{number}-")
+#             new_path = os.path.join(folder, new_name)
+#
+#             print(f"{fname}  -->  {new_name}")
+#             try:
+#                 os.rename(old_path, new_path)
+#             except Exception as e:
+#                 continue
 
-for i in os.listdir(src_folder):
-    old_path = os.path.join(src_folder, i)
 
-    if os.path.isfile(old_path) and i.startswith("A_T_1_rangeDataFiltered"):
-        # just replace A_T_1 with A_T_2
-        new_name = i.replace("A_T_1_rangeDataFiltered-_IMG_404020_", "A_T_1_rangeDataFiltered-", 1)
-        new_path = os.path.join(dst_folder, new_name)
 
-        os.rename(old_path, new_path)
+
+
+
+######################
+import os
+import re
+
+folder = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\MASKS_4030"
+camera_id = "403030"
+
+for fname in os.listdir(folder):
+    old_path = os.path.join(folder, fname)
+
+    if os.path.isfile(old_path) and fname.startswith("AMRAVTI-TALEGAON"):
+        # match ..._IMG_<number>
+        match = re.match(r"(.+_IMG_)(\d+)(\..+)?", fname)
+        if match:
+            prefix, number, ext = match.groups()
+            if ext is None:
+                ext = ""  # handle missing extension
+            # skip if aLready renamed
+            if camera_id in fname:
+                continue
+            # new name with camera_id inserted
+            new_name = f"{prefix}{camera_id}_{number}{ext}"
+            new_path = os.path.join(folder, new_name)
+            print(f"{fname}  -->  {new_name}")
+            os.rename(old_path, new_path)
+#########################3
+
+
 
 
 import os

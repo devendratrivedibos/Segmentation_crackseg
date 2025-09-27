@@ -6,8 +6,8 @@ from datetime import datetime
 from label_studio_converter import brush
 import glob
 
-root_dir = r"C:\Users\Admin\Downloads\M"
-newfolder = 57
+root_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\REWORK_MASKS"
+newfolder = 66
 username = 'Admin'
 
 # Collect both PNG and JPG images (ignore JSON files)

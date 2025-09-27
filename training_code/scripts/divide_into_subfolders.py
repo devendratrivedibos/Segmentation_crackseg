@@ -43,7 +43,7 @@ def divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=10
 
 
 # Example usage:
-process_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_IMAGES"
-results_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_MASKS"
-output_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\REWORK_divided"
-divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=5)
+process_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_IMAGES"
+results_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_MASKS"
+output_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_divided"
+divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=9)

@@ -1,8 +1,7 @@
 import os
 import torch
 from ultralytics import YOLO
-from segmentation_architecture.UnetPP import UNetPP  # Adjust import
-
+from models.unet.UnetPP import UNetPP
 
 class ONNXExporter:
     def __init__(self, model_type: str, model_path: str, onnx_path: str,
@@ -112,13 +111,13 @@ if __name__ == "__main__":
     exporter_yolo.export()
 
     # UNet++ Export with class names
-    unet_classes = ["Background", "Alligator", "Longitudinal", "Transverse", "Multiple", "Joint Seal"]
+    unet_classes = ["Background", "Alligator", "Longitudinal Crack", "Transverse Crack", "Pothole", "Patches"] #, "Multiple Crack", "Spalling", "Corner Break", "Gold", "Cracking", "Punchout", "Popout Grey", "White", "Unclassified"]", "Multiple", "Joint Seal"]
     exporter_unet = ONNXExporter(
         model_type="unet",
-        model_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_hybrid\UNET_V2_best_epoch117_dice0.729.pth",
-        onnx_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_hybrid\UnetPP_14aug.onnx",
+        model_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\25Sept_Asphalt_Augment\25Sept_Asphalt_Augment__best_epoch164_dice0.718.pth",
+        onnx_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\25Sept_Asphalt_Augment\UnetPP_25aug.onnx",
         input_size=(1024, 419),
-        # class_names=unet_classes,
+        class_names=unet_classes,
         device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     )
     exporter_unet.export()

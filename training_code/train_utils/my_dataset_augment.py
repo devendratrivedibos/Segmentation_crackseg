@@ -15,15 +15,15 @@ COLOR_MAP = {
     (0, 255, 0): (3, "Longitudinal Crack"),
     (139, 69, 19): (4, "Pothole"),
     (255, 165, 0): (5, "Patches"),
-    (255, 0, 255): (6, "Multiple Crack"),
-    (0, 255, 255): (7, "Spalling"),
-    (0, 128, 0): (8, "Corner Break"),
-    (255, 100, 203): (9, "Sealed Joint - T"),
-    (199, 21, 133): (10, "Sealed Joint - L"),
-    (128, 0, 128): (11, "Punchout"),
-    (112, 102, 255): (12, "Popout"),
-    (255, 255, 255): (13, "Unclassified"),
-    (255, 215, 0): (14, "Cracking"),
+    # (255, 0, 255): (6, "Multiple Crack"),
+    # (0, 255, 255): (7, "Spalling"),
+    # (0, 128, 0): (8, "Corner Break"),
+    # (255, 100, 203): (9, "Sealed Joint - T"),
+    # (199, 21, 133): (10, "Sealed Joint - L"),
+    # (128, 0, 128): (11, "Punchout"),
+    # (112, 102, 255): (12, "Popout"),
+    # (255, 255, 255): (13, "Unclassified"),
+    # (255, 215, 0): (14, "Cracking"),
 }
 
 class CrackDataset(Dataset):
@@ -67,6 +67,7 @@ class CrackDataset(Dataset):
         # mask_rgb = cv2.resize(mask_rgb, (1024, 1024), interpolation=cv2.INTER_NEAREST)
         # Convert RGB mask to class ID map
         mask = self.rgb_to_class_id(mask_rgb, COLOR_MAP)
+
         if self.transforms is not None:
             # img, mask = self.transforms(img, mask)
             result = self.transforms(img, mask)

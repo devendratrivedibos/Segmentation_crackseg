@@ -117,8 +117,8 @@ def copy_images_with_masks_folder(section_path: str):
     """
 
     process_distress = os.path.join(section_path, "process_distress")
-    masks_folder = os.path.join(section_path, "AnnotationMasks")
-    annotation_images = os.path.join(section_path, "AnnotationImages")
+    masks_folder = os.path.join(section_path, "ACCEPTED_MASKS")
+    annotation_images = os.path.join(section_path, "ACCEPTED_IMAGES")
 
     os.makedirs(annotation_images, exist_ok=True)
 
@@ -162,18 +162,18 @@ if __name__ == "__main__":
     # copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3")
     # copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4")
 
-    copy_images_with_masks_folder(r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1")
-    copy_images_with_masks_folder(r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2")
+    # copy_images_with_masks_folder(r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1")
+    # copy_images_with_masks_folder(r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2")
 
     # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-1")
     # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-2")
     # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-3")
 
-    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1")
-    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2")
-    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3")
-    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4")
-    # copy_images_with_masks_folder(r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5")
+    copy_images_with_masks_folder(r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1")
+    copy_images_with_masks_folder(r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2")
+    copy_images_with_masks_folder(r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3")
+    copy_images_with_masks_folder(r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4")
+    copy_images_with_masks_folder(r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5")
     # copy_images_with_masks_folder(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7")
     # copy_images_with_masks_folder(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7")
 
