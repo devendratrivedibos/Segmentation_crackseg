@@ -3,28 +3,28 @@ import cv2
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+from skimage.morphology import skeletonize
 
 # ================== CONFIG ==================
 root_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51"
+
 GT_DIRS = [
     os.path.join(root_dir, "SECTION-1", "ACCEPTED_MASKS"),
-    # os.path.join(root_dir, "SECTION-2", "ACCEPTED_MASKS"),
-    # os.path.join(root_dir, "SECTION-3", "ACCEPTED_MASKS"),
-    # os.path.join(root_dir, "SECTION-4", "ACCEPTED_MASKS"),
-    # os.path.join(root_dir, "SECTION-5", "ACCEPTED_MASKS"),
-    # Add more GT dirs if needed
+    os.path.join(root_dir, "SECTION-2", "ACCEPTED_MASKS"),
+    os.path.join(root_dir, "SECTION-3", "ACCEPTED_MASKS"),
+    os.path.join(root_dir, "SECTION-4", "ACCEPTED_MASKS"),
+    os.path.join(root_dir, "SECTION-5", "ACCEPTED_MASKS"),
 ]
 
 PRED_DIRS = [
     os.path.join(root_dir, "SECTION-1", "process_distress_results"),
-    # os.path.join(root_dir, "SECTION-2", "process_distress_results"),
-    # os.path.join(root_dir, "SECTION-3", "process_distress_results"),
-    # os.path.join(root_dir, "SECTION-4", "process_distress_results"),
-    # os.path.join(root_dir, "SECTION-5", "process_distress_results"),
-    # Add more GT dirs if needed
+    os.path.join(root_dir, "SECTION-2", "process_distress_results"),
+    os.path.join(root_dir, "SECTION-3", "process_distress_results"),
+    os.path.join(root_dir, "SECTION-4", "process_distress_results"),
+    os.path.join(root_dir, "SECTION-5", "process_distress_results"),
 ]
 
-SAVE_CSV = os.path.join(root_dir, "SECTION-1", "S1_AMRAWATI-TALEGAON_mask_metrics.csv")
+SAVE_CSV = os.path.join(root_dir, "AMRAWATI-TALEGAON_mask_metrics.csv")
 
 COLOR_MAP = {
     (0, 0, 0): (0, "Background"),
@@ -50,11 +50,32 @@ IGNORE_CLASSES = {
     "Punchout", "Popout", "Cracking"
 }
 
-# ================== FILTER PIXELS PER CLASS ==================
+CRACK_CLASSES = {"Alligator", "Transverse Crack", "Longitudinal Crack"}
+
 FILTER_PIXELS = {
     "Pothole": [0, 500, 1000, 1500],
-    # Add thresholds for other classes if required
+    # "Alligator": [0, 50, 100],  # example thresholds for crack lengths
+    # "Transverse Crack": [0, 20, 50],
+    # "Longitudinal Crack": [0, 20, 50],
+    # "Multiple Crack": [0, 20, 50],
+    # "Cracking": [0, 50, 100],
 }
+
+# ================== LOAD FILE PATHS ==================
+gt_files = {}
+for gt_dir in GT_DIRS:
+    for f in os.listdir(gt_dir):
+        if f.lower().endswith((".png", ".jpg", ".jpeg")):
+            gt_files[f] = os.path.join(gt_dir, f)
+
+pred_files = {}
+for pred_dir in PRED_DIRS:
+    for f in os.listdir(pred_dir):
+        if f.lower().endswith((".png", ".jpg", ".jpeg")) and f not in pred_files:
+            pred_files[f] = os.path.join(pred_dir, f)
+
+all_files = sorted(set(gt_files) | set(pred_files))
+all_results = []
 
 # ================== HELPERS ==================
 lut = np.zeros((256, 256, 256), dtype=np.uint8)
@@ -63,6 +84,40 @@ for rgb, (idx, _) in COLOR_MAP.items():
 
 def color_to_index(mask):
     return lut[mask[..., 0], mask[..., 1], mask[..., 2]]
+
+def morphology_operations(mask, width_kernel_size=15, height_kernel_size=30):
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (width_kernel_size, height_kernel_size))
+    closed = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    return closed
+
+def get_objects(mask, class_id, min_pixels=50):
+    binary = (mask == class_id).astype(np.uint8)
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary, connectivity=8)
+    objects = []
+    for i in range(1, num_labels):
+        area = stats[i, cv2.CC_STAT_AREA]
+        if area >= min_pixels:
+            obj_mask = (labels == i).astype(np.uint8)
+            objects.append(obj_mask)
+    return objects
+
+def measure_length(binary_mask, class_name):
+    """Skeletonize cracks and return length; otherwise count nonzero pixels"""
+    if binary_mask.sum() == 0:
+        return 0
+    if class_name in CRACK_CLASSES:
+        skel = skeletonize(binary_mask > 0)
+        return int(np.count_nonzero(skel))
+    else:
+        return int(np.count_nonzero(binary_mask))
+
+
+def compute_iou(mask1, mask2):
+    """Compute IoU between two binary masks"""
+    inter = np.logical_and(mask1, mask2).sum()
+    union = np.logical_or(mask1, mask2).sum()
+    return inter / (union + 1e-7) if union > 0 else 0.0
+
 
 def compute_classwise_overlap(gt, pred):
     stats = []
@@ -80,6 +135,11 @@ def compute_classwise_overlap(gt, pred):
         union = np.logical_or(gt_mask, pred_mask).sum()
         gt_count, pred_count = gt_mask.sum(), pred_mask.sum()
 
+        # Length metrics
+        gt_len = measure_length(gt_mask, class_name)
+        pred_len = measure_length(pred_mask, class_name)
+        length_ratio = pred_len / gt_len if gt_len > 0 else 0
+
         stats.append({
             "class_name": class_name,
             "Ground Truth Pixels": int(gt_count),
@@ -87,27 +147,14 @@ def compute_classwise_overlap(gt, pred):
             "Pred/Ground Ratio": pred_count / gt_count if gt_count > 0 else 0,
             "Intersection": int(inter),
             "IoU": inter / (union + 1e-7) if union > 0 else 0.0,
-            "Dice": (2 * inter) / (gt_count + pred_count + 1e-7) if (gt_count + pred_count) > 0 else 0.0
+            "Dice": (2 * inter) / (gt_count + pred_count + 1e-7) if (gt_count + pred_count) > 0 else 0.0,
+            "GT_length": gt_len,
+            "Pred_length": pred_len,
+            "Length_ratio": length_ratio
         })
     return stats
 
-def get_objects(mask, class_id, min_pixels=50):
-    binary = (mask == class_id).astype(np.uint8)
-    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary, connectivity=8)
-    objects = []
-    for i in range(1, num_labels):
-        area = stats[i, cv2.CC_STAT_AREA]
-        if area >= min_pixels:
-            obj_mask = (labels == i).astype(np.uint8)
-            objects.append(obj_mask)
-    return objects
-
-def compute_iou(mask1, mask2):
-    inter = np.logical_and(mask1, mask2).sum()
-    union = np.logical_or(mask1, mask2).sum()
-    return inter / (union + 1e-7) if union > 0 else 0.0
-
-def compute_detection_metrics_multi_threshold(gt_mask, pred_mask, color_map, iou_thresh=0.0):
+def compute_detection_metrics_multi_threshold(gt_mask, pred_mask, color_map, iou_thresh=0.1):
     all_stats = []
     classes_in_use = np.unique(np.concatenate([np.unique(gt_mask), np.unique(pred_mask)]))
 
@@ -118,75 +165,62 @@ def compute_detection_metrics_multi_threshold(gt_mask, pred_mask, color_map, iou
         if class_name in IGNORE_CLASSES:
             continue
 
-        gt_objects_org = get_objects(gt_mask, c, min_pixels=0)
-        pred_objects_org = get_objects(pred_mask, c, min_pixels=0)
+        gt_class_mask = morphology_operations((gt_mask == c).astype(np.uint8))
+        pred_class_mask = morphology_operations((pred_mask == c).astype(np.uint8))
 
-        stats = {
-            "class_name": class_name,
-            "GT_objects_org": len(gt_objects_org),
-            "Pred_objects_org": len(pred_objects_org)
-        }
+        stats = {"class_name": class_name}
 
         thresholds = FILTER_PIXELS.get(class_name, [0])
         for th in thresholds:
-            min_px = th if th > 0 else 0
-            gt_objects_filt = get_objects(gt_mask, c, min_pixels=min_px)
-            pred_objects_filt = get_objects(pred_mask, c, min_pixels=min_px)
-
+            gt_objects = get_objects(gt_class_mask, 1, min_pixels=th)
+            pred_objects = get_objects(pred_class_mask, 1, min_pixels=th)
             matched_gt = set()
             matched_pred = set()
-            for gi, g in enumerate(gt_objects_filt):
-                for pi, p in enumerate(pred_objects_filt):
+            for gi, g in enumerate(gt_objects):
+                for pi, p in enumerate(pred_objects):
                     if compute_iou(g, p) >= iou_thresh:
                         matched_gt.add(gi)
                         matched_pred.add(pi)
 
             TP = len(matched_gt)
-            FN = len(gt_objects_filt) - TP
-            FP = len(pred_objects_filt) - TP
+            FN = len(gt_objects) - TP
+            FP = len(pred_objects) - TP
             precision = TP / (TP + FP) if (TP + FP) > 0 else 0
             recall = TP / (TP + FN) if (TP + FN) > 0 else 0
             f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
 
+            # Compute lengths per threshold
+            gt_len = sum(measure_length(obj, class_name) for obj in gt_objects)
+            pred_len = sum(measure_length(obj, class_name) for obj in pred_objects)
+            length_ratio = pred_len / gt_len if gt_len > 0 else 0
+
             stats.update({
-                f"GT_objects_filt_{th}": len(gt_objects_filt),
-                f"Pred_objects_filt_{th}": len(pred_objects_filt),
+                f"GT_objects_filt_{th}": len(gt_objects),
+                f"Pred_objects_filt_{th}": len(pred_objects),
                 f"TP_{th}": TP,
                 f"FP_{th}": FP,
                 f"FN_{th}": FN,
                 f"Precision_{th}": precision,
                 f"Recall_{th}": recall,
-                f"F1_{th}": f1
+                f"F1_{th}": f1,
+                f"GT_length_{th}": gt_len,
+                f"Pred_length_{th}": pred_len,
+                f"Length_ratio_{th}": length_ratio
             })
         all_stats.append(stats)
     return all_stats
 
-# ================== MAIN ==================
-gt_files = {}
-for gt_dir in GT_DIRS:
-    for f in os.listdir(gt_dir):
-        if f.lower().endswith((".png", ".jpg", ".jpeg")):
-            gt_files[f] = os.path.join(gt_dir, f)
-
-pred_files = {}
-for pred_dir in PRED_DIRS:
-    for f in os.listdir(pred_dir):
-        if f.lower().endswith((".png", ".jpg", ".jpeg")):
-            # prefer first occurrence if multiple dirs have same file
-            if f not in pred_files:
-                pred_files[f] = os.path.join(pred_dir, f)
-
-all_files = sorted(set(gt_files) | set(pred_files))
-
-all_results = []
+# ================== MAIN LOOP ==================
 for fname in tqdm(all_files):
     gt_path, pred_path = gt_files.get(fname), pred_files.get(fname)
-
     gt_mask = color_to_index(cv2.cvtColor(cv2.imread(gt_path), cv2.COLOR_BGR2RGB)) if gt_path else np.zeros((1024, 419), np.uint8)
     pred_mask = color_to_index(cv2.cvtColor(cv2.imread(pred_path), cv2.COLOR_BGR2RGB)) if pred_path else np.zeros_like(gt_mask)
 
+    # gt_mask = cv2.resize(gt_mask, (1024, 1024), interpolation=cv2.INTER_NEAREST)
+    # pred_mask = cv2.resize(pred_mask, (1024, 1024), interpolation=cv2.INTER_NEAREST)
+
     seg_stats = compute_classwise_overlap(gt_mask, pred_mask)
-    det_stats = compute_detection_metrics_multi_threshold(gt_mask=gt_mask, pred_mask=pred_mask, color_map=COLOR_MAP, iou_thresh=0.05)
+    det_stats = compute_detection_metrics_multi_threshold(gt_mask, pred_mask, COLOR_MAP)
 
     for cname in {s["class_name"] for s in seg_stats} | {d["class_name"] for d in det_stats}:
         seg = next((s for s in seg_stats if s["class_name"] == cname), {})
@@ -200,13 +234,16 @@ for fname in tqdm(all_files):
             "Intersection": seg.get("Intersection", 0),
             "IoU": seg.get("IoU", 0.0),
             "Dice": seg.get("Dice", 0.0),
+            "GT_length": seg.get("GT_length", 0),
+            "Pred_length": seg.get("Pred_length", 0),
+            "Length_ratio": seg.get("Length_ratio", 0),
             **det
         })
 
-df = pd.DataFrame(all_results)
-
 # ================= CLASS-WISE SUMMARY =================
+df = pd.DataFrame(all_results)
 classwise_results = []
+
 for cname, g in df.groupby("class_name"):
     class_dict = {
         "filename": "GLOBAL",
@@ -216,13 +253,23 @@ for cname, g in df.groupby("class_name"):
         "Prediction Pixels": g["Prediction Pixels"].sum(),
         "Intersection": g["Intersection"].sum(),
         "IoU": g["IoU"].mean(),
-        "Dice": g["Dice"].mean()
+        "Dice": g["Dice"].mean(),
+        "GT_length": g["GT_length"].sum(),
+        "Pred_length": g["Pred_length"].sum(),
+        "Length_ratio": g["Pred_length"].sum() / g["GT_length"].sum() if g["GT_length"].sum() > 0 else 0
     }
+
     thresholds = FILTER_PIXELS.get(cname, [0])
     for th in thresholds:
         class_dict[f"GT_objects_filt_{th}"] = g.get(f"GT_objects_filt_{th}", pd.Series(dtype=float)).sum()
         class_dict[f"Pred_objects_filt_{th}"] = g.get(f"Pred_objects_filt_{th}", pd.Series(dtype=float)).sum()
-        TP, FP, FN = g.get(f"TP_{th}", pd.Series(dtype=float)).sum(), g.get(f"FP_{th}", pd.Series(dtype=float)).sum(), g.get(f"FN_{th}", pd.Series(dtype=float)).sum()
+        class_dict[f"GT_length_{th}"] = g.get(f"GT_length_{th}", pd.Series(dtype=float)).sum()
+        class_dict[f"Pred_length_{th}"] = g.get(f"Pred_length_{th}", pd.Series(dtype=float)).sum()
+        class_dict[f"Length_ratio_{th}"] = (class_dict[f"Pred_length_{th}"] / class_dict[f"GT_length_{th}"]
+                                            if class_dict[f"GT_length_{th}"] > 0 else 0)
+        TP = g.get(f"TP_{th}", pd.Series(dtype=float)).sum()
+        FP = g.get(f"FP_{th}", pd.Series(dtype=float)).sum()
+        FN = g.get(f"FN_{th}", pd.Series(dtype=float)).sum()
         class_dict.update({
             f"TP_{th}": TP,
             f"FP_{th}": FP,

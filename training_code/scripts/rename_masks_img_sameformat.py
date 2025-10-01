@@ -89,3 +89,23 @@ import os
 #
 #             print(f"{fname}  -->  {new_name}")
 #             os.rename(old_path, new_path)
+
+
+import os
+import re
+
+# --- CONFIG ---
+folder = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_highres"   # <<< change this
+for filename in os.listdir(folder):
+    old_path = os.path.join(folder, filename)
+
+    if not os.path.isfile(old_path):
+        continue
+
+    # only fix files without an extension
+    if "." not in filename:
+        new_name = filename + ".jpg"
+        new_path = os.path.join(folder, new_name)
+
+        print(f"Fixing: {filename}  -->  {new_name}")
+        os.rename(old_path, new_path)

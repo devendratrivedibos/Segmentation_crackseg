@@ -5,9 +5,9 @@ import numpy as np
 from multiprocessing import Pool, cpu_count
 
 # --- Paths ---
-BASE_DIR = r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2"
-mask_dir = os.path.join(BASE_DIR, "AnnotationMasks")
-img_dir = os.path.join(BASE_DIR, "AnnotationImages")
+BASE_DIR = r"U:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\SPLITTED\TRAIN"
+mask_dir = os.path.join(BASE_DIR, "MASKS")
+img_dir = os.path.join(BASE_DIR, "IMAGES")
 
 delete_mask_dir = os.path.join(BASE_DIR, "only_Alligator_MASK")
 delete_image_dir = os.path.join(BASE_DIR, "only_Alligator_IMAGE")
@@ -35,8 +35,7 @@ COLOR_MAP = {
 }
 
 COLOR_TO_ID = {k: v for k, v in COLOR_MAP.items()}
-
-DELETE_SETS = [{0, 1}]
+DELETE_SETS = [{0, 4}, {0, 5}, {4},{5}, {0, 4, 5}]
 
 
 def find_image(mask_name):
@@ -76,7 +75,6 @@ def process_mask(mask_name: str):
             img_path = find_image(mask_name)
             if img_path:
                 shutil.move(img_path, os.path.join(delete_image_dir, os.path.basename(img_path)))
-
             return mask_name
         except Exception as e:
             return f"Error moving {mask_name}: {e}"

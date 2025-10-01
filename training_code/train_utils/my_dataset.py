@@ -13,8 +13,8 @@ COLOR_MAP = {
     (255, 0, 0): (1, "Alligator"),
     (0, 0, 255): (2, "Transverse Crack"),
     (0, 255, 0): (3, "Longitudinal Crack"),
-    (139, 69, 19): (4, "Pothole"),
-    (255, 165, 0): (5, "Patches"),
+    # (139, 69, 19): (4, "Pothole"),
+    # (255, 165, 0): (5, "Patches"),
     # (255, 0, 255): (6, "Multiple Crack"),
     # (0, 255, 255): (7, "Spalling"),
     # (0, 128, 0): (8, "Corner Break"),
@@ -60,11 +60,11 @@ class CrackDataset(Dataset):
         # Load image using OpenCV and convert to RGB
         img = cv2.imread(self.images_path[idx])
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = cv2.resize(img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
+        # img = cv2.resize(img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
         # Load mask in color and convert to RGB
         mask_rgb = cv2.imread(self.masks_path[idx], cv2.IMREAD_COLOR)
         mask_rgb = cv2.cvtColor(mask_rgb, cv2.COLOR_BGR2RGB)
-        mask_rgb = cv2.resize(mask_rgb, (1024, 1024), interpolation=cv2.INTER_NEAREST)
+        # mask_rgb = cv2.resize(mask_rgb, (1024, 1024), interpolation=cv2.INTER_NEAREST)
         # Convert RGB mask to class ID map
         mask = self.rgb_to_class_id(mask_rgb, COLOR_MAP)
         if self.transforms is not None:
@@ -107,7 +107,6 @@ class SegmentationPresetTrain:
                 border_mode=0,  # fill with zeros (black)
                 p=0.5
             ),
-
             # --- Photometric ---
             A.RandomBrightnessContrast(
                 brightness_limit=0.2,
@@ -126,6 +125,7 @@ class SegmentationPresetTrain:
             A.ElasticTransform(alpha=20, sigma=5, alpha_affine=10, p=0.2),  # realistic surface distortions
             A.GridDistortion(num_steps=5, distort_limit=0.05, p=0.2),  # mild surface warps
             A.Perspective(scale=(0.02, 0.05), p=0.2),  # simulate road tilt
+            A.Resize(384,384),
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ])
@@ -139,6 +139,7 @@ class SegmentationPresetTrain:
 class SegmentationPresetEval:
     def __init__(self, img_size, mean, std):
         self.transforms = A.Compose([
+            A.Resize(384, 384),
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ])

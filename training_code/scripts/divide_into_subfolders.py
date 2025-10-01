@@ -43,7 +43,12 @@ def divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=10
 
 
 # Example usage:
-process_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_IMAGES"
-results_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_MASKS"
-output_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_divided"
-divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=9)
+process_dir = r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-1\process_distress"
+results_dir = r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-1\ACCEPTED_RESULTS"
+output_dir = r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-1\divided_images"
+divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=5)
+
+process_dir = r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-2\process_distress"
+results_dir = r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-2\ACCEPTED_RESULTS"
+output_dir = r"W:\SA DATA 2024\BOS DEMO DATA\BARVI-BARVI_2025-04-11_16-03-15\SECTION-2\divided_images"
+divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=5)

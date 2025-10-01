@@ -25,11 +25,7 @@ COLOR_MAP = {
 }
 
 # strictly only these will be skeletonized
-SKELETONIZE_CLASSES = {
-    (255, 0, 0),   # Alligator
-    (0, 0, 255),   # Transverse Crack
-    (0, 255, 0),   # Longitudinal Crack
-}
+SKELETONIZE_CLASSES = {1,2,3}
 
 
 def thicken_cracks_multicolor(mask_path, output_path, thickness=3):
@@ -80,24 +76,7 @@ def process_directory(input_dir, output_dir, thickness=3):
         thicken_cracks_multicolor(str(file), str(out_path), thickness=thickness)
 
 
-# --- Example usage ---
-input_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\ACCEPTED_MASKS"  # Folder with input crack masks
-output_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\ACCEPTED_SKELETON"  # Folder to save processed masks
-# process_directory(input_dir, output_dir, thickness=3)
 
-input_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results"  # Folder with input crack masks
-output_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results_skeleton"  # Folder to save processed masks
-process_directory(input_dir, output_dir, thickness=3)
-
-export DJANGO_DB = "postgres"
-export DJANGO_DB_NAME = "postgres"
-export DJANGO_DB_USER = "Admin  "
-export DJANGO_DB_PASSWORD = "Bos@123"
-export DJANGO_DB_HOST = "your_database_host"
-export DJANGO_DB_PORT = "your_database_port"
-
-import cv2
-import numpy as np
 
 
 def soft_iou(gt_path, pred_path, tolerance_px=3):
@@ -128,34 +107,69 @@ def soft_iou(gt_path, pred_path, tolerance_px=3):
     return soft_intersection / (union + 1e-8)
 
 
-def buffer_mask(mask_path, output_path, tolerance_px=3):
+# score = soft_iou(
+#     gt_path= r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\ACCEPTED_MASKS\AMRAVTI-TALEGAON_2025-06-14_06-38-51_SECTION-1_IMG_0000753.png",
+#     # pred_path=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results\AMRAVTI-TALEGAON_2025-06-14_06-38-51_SECTION-1_IMG_0000753.png",
+#     pred_path=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results\AMRAVTI-TALEGAON_2025-06-14_06-38-51_SECTION-2_IMG_0003035_og_buffered.png",
+#     tolerance_px=3)
+
+# print('Soft IoU:', score)
+# process_directory(input_dir, output_dir, thickness=3)
+
+
+def calculate_skeleton_length(mask_rgb, skeletonize_cracks=True, measure_length=True):
     """
-    Expands crack regions in the mask by tolerance_px using distance transform.
-    Non-black pixels are considered cracks. Saved mask has cracks buffered (thicker) for soft IoU.
+    Process an RGB mask:
+      - Skeletonize only cracks
+      - Leave blobs (potholes/patches) untouched
+      - Optionally calculate crack length
+
+    Args:
+        mask_rgb (np.ndarray): HxWx3 RGB mask
+        skeletonize_cracks (bool): Whether to skeletonize cracks
+        measure_length (bool): Whether to calculate crack length
+
+    Returns:
+        processed_mask (np.ndarray): HxWx3 RGB mask (skeletonized cracks)
+        crack_lengths (dict): length of cracks per class
     """
-    img = cv2.imread(mask_path)
-    crack_bin = np.any(img != [0, 0, 0], axis=-1).astype(np.uint8)
+    h, w, _ = mask_rgb.shape
+    processed_mask = np.zeros_like(mask_rgb)
+    crack_lengths = {}
 
-    # Distance transform: cracks = 1, bg = 0
-    dist = cv2.distanceTransform(1 - crack_bin, cv2.DIST_L2, 3)
-    buffered = (dist <= tolerance_px).astype(np.uint8) * 255
+    for color, (cls_id, cls_name) in COLOR_MAP.items():
+        # Binary mask for this class
+        binary = np.all(mask_rgb == color, axis=-1).astype(np.uint8)
 
-    # Save as binary (white crack, black background)
-    cv2.imwrite(output_path, buffered)
-    print("Saved buffered mask:", output_path)
+        if binary.sum() == 0:
+            continue
 
+        if cls_id in SKELETONIZE_CLASSES and skeletonize_cracks:
+            # Skeletonize cracks
+            skeleton = skeletonize(binary > 0).astype(np.uint8)
 
-score = soft_iou(
-    gt_path= r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\ACCEPTED_MASKS\AMRAVTI-TALEGAON_2025-06-14_06-38-51_SECTION-1_IMG_0000753.png",
-    # pred_path=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results\AMRAVTI-TALEGAON_2025-06-14_06-38-51_SECTION-1_IMG_0000753.png",
-    pred_path=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results\AMRAVTI-TALEGAON_2025-06-14_06-38-51_SECTION-2_IMG_0003035_og_buffered.png",
-    tolerance_px=3)
+            # Add to output in original color
+            coords = np.where(skeleton > 0)
+            processed_mask[coords] = color
 
-print('Soft IoU:', score)
+            if measure_length:
+                # crack length ≈ number of skeleton pixels
+                crack_lengths[cls_name] = int(skeleton.sum())
 
+        else:
+            # Keep blobs / non-cracks unchanged
+            coords = np.where(binary > 0)
+            processed_mask[coords] = color
 
-buffer_mask(
-    mask_path=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\ACCEPTED_MASKS\AMRAVTI-TALEGAON_2025-06-14_06-38-51_SECTION-1_IMG_0000753.png",
-    output_path=r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\ACCEPTED_MASKS\AMRAVTI-TALEGAON_2025-06-14_06-38-51_SECTION-2_IMG_0003035_og_buffered.jpg",
-    tolerance_px=3
-)
+            if measure_length and cls_id not in SKELETONIZE_CLASSES:
+                crack_lengths[cls_name] = int(binary.sum())  # area, not length
+
+    print(f"Processed mask size: {h}x{w}, Crack lengths: {crack_lengths}")
+    return processed_mask, crack_lengths
+
+img = cv2.imread(r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results\AMRAVTI-TALEGAON_2025-06-14_06-38-51_SECTION-1_IMG_0004853.png")
+a,b = calculate_skeleton_length(img)
+
+img = cv2.imread(r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\ACCEPTED_MASKS\AMRAVTI-TALEGAON_2025-06-14_06-38-51_SECTION-1_IMG_0004853.png")
+a,b = calculate_skeleton_length(img)
+

@@ -15,7 +15,7 @@ IGNORE_INDEX = 255
 # Device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-num_classes = 5 + 1
+num_classes = 3 + 1
 
 class_counts = None
 

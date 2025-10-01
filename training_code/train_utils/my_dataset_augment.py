@@ -13,8 +13,8 @@ COLOR_MAP = {
     (255, 0, 0): (1, "Alligator"),
     (0, 0, 255): (2, "Transverse Crack"),
     (0, 255, 0): (3, "Longitudinal Crack"),
-    (139, 69, 19): (4, "Pothole"),
-    (255, 165, 0): (5, "Patches"),
+    # (139, 69, 19): (4, "Pothole"),
+    # (255, 165, 0): (5, "Patches"),
     # (255, 0, 255): (6, "Multiple Crack"),
     # (0, 255, 255): (7, "Spalling"),
     # (0, 128, 0): (8, "Corner Break"),
@@ -129,6 +129,7 @@ class SegmentationPresetTrain:
             A.Perspective(scale=(0.02, 0.05), p=0.2),                       # simulate road tilt
 
             # --- Normalize & convert ---
+            A.Resize(256, 256),
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ])
@@ -142,6 +143,7 @@ class SegmentationPresetTrain:
 class SegmentationPresetEval:
     def __init__(self, img_size, mean, std):
         self.transforms = A.Compose([
+            A.Resize(256, 256),
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ])

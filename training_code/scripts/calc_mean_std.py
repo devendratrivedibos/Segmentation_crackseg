@@ -4,7 +4,7 @@ import numpy as np
 from tqdm import tqdm
 from multiprocessing import Pool, cpu_count
 
-image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\4030_4040\IMAGES_4040"
+image_folder = r"Z:\Devendra\TILED\TILE_HIGH_RES_IMAGES"
 
 # List all image files
 image_files = [os.path.join(image_folder, f)

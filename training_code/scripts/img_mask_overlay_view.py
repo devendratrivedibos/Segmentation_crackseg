@@ -8,16 +8,16 @@ from matplotlib.widgets import Button, TextBox
 import re
 import random
 from collections import OrderedDict
-import threading
 import queue
 from concurrent.futures import ThreadPoolExecutor
 import gc
 
 # --- CONFIG ---
-root_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-3"
-image_dir = os.path.join(root_dir, 'IMAGES_4030')
+root_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-2"
+root_dir = r"Y:/NSV_DATA/HAZARIBAGH-RANCHI_2024-10-07_11-25-27/SECTION-2"
+image_dir = os.path.join(root_dir, 'process_distress_HIGH_RES')
 # image_dir = os.path.join(root_dir, 'process_distress_40')
-mask_dir = os.path.join(root_dir, 'MASKS_4030')
+mask_dir = os.path.join(root_dir, 'HIGH_RES_MASKS')
 pcams_dir = os.path.join(root_dir, 'pcams')
 start_number = 0
 
@@ -28,13 +28,14 @@ rework_img_dir = os.path.join(root_dir, "REWORK_IMAGES")
 rework_mask_dir = os.path.join(root_dir, "REWORK_MASKS")
 csv_log = os.path.join(root_dir, "rework_log.csv")
 os.makedirs(accepted_img_dir, exist_ok=True)
+
 os.makedirs(accepted_mask_dir, exist_ok=True)
 os.makedirs(rework_img_dir, exist_ok=True)
 os.makedirs(rework_mask_dir, exist_ok=True)
 
 # --- Load file names (same as before) ---
-images = sorted([f for f in os.listdir(image_dir) ])
-masks = sorted([f for f in os.listdir(mask_dir) ])
+images = sorted([f for f in os.listdir(image_dir)])
+masks = sorted([f for f in os.listdir(mask_dir)])
 
 image_stems = {os.path.splitext(f)[0]: f for f in images}
 mask_stems = {os.path.splitext(f)[0]: f for f in masks}
@@ -46,7 +47,7 @@ masks = [mask_stems[k] for k in common_keys]
 assert len(images) == len(masks), "Images and masks count mismatch!"
 print(len(images), "image-mask pairs found.")
 combined = list(zip(images, masks))
-random.shuffle(combined)
+# random.shuffle(combined)
 images, masks = zip(*combined)
 images, masks = list(images), list(masks)
 
@@ -199,6 +200,7 @@ class ImageMaskViewerOptimized:
         # Load mask
         mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
         mask = cv2.flip(mask, 0)
+        mask = cv2.resize(mask, (4183, 10217), interpolation=cv2.INTER_NEAREST)
         if len(mask.shape) == 2:
             mask_colored = cv2.applyColorMap(mask, cv2.COLORMAP_JET)
         else:

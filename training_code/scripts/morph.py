@@ -60,6 +60,13 @@ def morph(image):
     morphed = cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel)
     return morphed
 
+def morphology_operations(mask, kernel_size=3):
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 30))
+    # mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    closed = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    return closed
+
+
 images = load_files(image_dirs, ('.png', '.jpg', '.jpeg'))
 orig_masks = load_files(orig_mask_dirs, ('.png',))
 pred_masks = load_files(pred_mask_dirs, ('.png',))
@@ -201,7 +208,7 @@ class ImageMaskViewerOptimized:
             orig_mask_colored = cv2.applyColorMap(orig_mask, cv2.COLORMAP_JET)
         else:
             orig_mask_colored = cv2.cvtColor(orig_mask, cv2.COLOR_BGR2RGB)
-        orig_mask_colored = morph(img)
+        orig_mask_colored = morphology_operations(img, 3)
         pred_mask = cv2.imread(pred_mask_path, cv2.IMREAD_UNCHANGED)
         pred_mask = cv2.flip(pred_mask, 0)
         if len(pred_mask.shape) == 2:
@@ -210,7 +217,7 @@ class ImageMaskViewerOptimized:
             pred_mask_colored = cv2.cvtColor(pred_mask, cv2.COLOR_BGR2RGB)
 
         overlay = cv2.addWeighted(img, 0.5, pred_mask_colored, 0.5, 0)
-        overlay = morph(pred_mask_colored)
+        overlay = morphology_operations(pred_mask_colored, 3)
         # --- Load pcams (LL) ---
         pcams_img = None
         number = self.get_number_from_name(os.path.basename(img_path))

@@ -30,9 +30,14 @@ orig_mask_dirs = [
     # os.path.join(root_dir, "SECTION-1", 'MASKS_4040'),
 ]
 
-pred_mask_dirs = [
-    # os.path.join(root_dir, "SECTION-1", 'process_distress_results'),
+old_pred_mask_dirs = [
+    os.path.join(root_dir, "SECTION-1", 'process_distress_results'),
+    # os.path.join(root_dir, "SECTION-1", 'MASKS_4040'),
+]
+
+new_pred_mask_dirs = [
     os.path.join(root_dir, "SECTION-1", 'process_distress_HIGH_RESULTS_UNET384'),
+    # os.path.join(root_dir, "SECTION-1", 'process_distress_results_4040'),
 
 ]
 
@@ -61,27 +66,30 @@ def load_files(dirs, exts):
 
 images = load_files(image_dirs, ('.png', '.jpg', '.jpeg'))
 orig_masks = load_files(orig_mask_dirs, ('.png',))
-pred_masks = load_files(pred_mask_dirs, ('.png',))
+new_pred_masks = load_files(new_pred_mask_dirs, ('.png',))
+old_pred_masks = load_files(old_pred_mask_dirs, ('.png',))
 
 # --- Strip extensions for matching ---
 image_stems = {os.path.splitext(os.path.basename(f))[0]: f for f in images}
 orig_mask_stems = {os.path.splitext(os.path.basename(f))[0]: f for f in orig_masks}
-pred_mask_stems = {os.path.splitext(os.path.basename(f))[0]: f for f in pred_masks}
+new_pred_mask_stems = {os.path.splitext(os.path.basename(f))[0]: f for f in new_pred_masks}
+old_pred_mask_stems = {os.path.splitext(os.path.basename(f))[0]: f for f in old_pred_masks}
 
 # --- Keep only intersection across all three ---
-common_keys = sorted(set(image_stems) & set(orig_mask_stems) & set(pred_mask_stems))
+common_keys = sorted(set(image_stems) & set(orig_mask_stems) & set(new_pred_mask_stems) & set(old_pred_mask_stems))
 images = [image_stems[k] for k in common_keys]
 orig_masks = [orig_mask_stems[k] for k in common_keys]
-pred_masks = [pred_mask_stems[k] for k in common_keys]
+new_pred_masks = [new_pred_mask_stems[k] for k in common_keys]
+old_pred_masks = [old_pred_mask_stems[k] for k in common_keys]
 
 print(f"Kept {len(images)} triplets")
-assert len(images) == len(orig_masks) == len(pred_masks)
+assert len(images) == len(orig_masks) == len(new_pred_masks)
 
 # --- Shuffle together ---
-combined = list(zip(images, orig_masks, pred_masks))
+combined = list(zip(images, orig_masks, new_pred_masks, old_pred_masks))
 random.shuffle(combined)
-images, orig_masks, pred_masks = zip(*combined)
-images, orig_masks, pred_masks = list(images), list(orig_masks), list(pred_masks)
+images, orig_masks, new_pred_masks, old_pred_masks  = zip(*combined)
+images, orig_masks, new_pred_masks, old_pred_masks = list(images), list(orig_masks),list(new_pred_masks), list(old_pred_masks)
 
 
 def find_start_index(files, number):
@@ -118,11 +126,12 @@ class LRUCache:
 
 # --- Viewer ---
 class ImageMaskViewerOptimized:
-    def __init__(self, images, orig_masks, pred_masks, pcams_dir,
+    def __init__(self, images, orig_masks, new_pred_masks, old_pred_masks, pcams_dir,
                  start_index=0, cache_size=20, prefetch_count=3):
         self.images = images
         self.orig_masks = orig_masks
-        self.pred_masks = pred_masks
+        self.new_pred_masks = new_pred_masks
+        self.old_pred_masks = old_pred_masks
         self.pcams_dir = pcams_dir
         self.index = start_index
         self.comment = ""
@@ -132,10 +141,10 @@ class ImageMaskViewerOptimized:
         self.executor = ThreadPoolExecutor(max_workers=2)
 
         # --- 5 panels now ---
-        self.fig, self.axs = plt.subplots(1, 5, figsize=(35, 10))
+        self.fig, self.axs = plt.subplots(1, 6, figsize=(35, 10))
         plt.subplots_adjust(bottom=0.25)
-        pos = self.axs[4].get_position()
-        self.axs[4].set_position([pos.x0, pos.y0 - 0.05, pos.width * 1.6, pos.height * 1.6])
+        pos = self.axs[5].get_position()
+        self.axs[5].set_position([pos.x0, pos.y0 - 0.05, pos.width * 1.6, pos.height * 1.6])
 
         # Buttons
         axprev = plt.axes([0.15, 0.15, 0.1, 0.07])
@@ -189,7 +198,8 @@ class ImageMaskViewerOptimized:
 
         img_path = self.images[idx]
         orig_mask_path = self.orig_masks[idx]
-        pred_mask_path = self.pred_masks[idx]
+        new_pred_mask_path = self.new_pred_masks[idx]
+        old_pred_mask_path = self.old_pred_masks[idx]
 
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -201,14 +211,21 @@ class ImageMaskViewerOptimized:
         else:
             orig_mask_colored = cv2.cvtColor(orig_mask, cv2.COLOR_BGR2RGB)
 
-        pred_mask = cv2.imread(pred_mask_path, cv2.IMREAD_UNCHANGED)
+
+        old_mask = cv2.imread(old_pred_mask_path, cv2.IMREAD_UNCHANGED)
+        old_mask = cv2.flip(old_mask, 0)
+        if len(old_mask.shape) == 2:
+            old_mask = cv2.applyColorMap(old_mask, cv2.COLORMAP_JET)
+        else:
+            old_mask = cv2.cvtColor(old_mask, cv2.COLOR_BGR2RGB)
+
+        pred_mask = cv2.imread(new_pred_mask_path, cv2.IMREAD_UNCHANGED)
         pred_mask = cv2.flip(pred_mask, 0)
-        pred_mask = cv2.resize(pred_mask, (419, 1024), interpolation=cv2.INTER_NEAREST)
         if len(pred_mask.shape) == 2:
             pred_mask_colored = cv2.applyColorMap(pred_mask, cv2.COLORMAP_JET)
         else:
             pred_mask_colored = cv2.cvtColor(pred_mask, cv2.COLOR_BGR2RGB)
-
+        pred_mask_colored = cv2.resize(pred_mask_colored, (419, 1024), interpolation=cv2.INTER_NEAREST)
         overlay = cv2.addWeighted(img, 0.5, pred_mask_colored, 0.5, 0)
 
         # --- Load pcams (LL) ---
@@ -222,7 +239,7 @@ class ImageMaskViewerOptimized:
                     pcams_img = cv2.cvtColor(pcams_img, cv2.COLOR_BGR2RGB)
                     break
 
-        result = (img, orig_mask_colored, pred_mask_colored, overlay, pcams_img)
+        result = (img, orig_mask_colored, old_mask, pred_mask_colored, overlay, pcams_img)
         self.cache.put(idx, result)
         return result
 
@@ -239,7 +256,7 @@ class ImageMaskViewerOptimized:
         if result is None:
             return
 
-        img, orig_mask, pred_mask, overlay, pcams_img = result
+        img, orig_mask,old_mask, pred_mask, overlay, pcams_img = result
 
         for ax in self.axs:
             ax.clear()
@@ -249,15 +266,17 @@ class ImageMaskViewerOptimized:
         self.axs[0].set_title("Image")
         self.axs[1].imshow(orig_mask);
         self.axs[1].set_title("Original Mask")
-        self.axs[2].imshow(pred_mask);
-        self.axs[2].set_title("Predicted Mask")
-        self.axs[3].imshow(overlay);
-        self.axs[3].set_title("Overlay")
+        self.axs[2].imshow(old_mask);
+        self.axs[2].set_title("OLD Predicted Mask")
+        self.axs[3].imshow(pred_mask);
+        self.axs[3].set_title("NEW Predicted Mask")
+        self.axs[4].imshow(overlay);
+        self.axs[4].set_title("Overlay")
         if pcams_img is not None:
-            self.axs[4].imshow(pcams_img);
-            self.axs[4].set_title("Pcams (LL)")
+            self.axs[5].imshow(pcams_img);
+            self.axs[5].set_title("Pcams (LL)")
         else:
-            self.axs[4].set_title("Pcams Missing")
+            self.axs[5].set_title("Pcams Missing")
 
         self.fig.suptitle(f"[{self.index + 1}/{len(self.images)}] {os.path.basename(self.images[self.index])}")
         self.fig.canvas.draw()
@@ -267,7 +286,7 @@ class ImageMaskViewerOptimized:
 
     def move_files(self, dest_img_dir, dest_mask_dir, log_comment=False):
         img_path = self.images[self.index]
-        pred_mask_path = self.pred_masks[self.index]
+        pred_mask_path = self.new_pred_masks[self.index]
 
         dst_img = os.path.join(dest_img_dir, os.path.basename(img_path))
         dst_mask = os.path.join(dest_mask_dir, os.path.basename(pred_mask_path))
@@ -282,7 +301,7 @@ class ImageMaskViewerOptimized:
 
         del self.images[self.index]
         del self.orig_masks[self.index]
-        del self.pred_masks[self.index]
+        del self.new_pred_masks[self.index]
 
         if self.index >= len(self.images):
             self.index = max(0, len(self.images) - 1)
@@ -312,6 +331,6 @@ class ImageMaskViewerOptimized:
 
 # --- Run Viewer ---
 start_index = find_start_index(images, start_number)
-viewer = ImageMaskViewerOptimized(images, orig_masks, pred_masks,
+viewer = ImageMaskViewerOptimized(images, orig_masks, new_pred_masks,old_pred_masks,
                                   pcams_dir,
                                   start_index=start_index, cache_size=15, prefetch_count=3)
