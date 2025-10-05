@@ -69,7 +69,7 @@ def stitch_tiles(pred_tiles, coords, full_size):
     return stitched
 
 def predict_tile(tile, weights_path, device, mean, std):
-    model = UNetPP(in_channels=3, num_classes=4)
+    model = UNetPP(in_channels=3, num_classes=6)
     w = torch.load(weights_path, map_location=device)
     if "model" in w:
         model.load_state_dict(w["model"])
@@ -151,13 +151,17 @@ def process_folder(img_folder, save_dir, weights_path, device, mean, std, tile_s
 # ------------ main ------------
 if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_384\UNET384_best_epoch24_dice0.937.pth"
+    # weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_MIX_384\UNET384_best_epoch6_dice0.860.pth"
+    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_subset\UNET_subset_epoch_43_dice_0.8321.pth"
+    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt_1024\UNET_asp_1024_best_epoch243_dice0.705.pth"
 
-    mean = (0.456, 0.456, 0.456)
+    mean = (0.465, 0.465, 0.465)
     std = (0.145, 0.145, 0.145)
+    mean = (0.488, 0.488, 0.488)
+    std = (0.149, 0.149, 0.149)
 
     img_folder = r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_HIGH_RES"
-    save_dir = r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_HIGH_RESULTS_UNET384"
+    save_dir = r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_HIGH_RESULTS_UNET384_"
 
     process_folder(img_folder, save_dir, weights_path, device, mean, std, tile_size=1024, overlap=0, num_workers=4)
     print("✅ All images processed!")

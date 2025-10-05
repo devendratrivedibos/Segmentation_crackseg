@@ -6,7 +6,7 @@ from tqdm import tqdm
 from skimage.morphology import skeletonize
 
 # ================== CONFIG ==================
-root_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51"
+root_dir = r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51"
 
 GT_DIRS = [
     os.path.join(root_dir, "SECTION-1", "ACCEPTED_MASKS"),
@@ -17,14 +17,14 @@ GT_DIRS = [
 ]
 
 PRED_DIRS = [
-    os.path.join(root_dir, "SECTION-1", "process_distress_results"),
-    os.path.join(root_dir, "SECTION-2", "process_distress_results"),
-    os.path.join(root_dir, "SECTION-3", "process_distress_results"),
-    os.path.join(root_dir, "SECTION-4", "process_distress_results"),
-    os.path.join(root_dir, "SECTION-5", "process_distress_results"),
+    os.path.join(root_dir, "SECTION-1", "process_distress_results_4oct"),
+    os.path.join(root_dir, "SECTION-2", "process_distress_results_4oct"),
+    os.path.join(root_dir, "SECTION-3", "process_distress_results_4oct"),
+    os.path.join(root_dir, "SECTION-4", "process_distress_results_4oct"),
+    os.path.join(root_dir, "SECTION-5", "process_distress_results_4oct"),
 ]
 
-SAVE_CSV = os.path.join(root_dir, "AMRAWATI-TALEGAON_mask_metrics.csv")
+SAVE_CSV = os.path.join(root_dir, "New_AMRAWATI-TALEGAON_mask_metrics.csv")
 
 COLOR_MAP = {
     (0, 0, 0): (0, "Background"),
@@ -216,8 +216,8 @@ for fname in tqdm(all_files):
     gt_mask = color_to_index(cv2.cvtColor(cv2.imread(gt_path), cv2.COLOR_BGR2RGB)) if gt_path else np.zeros((1024, 419), np.uint8)
     pred_mask = color_to_index(cv2.cvtColor(cv2.imread(pred_path), cv2.COLOR_BGR2RGB)) if pred_path else np.zeros_like(gt_mask)
 
-    # gt_mask = cv2.resize(gt_mask, (1024, 1024), interpolation=cv2.INTER_NEAREST)
-    # pred_mask = cv2.resize(pred_mask, (1024, 1024), interpolation=cv2.INTER_NEAREST)
+    gt_mask = cv2.resize(gt_mask, (419, 1024), interpolation=cv2.INTER_NEAREST)
+    pred_mask = cv2.resize(pred_mask, (419, 1024), interpolation=cv2.INTER_NEAREST)
 
     seg_stats = compute_classwise_overlap(gt_mask, pred_mask)
     det_stats = compute_detection_metrics_multi_threshold(gt_mask, pred_mask, COLOR_MAP)

@@ -54,10 +54,10 @@ folders = [
 
 ]
 # CONCRETE DAY
-# folders = [r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3\AnnotationMasks",
-# r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4\AnnotationMasks",
-# r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\AnnotationMasksNIGHT"
-# ]
+folders = [r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3\AnnotationMasks",
+r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4\AnnotationMasks",
+r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\AnnotationMasksNIGHT"
+]
 
 image_files = []
 for folder in folders:

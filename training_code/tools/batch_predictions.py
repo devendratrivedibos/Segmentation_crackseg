@@ -26,8 +26,8 @@ CLASS_COLOR_MAP = {
     1: [255, 0, 0],  # Red     - Alligator
     2: [0, 0, 255],  # Blue    - Transverse Crack
     3: [0, 255, 0],  # Green   - Longitudinal Crack
-    # 4: [139, 69, 19],  # Brown   - Pothole
-    # 5: [255, 165, 0],  # Orange  - Patches
+    4: [139, 69, 19],  # Brown   - Pothole
+    5: [255, 165, 0],  # Orange  - Patches
     # 4: [255, 0, 255],  # violet     - multiple crack
     # 5: [255, 0, 255],  # Grey       - popout
     # 6: [255, 0, 255],  # violet     - multiple crack
@@ -43,14 +43,16 @@ CLASS_COLOR_MAP = {
 
 
 def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_size=2):
-    num_classes = 3 + 1  #14 #5
+    num_classes = 5 + 1  #14 #5
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     mean = (0.456, 0.456, 0.456)
     std = (0.145, 0.145, 0.145)
+    mean = (0.488, 0.488, 0.488)
+    std = (0.149, 0.149, 0.149)
     # mean =  (0.389, 0.389, 0.389)
     # std =  (0.120, 0.120, 0.120)
     data_transform = A.Compose([
-        A.Resize(384, 384),
+        # A.Resize(1024, 1024),
         A.Normalize(mean=mean, std=std),
         ToTensorV2(), ])
 
@@ -78,7 +80,7 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
             for image in batch_files:
                 original_img = cv2.imread(os.path.join(imgs_root, image))
                 original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB)
-                original_img = cv2.resize(original_img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
+                # original_img = cv2.resize(original_img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
                 # img = data_transform(original_img)
                 transformed = data_transform(image=original_img)
                 img = transformed["image"]
@@ -92,6 +94,7 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
 
             # postprocess + save
             for pred, fname in zip(preds, orig_names):
+                # pred = cv2.resize(pred, (419, 1024), interpolation=cv2.INTER_NEAREST)
                 pred = remove_small_components_multiclass(pred, min_area=400)
                 pred_color = colorize_prediction(pred)
                 save_path = os.path.join(prediction_save_path, fname.split('.')[0] + '.png')
@@ -151,8 +154,25 @@ def remove_small_components_multiclass(mask, min_area=400):
 
 
 if __name__ == '__main__':
-    main(imgs_root=r"C:\Users\Admin\Downloads",
-         prediction_save_path=r"C:\Users\Admin\Downloads\Newfolder",
-         weights_path= r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_384\UNET384_best_epoch4_dice0.926.pth",
-         batch_size=2)
+    main(imgs_root="S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-1/process_distress_og",
+         prediction_save_path=r"S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-1/process_distress_results_4oct_latest",
+         weights_path=r"W:/Devendra_Files\CrackSegFormer-main\weights\UNET_4oct\UNET_4oct_epoch_171_dice_0.6628.pth",
+         batch_size=8)
 
+    main(imgs_root="S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-2/process_distress_og",
+         prediction_save_path=r"S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-2/process_distress_results_4oct_latest",
+         weights_path=r"W:/Devendra_Files\CrackSegFormer-main\weights\UNET_4oct\UNET_4oct_epoch_171_dice_0.6628.pth",
+         batch_size=8)
+
+    main(imgs_root="S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-3/process_distress_og",
+         prediction_save_path=r"S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-3/process_distress_results_4oct_latest",
+         weights_path=r"W:/Devendra_Files\CrackSegFormer-main\weights\UNET_4oct\UNET_4oct_epoch_171_dice_0.6628.pth",
+         batch_size=8)
+    main(imgs_root="S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-4/process_distress_og",
+         prediction_save_path=r"S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-4/process_distress_results_4oct_latest",
+         weights_path=r"W:/Devendra_Files\CrackSegFormer-main\weights\UNET_4oct\UNET_4oct_epoch_171_dice_0.6628.pth",
+         batch_size=8)
+    main(imgs_root="S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-5/process_distress_og",
+         prediction_save_path=r"S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-5/process_distress_results_4oct_latest",
+         weights_path=r"W:/Devendra_Files\CrackSegFormer-main\weights\UNET_4oct\UNET_4oct_epoch_171_dice_0.6628.pth",
+         batch_size=8)

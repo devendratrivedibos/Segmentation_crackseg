@@ -6,7 +6,7 @@ import torch
 import numpy as np
 import sys
 import cv2
-
+import argparse
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(project_root, '..'))
 
@@ -14,7 +14,7 @@ from pathlib import Path
 
 from torch.utils.data import DataLoader
 from train_utils.train_and_eval_2 import train_one_epoch, evaluate, create_lr_scheduler, train_one_epoch_loss
-from train_utils.my_dataset_augment import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
+from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
 import train_utils.transforms as T
 from train_utils.utils import plot, show_config
 
@@ -24,6 +24,7 @@ from train_utils.utils import plot, show_config
 # from models.unet.vgg_unet import VGG16UNet
 # from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
 # from models.fcn.fcn import fcn_resnet50
+
 # from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
 from models.unet.UnetPP import UNetPP
 # from models.dinov3.dinov3 import DINODeepLab
@@ -31,8 +32,8 @@ from models.unet.UnetPP import UNetPP
 
 # Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'unet_256_5911' # Change this to your desired output path
-model_name = "unet_256_"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_MIX_384'  # Change this to your desired output path
+model_name = "UNET384"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -50,7 +51,7 @@ def create_model(aux, num_classes, pretrained=True):
     # model = fcn_resnet50(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
     # model = deeplabv3_resnet101(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
     # model = deeplabv3_mobilenetv3_large(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
-   # model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)/
+    # model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
     # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
     # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
@@ -68,8 +69,8 @@ def main(args):
     # mean =  (0.389, 0.389, 0.389)
     # std =  (0.120, 0.120, 0.120)
 
-    mean = (0.456, 0.456, 0.456)
-    std = (0.145, 0.145, 0.145)
+    mean = (0.488, 0.488, 0.488)
+    std = (0.149, 0.149, 0.149)
 
     num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
 
@@ -194,7 +195,7 @@ def main(args):
 
         train_loss.append(mean_loss)
         dice_coefficient.append(dice)
-        # plot(train_loss, dice_coefficient, img_save_path)
+        plot(train_loss, dice_coefficient, img_save_path)
         print(f"MEAN LOSS: {mean_loss:.3f}")
         print("VALINFO", val_info)
         print(f"dice coefficient: {dice:.3f}")
@@ -234,18 +235,18 @@ def main(args):
 
 
 def parse_args():
-    import argparse
+
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"S:\Devendra\SECTION1_SPLIT",
+                        default=r"Z:\Devendra\ALL_MIX\SPLITTED",
                         help="root")
-    parser.add_argument("--num-classes", default=3, type=int)  # exclude background
+    parser.add_argument("--num-classes", default=5, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
     parser.add_argument("--phi", default="b5", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
-    parser.add_argument('--pretrained-weights', type=str, default = "",
-                # default=r"Z:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt_1024\UNET_asp_1024_best_epoch243_dice0.705.pth",
+    parser.add_argument('--pretrained-weights', type=str,
+                        default=r"X:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt_1024\UNET_asp_1024_best_epoch243_dice0.705.pth",
                         help='pretrained weights path')
 
     parser.add_argument('--optimizer-type', default="adamw")
@@ -256,7 +257,7 @@ def parse_args():
     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
 
-    parser.add_argument("-b", "--batch-size", default=24, type=int)
+    parser.add_argument("-b", "--batch-size", default=64, type=int)
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
     parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")

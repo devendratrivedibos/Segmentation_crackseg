@@ -239,7 +239,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"G:\Devendra\SECTION1_SPLIT",
+                        default=r"G:/Devendra/ASPHALT_ACCEPTED/SPLITTED",
                         help="root")
     parser.add_argument("--num-classes", default=3, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
@@ -247,7 +247,7 @@ def parse_args():
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
                         default="",
-                        # default=r"D:\Devendra_Files\CrackSegFormer-main\weights\27Sept_Asphalt\27Sept_Asphalt_best_epoch267_dice0.742.pth",
+                        default=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt_1024\UNET_best.pth",
                         help='pretrained weights path')
 
     parser.add_argument('--optimizer-type', default="adamw")
@@ -258,8 +258,8 @@ def parse_args():
     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
 
-    parser.add_argument("-b", "--batch-size", default=24, type=int)
-    parser.add_argument('--start-epoch', default=24, type=int, metavar='N', help='start epoch')
+    parser.add_argument("-b", "--batch-size", default=8, type=int)
+    parser.add_argument('--start-epoch', default=39, type=int, metavar='N', help='start epoch')
     parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")
     parser.add_argument('--print-freq', default=1, type=int, help='print frequency')

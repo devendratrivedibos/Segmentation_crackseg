@@ -8,12 +8,12 @@ from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # ===================== CONFIG =====================
-images_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\TILE_HIGH_RES_IMAGES"
-masks_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\TILE_HIGH_RES_MASKS"
-output_dir = r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\SPLITTED"
+images_dir = r"G:\Devendra\ALL_MIX\TILE_HIGH_RES_IMAGES"
+masks_dir = r"G:\Devendra\ALL_MIX\TILE_HIGH_RES_MASKS"
+output_dir = r"G:\Devendra\ALL_MIX\SPLITTED"
 
-test_size = 0.10
-val_size = 0.15
+test_size = 0.0
+val_size = 0.20
 random_state = 42
 max_workers = 8   # adjust based on your CPU cores
 

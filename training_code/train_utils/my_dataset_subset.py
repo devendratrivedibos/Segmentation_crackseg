@@ -1,3 +1,7 @@
+"""
+my_dataset_subset.py
+Custom Dataset and Augmentations for Road Crack Segmentation
+"""
 import os
 import pdb
 from pathlib import Path
@@ -95,7 +99,7 @@ class CrackDataset(Dataset):
 
 
 class SegmentationPresetTrain:
-    def __init__(self, img_size, mean, std):
+    def __init__(self, img_size_h, img_size_w, mean, std):
         self.transforms = A.Compose([
             # --- Geometric ---
             A.HorizontalFlip(p=0.4),
@@ -125,7 +129,7 @@ class SegmentationPresetTrain:
             A.ElasticTransform(alpha=20, sigma=5, alpha_affine=10, p=0.2),  # realistic surface distortions
             A.GridDistortion(num_steps=5, distort_limit=0.05, p=0.2),  # mild surface warps
             A.Perspective(scale=(0.02, 0.05), p=0.2),  # simulate road tilt
-            A.Resize(384,384),
+            A.Resize(1024, 1024, interpolation=cv2.INTER_NEAREST),
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ])
@@ -137,9 +141,10 @@ class SegmentationPresetTrain:
 
 
 class SegmentationPresetEval:
-    def __init__(self, img_size, mean, std):
+    def __init__(self, img_size_h, img_size_w, mean, std):
         self.transforms = A.Compose([
-            A.Resize(384, 384),
+            # A.Resize(img_size_h, img_size_w),
+            A.Resize(1024, 1024, interpolation=cv2.INTER_NEAREST),
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ])

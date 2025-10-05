@@ -24,7 +24,7 @@ def top10_metric(log_file, metric_name):
 
 
 # --- Usage ---
-log_file = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_384\UNET384-results.txt"
+log_file = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_4oct\UNET_4oct-results.txt"
 # log_file = r"D:\Devendra_Files\CrackSegFormer-main\weights\27Sept_Asphalt\27Sept_Asphalt-results.txt"
 # log_file = r"D:\Devendra_Files\CrackSegFormer-main\weights\25Sept_Asphalt_Augment\25Sept_Asphalt_Augment_-results.txt"
 top10_metric(log_file, "recall")

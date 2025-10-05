@@ -13,31 +13,31 @@ from concurrent.futures import ThreadPoolExecutor
 
 # --- CONFIG ---
 start_number = 0  # <<< starting image number
-root_dir = r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51"
+root_dir = r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51"
 pcams_dir = os.path.join(root_dir, "SECTION-1", 'pcams')
 
 
 # --- Example multiple folders ---
 image_dirs = [
-    os.path.join(root_dir, "SECTION-1", 'process_distress_og'),
+    os.path.join(root_dir, "SECTION-2", 'process_distress_og'),
     # os.path.join(root_dir, "SECTION-1", 'IMAGES_4040'),
 ]
 
 
 orig_mask_dirs = [
-    os.path.join(root_dir, "SECTION-1", 'ACCEPTED_MASKS'),
+    os.path.join(root_dir, "SECTION-2", 'ACCEPTED_MASKS'),
     # os.path.join(root_dir, "SECTION-1", 'process_distress_results'),
     # os.path.join(root_dir, "SECTION-1", 'MASKS_4040'),
 ]
 
 old_pred_mask_dirs = [
-    os.path.join(root_dir, "SECTION-1", 'process_distress_results'),
+    os.path.join(root_dir, "SECTION-2", 'process_distress_results'),
     # os.path.join(root_dir, "SECTION-1", 'MASKS_4040'),
 ]
 
 new_pred_mask_dirs = [
-    os.path.join(root_dir, "SECTION-1", 'process_distress_HIGH_RESULTS_UNET384'),
-    # os.path.join(root_dir, "SECTION-1", 'process_distress_results_4040'),
+    # os.path.join(root_dir, "SECTION-1", 'process_distress_HIGH_RESULTS_UNET384_'),
+    os.path.join(root_dir, "SECTION-2", 'process_distress_results_4oct'),
 
 ]
 

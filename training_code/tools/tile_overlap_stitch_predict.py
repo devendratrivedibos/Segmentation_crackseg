@@ -125,9 +125,9 @@ def process_folder(img_folder, save_dir, model, device, mean, std, tile_size=102
 
 if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_384\UNET384_best_epoch4_dice0.926.pth"
 
-    model = UNetPP(in_channels=3, num_classes=4)
+    weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_MIX_384\UNET384_best_epoch6_dice0.860.pth"
+    model = UNetPP(in_channels=3, num_classes=6)
     w = torch.load(weights_path, map_location=device)
     if "model" in w:
         model.load_state_dict(w["model"])
@@ -135,9 +135,9 @@ if __name__ == "__main__":
         model.load_state_dict(w)
     model.to(device).eval()
 
-    mean = (0.456, 0.456, 0.456)
-    std = (0.145, 0.145, 0.145)
+    mean = (0.488, 0.488, 0.488)
+    std = (0.149, 0.149, 0.149)
 
     img_folder = r"W:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_HIGH_RES"
     save_dir = r"C:\Users\Admin\Downloads\Newfolder"
-    process_folder(img_folder, save_dir, model, device, mean, std, tile_size=1024, overlap=256)
+    process_folder(img_folder, save_dir, model, device, mean, std, tile_size=1024, overlap=0)

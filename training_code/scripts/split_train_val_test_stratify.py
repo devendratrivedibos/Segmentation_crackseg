@@ -7,17 +7,13 @@ from iterstrat.ml_stratifiers import MultilabelStratifiedShuffleSplit
 from tqdm import tqdm
 
 # ===================== CONFIG =====================
+images_dir = r"V:\Devendra\ASPHALT_ACCEPTED\\Synthetic_Images"
+masks_dir = r"V:\Devendra\ASPHALT_ACCEPTED\\Synthetic_Masks"
+output_dir = r"V:\Devendra\ASPHALT_ACCEPTED\\SPLIT"
 
-images_dir = r"Z:\Devendra\TILED\TILE_HIGH_RES_IMAGES" # your images folder
-masks_dir = r"Z:\Devendra\TILED\TILE_HIGH_RES_MASKS"  # your masks folder
-output_dir =  r"V:\Devendra\SPLITTED"  # output folder
 
-images_dir = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\TILE_HIGH_RES_IMAGES"
-masks_dir = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\TILE_HIGH_RES_MASKS"
-output_dir = r"F:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\SPLITTED"
-
-test_size = 0.10
-val_size = 0.15
+test_size = 0.01
+val_size = 0.20
 random_state = 42
 
 # --- Color map (RGB) → ID ---
@@ -50,7 +46,9 @@ for rgb, cls_id in COLOR_MAP.items():
 
 def get_label_vector(mask_path):
     """Convert mask → multilabel vector"""
-    mask = np.array(Image.open(mask_path).convert("RGB"))
+    mask = Image.open(mask_path).convert("RGB")
+    # mask = mask.resize((419, 1024), Image.NEAREST)  # ✅ works
+    mask = np.array(mask)  # convert to NumPy after resizing
     mask_cls = lut[mask[:, :, 0], mask[:, :, 1], mask[:, :, 2]]
     unique_cls = np.unique(mask_cls)
     label_vec = np.zeros(NUM_CLASSES, dtype=int)

@@ -1,3 +1,7 @@
+"""
+my_dataset_subset.py
+Custom Dataset and Augmentations for Road Crack Segmentation
+"""
 import os
 import pdb
 from pathlib import Path
@@ -60,11 +64,11 @@ class CrackDataset(Dataset):
         # Load image using OpenCV and convert to RGB
         img = cv2.imread(self.images_path[idx])
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        # img = cv2.resize(img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
+        img = cv2.resize(img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
         # Load mask in color and convert to RGB
         mask_rgb = cv2.imread(self.masks_path[idx], cv2.IMREAD_COLOR)
         mask_rgb = cv2.cvtColor(mask_rgb, cv2.COLOR_BGR2RGB)
-        # mask_rgb = cv2.resize(mask_rgb, (1024, 1024), interpolation=cv2.INTER_NEAREST)
+        mask_rgb = cv2.resize(mask_rgb, (1024, 1024), interpolation=cv2.INTER_NEAREST)
         # Convert RGB mask to class ID map
         mask = self.rgb_to_class_id(mask_rgb, COLOR_MAP)
         if self.transforms is not None:
@@ -95,27 +99,27 @@ class CrackDataset(Dataset):
 
 
 class SegmentationPresetTrain:
-    def __init__(self, img_size, mean, std):
+    def __init__(self, img_size_h, img_size_w, mean, std):
         self.transforms = A.Compose([
             # --- Geometric ---
-            A.HorizontalFlip(p=0.4),
-            A.VerticalFlip(p=0.4),  # vertical cracks possible, but rare
+            A.HorizontalFlip(p=0.5),
+            A.VerticalFlip(p=0.5),  # vertical cracks possible, but rare
             A.ShiftScaleRotate(
                 shift_limit=0.02,  # small shifts only
                 scale_limit=0.1,  # mild zoom in/out
                 rotate_limit=5,  # small rotations
                 border_mode=0,  # fill with zeros (black)
-                p=0.5
+                p=0.3
             ),
             # --- Photometric ---
             A.RandomBrightnessContrast(
                 brightness_limit=0.2,
                 contrast_limit=0.2,
-                p=0.4
+                p=0.2
             ),
-            A.CLAHE(clip_limit=2, tile_grid_size=(8, 8), p=0.3),  # enhance faint cracks
-            A.RandomGamma(gamma_limit=(80, 120), p=0.3),  # simulate different lighting
-            A.HueSaturationValue(hue_shift_limit=5, sat_shift_limit=10, val_shift_limit=10, p=0.2),
+            A.CLAHE(clip_limit=2, tile_grid_size=(8, 8), p=0.1),  # enhance faint cracks
+            A.RandomGamma(gamma_limit=(80, 120), p=0.1),  # simulate different lighting
+            A.HueSaturationValue(hue_shift_limit=5, sat_shift_limit=10, val_shift_limit=10, p=0.1),
 
             # --- Noise & blur (light) ---
             A.GaussNoise(var_limit=(5.0, 15.0), p=0.3),  # simulate sensor noise
@@ -125,7 +129,7 @@ class SegmentationPresetTrain:
             A.ElasticTransform(alpha=20, sigma=5, alpha_affine=10, p=0.2),  # realistic surface distortions
             A.GridDistortion(num_steps=5, distort_limit=0.05, p=0.2),  # mild surface warps
             A.Perspective(scale=(0.02, 0.05), p=0.2),  # simulate road tilt
-            A.Resize(384,384),
+            # A.Resize(1024, 1024, interpolation=cv2.INTER_NEAREST, mask_interpolation=cv2.INTER_NEAREST),
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ])
@@ -137,9 +141,10 @@ class SegmentationPresetTrain:
 
 
 class SegmentationPresetEval:
-    def __init__(self, img_size, mean, std):
+    def __init__(self, img_size_h, img_size_w, mean, std):
         self.transforms = A.Compose([
-            A.Resize(384, 384),
+            # A.Resize(img_size_h, img_size_w),
+            # A.Resize(1024, 1024, interpolation=cv2.INTER_NEAREST, mask_interpolation=cv2.INTER_NEAREST),
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ])

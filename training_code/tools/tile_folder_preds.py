@@ -75,12 +75,13 @@ def overlay_mask_on_image(image, color_mask, alpha=0.5):
 
 # ---- MAIN ----
 def main(imgs_root=None, prediction_save_path=None, weights_path=None):
-    num_classes = 3 + 1
+    num_classes = 5 + 1
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     mean, std = (0.456, 0.456, 0.456), (0.145, 0.145, 0.145)
+    # mean, std = (0.488, 0.488, 0.488), (0.149, 0.149, 0.149)
 
     data_transform = A.Compose([
-        A.Resize(384, 384),
+        # A.Resize(384, 384),
         A.Normalize(mean=mean, std=std),
         ToTensorV2(),
     ])
@@ -123,12 +124,11 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None):
 
                 # ---- save per-tile outputs ----
                 tile_base = os.path.splitext(image_name)[0] + f"_tile{t_index}"
-                cv2.imwrite(os.path.join(prediction_save_path, tile_base + "_mask.png"), tile_mask)
-                cv2.imwrite(os.path.join(prediction_save_path, tile_base + "_mask_rgb.png"),
-                            cv2.cvtColor(tile_mask_color, cv2.COLOR_RGB2BGR))
+               # cv2.imwrite(os.path.join(prediction_save_path, tile_base + "_mask.png"), tile_mask)
+                #cv2.imwrite(os.path.join(prediction_save_path, tile_base + "_mask_rgb.png"),cv2.cvtColor(tile_mask_color, cv2.COLOR_RGB2BGR))
                 overlay = overlay_mask_on_image(cv2.cvtColor(tile, cv2.COLOR_RGB2BGR),
                                                 cv2.cvtColor(tile_mask_color, cv2.COLOR_RGB2BGR))
-                cv2.imwrite(os.path.join(prediction_save_path, tile_base + "_overlay.png"), overlay)
+               # cv2.imwrite(os.path.join(prediction_save_path, tile_base + "_overlay.png"), overlay)
 
                 pred_tiles.append(probs_resized)
 
@@ -158,5 +158,6 @@ if __name__ == '__main__':
     main(
         imgs_root=r"C:\Users\Admin\Downloads",
         prediction_save_path=r"C:\Users\Admin\Downloads\Newfolder",
-        weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_384\UNET384_best_epoch23_dice0.939.pth"
+        weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt_1024\UNET_asp_1024_best_epoch243_dice0.705.pth"
+        # weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_subset\epoch_9_iter_latest.pth"
     )
