@@ -10,21 +10,22 @@ root_dir = r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51"
 
 GT_DIRS = [
     os.path.join(root_dir, "SECTION-1", "ACCEPTED_MASKS"),
-    os.path.join(root_dir, "SECTION-2", "ACCEPTED_MASKS"),
-    os.path.join(root_dir, "SECTION-3", "ACCEPTED_MASKS"),
-    os.path.join(root_dir, "SECTION-4", "ACCEPTED_MASKS"),
-    os.path.join(root_dir, "SECTION-5", "ACCEPTED_MASKS"),
+    # os.path.join(root_dir, "SECTION-2", "ACCEPTED_MASKS"),
+    # os.path.join(root_dir, "SECTION-3", "ACCEPTED_MASKS"),
+    # os.path.join(root_dir, "SECTION-4", "ACCEPTED_MASKS"),
+    # os.path.join(root_dir, "SECTION-5", "ACCEPTED_MASKS"),
 ]
 
 PRED_DIRS = [
-    os.path.join(root_dir, "SECTION-1", "process_distress_results_4oct"),
-    os.path.join(root_dir, "SECTION-2", "process_distress_results_4oct"),
-    os.path.join(root_dir, "SECTION-3", "process_distress_results_4oct"),
-    os.path.join(root_dir, "SECTION-4", "process_distress_results_4oct"),
-    os.path.join(root_dir, "SECTION-5", "process_distress_results_4oct"),
+    # os.path.join(root_dir, "SECTION-1", "process_distress_results_4oct_latest"),
+    os.path.join(root_dir, "SECTION-1", "process_distress_results"),
+    # os.path.join(root_dir, "SECTION-2", "process_distress_results"),
+    # os.path.join(root_dir, "SECTION-3", "process_distress_results"),
+    # os.path.join(root_dir, "SECTION-4", "process_distress_results"),
+    # os.path.join(root_dir, "SECTION-5", "process_distress_results"),
 ]
 
-SAVE_CSV = os.path.join(root_dir, "New_AMRAWATI-TALEGAON_mask_metrics.csv")
+SAVE_CSV = os.path.join(root_dir,"SECTION-1", "AMRAWATI-TALEGAON_mask_metrics.csv")
 
 COLOR_MAP = {
     (0, 0, 0): (0, "Background"),

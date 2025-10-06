@@ -19,25 +19,25 @@ pcams_dir = os.path.join(root_dir, "SECTION-1", 'pcams')
 
 # --- Example multiple folders ---
 image_dirs = [
-    os.path.join(root_dir, "SECTION-2", 'process_distress_og'),
+    os.path.join(root_dir, "SECTION-1", 'process_distress_og'),
     # os.path.join(root_dir, "SECTION-1", 'IMAGES_4040'),
 ]
 
 
 orig_mask_dirs = [
-    os.path.join(root_dir, "SECTION-2", 'ACCEPTED_MASKS'),
+    os.path.join(root_dir, "SECTION-1", 'ACCEPTED_MASKS'),
     # os.path.join(root_dir, "SECTION-1", 'process_distress_results'),
     # os.path.join(root_dir, "SECTION-1", 'MASKS_4040'),
 ]
 
 old_pred_mask_dirs = [
-    os.path.join(root_dir, "SECTION-2", 'process_distress_results'),
+    os.path.join(root_dir, "SECTION-1", 'process_distress_results'),
     # os.path.join(root_dir, "SECTION-1", 'MASKS_4040'),
 ]
 
 new_pred_mask_dirs = [
-    # os.path.join(root_dir, "SECTION-1", 'process_distress_HIGH_RESULTS_UNET384_'),
-    os.path.join(root_dir, "SECTION-2", 'process_distress_results_4oct'),
+    os.path.join(root_dir, "SECTION-1", 'process_distress_results_4oct_latest'),
+    # os.path.join(root_dir, "SECTION-2", 'process_distress_results_4oct'),
 
 ]
 

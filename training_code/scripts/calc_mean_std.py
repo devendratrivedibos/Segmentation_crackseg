@@ -4,7 +4,7 @@ import numpy as np
 from tqdm import tqdm
 from multiprocessing import Pool, cpu_count
 
-image_folder = r"G:\Devendra\TILE_HIGH_RES_IMAGES"
+image_folder = r"G:\Devendra\process_distress_HIGH_RES"
 # List all image files
 image_files = [os.path.join(image_folder, f)
                for f in os.listdir(image_folder)
