@@ -5,12 +5,11 @@ import numpy as np
 from multiprocessing import Pool, cpu_count
 
 # --- Paths ---
-BASE_DIR = r"U:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\SPLITTED\TRAIN"
-mask_dir = os.path.join(BASE_DIR, "MASKS")
-img_dir = os.path.join(BASE_DIR, "IMAGES")
-
-delete_mask_dir = os.path.join(BASE_DIR, "only_Alligator_MASK")
-delete_image_dir = os.path.join(BASE_DIR, "only_Alligator_IMAGE")
+BASE_DIR = r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1"
+img_dir = os.path.join(BASE_DIR, "process_distress_seg")
+mask_dir = os.path.join(BASE_DIR, "process_distress_seg_masks")
+delete_mask_dir = os.path.join(BASE_DIR, "only_background_MASK")
+delete_image_dir = os.path.join(BASE_DIR, "only_background_IMAGE")
 
 os.makedirs(delete_mask_dir, exist_ok=True)
 os.makedirs(delete_image_dir, exist_ok=True)
@@ -31,11 +30,11 @@ COLOR_MAP = {
     (128, 0, 128): 11,     # Purple - Punchout
     (112, 102, 255): 12,  #popout Grey
     (255, 255, 255): 13,  # White - Unclassified
-    (255, 215, 0): 14,  # Gold - Cracking
+    (255, 215, 0): 14,   # Gold - Cracking
 }
 
 COLOR_TO_ID = {k: v for k, v in COLOR_MAP.items()}
-DELETE_SETS = [{0, 4}, {0, 5}, {4},{5}, {0, 4, 5}]
+DELETE_SETS = [{0}, {0, 5}]
 
 
 def find_image(mask_name):

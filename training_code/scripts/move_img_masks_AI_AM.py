@@ -21,8 +21,8 @@ def process_section(section_path, name_prefix="THANE_BELAPUR_SECTION2_"):
     RENAME and COPY images and masks from process_distress and Masks folders
     to AnnotationImages and AnnotationMasks with a new naming convention.
     """
-    process_distress = os.path.join(section_path, "process_distress")
-    masks_dir = os.path.join(section_path, "Masks")
+    process_distress = os.path.join(section_path, "process_distress_seg")
+    masks_dir = os.path.join(section_path, "process_distress_seg_masks")
 
     if not os.path.exists(process_distress) or not os.path.exists(masks_dir):
         return
@@ -80,6 +80,7 @@ def copy_matched_images(main_dir: str):
 
     # Create AnnotationImages folder if not exists
     os.makedirs(annotation_dir, exist_ok=True)
+    os.makedirs(masks_dir, exist_ok=True)
 
     # Collect mask base names (without extension)
     mask_files = {os.path.splitext(f)[0] for f in os.listdir(masks_dir) if f.lower().endswith(".png")}
@@ -90,7 +91,7 @@ def copy_matched_images(main_dir: str):
     # Iterate over SECTION folders
     for section in os.listdir(main_dir):
         section_path = os.path.join(main_dir, section)
-        process_distress_path = os.path.join(section_path, "process_distress")
+        process_distress_path = os.path.join(section_path, "process_distress_seg")
 
         if os.path.isdir(process_distress_path):
             for img_name in os.listdir(process_distress_path):
@@ -116,9 +117,9 @@ def copy_images_with_masks_folder(section_path: str):
     3. Ignore file extension differences (jpg/png)
     """
 
-    process_distress = os.path.join(section_path, "process_distress")
-    masks_folder = os.path.join(section_path, "ACCEPTED_MASKS")
-    annotation_images = os.path.join(section_path, "ACCEPTED_IMAGES")
+    process_distress = os.path.join(section_path, "process_distress_seg")
+    masks_folder = os.path.join(section_path, "AnnotationMasks")
+    annotation_images = os.path.join(section_path, "AnnotationImages")
 
     os.makedirs(annotation_images, exist_ok=True)
 
@@ -138,7 +139,6 @@ def copy_images_with_masks_folder(section_path: str):
             src = os.path.join(process_distress, img_file)
             dst = os.path.join(annotation_images, img_file)
             shutil.copy2(src, dst)  # copy with metadata
-
     print(f"Processed section: {section_path}")
 
 
@@ -157,25 +157,15 @@ if __name__ == "__main__":
     main_folder = r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33"
     # copy_matched_images(main_folder)
 
-
-    # copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-1")
-    # copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3")
-    # copy_images_with_masks_folder(r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4")
-
-    # copy_images_with_masks_folder(r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1")
-    # copy_images_with_masks_folder(r"Z:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2")
-
-    # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-1")
-    # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-2")
-    # copy_images_with_masks_folder(r"V:\KHARWANDIKASAR-PADALSHINGI_2024-12-21_12-15-00\SECTION-3")
-
-    copy_images_with_masks_folder(r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1")
-    copy_images_with_masks_folder(r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2")
-    copy_images_with_masks_folder(r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3")
-    copy_images_with_masks_folder(r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4")
-    copy_images_with_masks_folder(r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5")
-    # copy_images_with_masks_folder(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7")
-    # copy_images_with_masks_folder(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7")
+    # copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1")
+    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-2")
+    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-3")
+    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-4")
+    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-5")
+    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-6")
+    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-7")
+    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-8")
+    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-9")
 
     # # Base projects folder
     # process_section(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3", name_prefix="THANE_BELAPUR_SECTION3_")

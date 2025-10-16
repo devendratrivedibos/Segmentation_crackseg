@@ -65,7 +65,7 @@ class ONNXExporter:
         num_classes = self._detect_unet_num_classes(state_dict)
         print(f"Detected num_classes = {num_classes}")
 
-        model_seg = UNetPP(in_channels=3, num_classes=num_classes).to(self.device)
+        model_seg = UNe123tPP(in_channels=3, num_classes=num_classes).to(self.device)
         model_seg.load_state_dict(state_dict, strict=False)
         model_seg.eval()
 

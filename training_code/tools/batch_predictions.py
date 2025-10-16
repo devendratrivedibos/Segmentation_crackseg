@@ -49,6 +49,8 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
     std = (0.145, 0.145, 0.145)
     mean = (0.488, 0.488, 0.488)
     std = (0.149, 0.149, 0.149)
+    mean = (0.478, 0.478, 0.478)   ##478
+    std = (0.145, 0.145, 0.145)   ###145
     # mean =  (0.389, 0.389, 0.389)
     # std =  (0.120, 0.120, 0.120)
     data_transform = A.Compose([
@@ -80,7 +82,7 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
             for image in batch_files:
                 original_img = cv2.imread(os.path.join(imgs_root, image))
                 original_img = cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB)
-                original_img = cv2.resize(original_img, (1280, 3000), interpolation=cv2.INTER_NEAREST)
+                # original_img = cv2.resize(original_img, (1280, 3000), interpolation=cv2.INTER_NEAREST)
                 # img = data_transform(original_img)
                 transformed = data_transform(image=original_img)
                 img = transformed["image"]
@@ -154,31 +156,35 @@ def remove_small_components_multiclass(mask, min_area=400):
 
 
 if __name__ == '__main__':
-    # main(imgs_root="S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-1/process_distress_og",
-    #      prediction_save_path=r"S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-1/process_distress_results_4oct_latest_27",
-    #      weights_path=r"W:\Devendra_Files\CrackSegFormer-main\weights\27Sept_Asphalt\27Sept_Asphalt_best_epoch267_dice0.742.pth",
-    #      batch_size=8)
+	main(imgs_root=r"R:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1\process_distress_seg",
+		prediction_save_path=r"R:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1\process_distress_results_14oct_latest",
+		weights_path=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_14oct\14oct_best_epoch4_dice0.695.pth",
+		batch_size=8)
 
-    # main(imgs_root="S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-2/process_distress_og",
-    #      prediction_save_path=r"S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-2/process_distress_results_4oct_latest",
-    #      weights_path=r"W:/Devendra_Files\CrackSegFormer-main\weights\27Sept_Asphalt\27Sept_Asphalt_best_epoch267_dice0.742.pth",
-    #      batch_size=8)
-    #
-    # main(imgs_root="S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-3/process_distress_og",
-    #      prediction_save_path=r"S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-3/process_distress_results_4oct_latest",
-    #      weights_path=r"W:/Devendra_Files\CrackSegFormer-main\weights\27Sept_Asphalt\27Sept_Asphalt_best_epoch267_dice0.742.pth",
-    #      batch_size=8)
-    # main(imgs_root="S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-4/process_distress_og",
-    #      prediction_save_path=r"S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-4/process_distress_results_4oct_latest",
-    #      weights_path=r"W:/Devendra_Files\CrackSegFormer-main\weights\27Sept_Asphalt\27Sept_Asphalt_best_epoch267_dice0.742.pth",
-    #      batch_size=8)
-    # main(imgs_root="S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-5/process_distress_og",
-    #      prediction_save_path=r"S:/NHAI_Amaravati_Data/AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-5/process_distress_results_4oct_latest",
-    #      weights_path=r"W:/Devendra_Files\CrackSegFormer-main\weights\27Sept_Asphalt\27Sept_Asphalt_best_epoch267_dice0.742.pth",
-    #      batch_size=8)
+	main(imgs_root=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_og",
+		prediction_save_path=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results_14oct_latest",
+	weights_path=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_14oct\14oct_best_epoch4_dice0.695.pth",
+	batch_size=8)
+
+	main(imgs_root=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\process_distress_og",
+		prediction_save_path=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\process_distress_results_14oct_latest",
+	weights_path=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_14oct\14oct_best_epoch4_dice0.695.pth",
+	batch_size=8)
+
+	main(imgs_root=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\process_distress_og",
+		prediction_save_path=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\process_distress_results_14oct_latest",
+	weights_path=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_14oct\14oct_best_epoch4_dice0.695.pth",
+	batch_size=8)
+
+	main(imgs_root=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\process_distress_og",
+		prediction_save_path=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\process_distress_results_14oct_latest",
+	weights_path=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_14oct\14oct_best_epoch4_dice0.695.pth",
+	batch_size=8)
 
 
-    main(imgs_root=r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\New folder (2)",
-         prediction_save_path=r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\New folder (2)\New folder",
-         weights_path=r"D:/Devendra_Files\CrackSegFormer-main\weights\27Sept_Asphalt\27Sept_Asphalt_best_epoch267_dice0.742.pth",
-         batch_size=1)
+	main(imgs_root=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\process_distress_og",
+		prediction_save_path=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\process_distress_results_14oct_latest",
+	weights_path=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_14oct\14oct_best_epoch4_dice0.695.pth",
+	batch_size=8)
+
+

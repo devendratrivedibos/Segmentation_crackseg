@@ -159,17 +159,10 @@ def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
 
 
 folderlist = [
-r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_divided\1\PRASAD_(26-9-25)\project-30-at-2025-09-26-13-40-46bb13ee.json",
-r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_divided\2\Bushra 26.09.2025\project-48-at-2025-09-26-13-10-d8860596.json",
-r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_divided\3\GAYATRI 26.09.2025\project-35-at-2025-09-26-12-12-c226331c.json",
-r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_divided\4\RUTUJA (26-09-2025)\project-30-at-2025-09-26-13-19-3f836136.json",
-r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_divided\5\PRATHAMESH 26-9-2025\project-27-at-2025-09-26-13-08-23e1c7cf (1).json",
-r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_divided\6\payal s1_p6_26.09.2025\project-31-at-2025-09-26-15-47-07411699.json",
-r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_divided\7\Jayesh 26-9-2025\project-35-at-2025-09-26-13-53-25045b69.json",
-r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_divided\8\Akash 26.09.2025\project-35-at-2025-09-26-15-02-9fc22ec4.json",
-r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORK_divided\9\Sharan 09-26-2025\project-3-at-2025-09-26-13-48-3b80c742.json",
+r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-6\process_distress_seg\Sharan (333-974)\project-13-at-2025-10-16-13-00-c3b64627.json"
 ]
+
 for i in folderlist:
-        save_masks_from_json(i,
-                             r"Z:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\REWORk_MASKS",
-                             use_rgb=True)
+    save_masks_from_json(i,
+                         r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-6\AnnotationMasks",
+                         use_rgb=True)

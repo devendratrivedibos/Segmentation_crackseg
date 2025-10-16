@@ -13,18 +13,16 @@ from concurrent.futures import ThreadPoolExecutor
 import gc
 
 # --- CONFIG ---
-root_dir = r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51/SECTION-2"
-image_dir = os.path.join(root_dir, 'process_distress_HIGH_RES')
-image_dir = "V:\Devendra\ASPHALT_ACCEPTED\Synthetic_Images"
-mask_dir = os.path.join(root_dir, 'HIGH_RES_MASKS')
-mask_dir ="V:\Devendra\ASPHALT_ACCEPTED\Synthetic_Masks"
+root_dir = r"Y:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1"
+image_dir = os.path.join(root_dir, 'ACCEPTED_IMAGES')
+mask_dir = os.path.join(root_dir, 'ACCEPTED_MASKS')
+
 pcams_dir = os.path.join(root_dir, 'pcams')
 start_number = 0
 
 accepted_img_dir = os.path.join(root_dir, "ACCEPTED_IMAGES")
 accepted_mask_dir = os.path.join(root_dir, "ACCEPTED_MASKS")
 rework_img_dir = os.path.join(root_dir, "REWORK_IMAGES")
-
 rework_mask_dir = os.path.join(root_dir, "REWORK_MASKS")
 csv_log = os.path.join(root_dir, "rework_log.csv")
 os.makedirs(accepted_img_dir, exist_ok=True)
@@ -195,11 +193,11 @@ class ImageMaskViewerOptimized:
         # Load main image
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = cv2.flip(img, 0)
+        # img = cv2.flip(img, 0)
 
         # Load mask
         mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
-        mask = cv2.flip(mask, 0)
+        # mask = cv2.flip(mask, 0)
         # mask = cv2.resize(mask, (4183, 10217), interpolation=cv2.INTER_NEAREST)
         if len(mask.shape) == 2:
             mask_colored = cv2.applyColorMap(mask, cv2.COLORMAP_JET)

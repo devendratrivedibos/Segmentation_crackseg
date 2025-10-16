@@ -5,46 +5,45 @@ from PIL import Image
 from collections import Counter, defaultdict
 from iterstrat.ml_stratifiers import MultilabelStratifiedShuffleSplit
 from tqdm import tqdm
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ===================== CONFIG =====================
-images_dir = r"G:\Devendra\ALL_MIX\TILE_HIGH_RES_IMAGES"
-masks_dir = r"G:\Devendra\ALL_MIX\TILE_HIGH_RES_MASKS"
-output_dir = r"G:\Devendra\ALL_MIX\SPLITTED"
+images_dir = r"V:\Devendra\ASPHALT_ACCEPTED\COMBINED_IMAGES"
+masks_dir = r"V:\Devendra\ASPHALT_ACCEPTED\COMBINED_MASKS"
+output_dir = r"V:\Devendra\ASPHALT_ACCEPTED\COMBINED_SPLITTED"
 
-test_size = 0.0
+test_size = 0.01
 val_size = 0.20
-random_state = 42
-max_workers = 8   # adjust based on your CPU cores
+random_state = 21
+max_workers = 8
 
 # --- Color map (RGB) → ID ---
 COLOR_MAP = {
-    (0, 0, 0): 0,         # Background
-    (255, 0, 0): 1,       # Alligator
-    (0, 0, 255): 2,       # Transverse Crack
-    (0, 255, 0): 3,       # Longitudinal Crack
-    (139, 69, 19): 4,     # Pothole
-    (255, 165, 0): 5,     # Patches
-    (255, 0, 255): 6,     # Multiple Crack
-    (0, 255, 255): 7,     # Spalling
-    (0, 128, 0): 8,       # Corner Break
-    (255, 100, 203): 9,   # Sealed Joint - T
-    (199, 21, 133): 10,   # Sealed Joint - L
-    (128, 0, 128): 11,    # Punchout
-    (112, 102, 255): 12,  # Popout Grey
-    (255, 255, 255): 13,  # Unclassified
-    (255, 215, 0): 14,    # Cracking
+    (0, 0, 0): 0,
+    (255, 0, 0): 1,
+    (0, 0, 255): 2,
+    (0, 255, 0): 3,
+    (139, 69, 19): 4,
+    (255, 165, 0): 5,
+    (255, 0, 255): 6,
+    (0, 255, 255): 7,
+    (0, 128, 0): 8,
+    (255, 100, 203): 9,
+    (199, 21, 133): 10,
+    (128, 0, 128): 11,
+    (112, 102, 255): 12,
+    (255, 255, 255): 13,
+    (255, 215, 0): 14,
 }
-
 NUM_CLASSES = len(COLOR_MAP)
 
-# ===================== LUT for fast RGB → class_id =====================
+# ===================== LUT =====================
 lut = np.full((256, 256, 256), -1, dtype=np.int16)
 for rgb, cls_id in COLOR_MAP.items():
     lut[rgb] = cls_id
 
 
-# ===================== UTILITIES =====================
+# ===================== FUNCTIONS =====================
 def get_label_vector(mask_path):
     """Convert mask → multilabel vector"""
     mask = np.array(Image.open(mask_path).convert("RGB"))
@@ -63,15 +62,15 @@ def process_mask_file(f):
         return None
     mask_path = os.path.join(masks_dir, f)
     label_vec = get_label_vector(mask_path)
-
     base = os.path.splitext(f)[0]
+    img_name = None
     if os.path.exists(os.path.join(images_dir, base + ".jpg")):
         img_name = base + ".jpg"
     elif os.path.exists(os.path.join(images_dir, base + ".png")):
         img_name = base + ".png"
-    else:
-        return None
-    return img_name, label_vec
+    if img_name:
+        return img_name, label_vec
+    return None
 
 
 def copy_pair(f, split):
@@ -105,15 +104,13 @@ def count_classes_in_dir(mask_dir):
 
 # ===================== MAIN =====================
 if __name__ == "__main__":
-
-    # -------- STEP 1: Load all masks & labels (Multiprocessing) --------
     print("Extracting labels from masks (parallel)...")
     mask_files = [f for f in os.listdir(masks_dir) if f.endswith(".png")]
 
     filenames, labels = [], []
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(process_mask_file, f) for f in mask_files]
-        for future in tqdm(as_completed(futures), total=len(futures), desc="Masks"):
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(process_mask_file, f): f for f in mask_files}
+        for future in tqdm(as_completed(futures), total=len(futures), desc="Processing masks"):
             result = future.result()
             if result is not None:
                 img_name, label_vec = result
@@ -122,9 +119,10 @@ if __name__ == "__main__":
 
     if len(filenames) == 0:
         raise ValueError("No matching images and masks found. Check your directories!")
+
     labels = np.array(labels)
 
-    # -------- STEP 2: Stratified Split --------
+    # -------- STRATIFIED SPLIT --------
     print("Performing stratified split...")
     msss1 = MultilabelStratifiedShuffleSplit(n_splits=1, test_size=test_size, random_state=random_state)
     train_val_idx, test_idx = next(msss1.split(filenames, labels))
@@ -137,10 +135,9 @@ if __name__ == "__main__":
     train_files = [filenames[i] for i in train_val_idx[train_idx]]
     val_files = [filenames[i] for i in train_val_idx[val_idx]]
     test_files = [filenames[i] for i in test_idx]
-
     splits = {"TRAIN": train_files, "VAL": val_files, "TEST": test_files}
 
-    # -------- STEP 3: Copy files (Multiprocessing) --------
+    # -------- COPY FILES --------
     print("Copying files into dataset/ ...")
     for split, files in splits.items():
         img_out_dir = os.path.join(output_dir, split, "IMAGES")
@@ -148,21 +145,20 @@ if __name__ == "__main__":
         os.makedirs(img_out_dir, exist_ok=True)
         os.makedirs(mask_out_dir, exist_ok=True)
 
-        with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
             list(tqdm(
                 executor.map(lambda f: copy_pair(f, split), files),
                 total=len(files),
                 desc=f"Copy {split}"
             ))
 
-    # -------- STEP 4: Count distribution --------
+    # -------- DISTRIBUTION CHECK --------
     print("\nClass Distribution (per split):")
     split_counts = defaultdict(Counter)
     for split in splits.keys():
         mask_dir = os.path.join(output_dir, split, "MASKS")
         split_counts[split] = count_classes_in_dir(mask_dir)
 
-    for split in splits.keys():
         print(f"\n{split}:")
         total_images = len(os.listdir(os.path.join(output_dir, split, "MASKS")))
         print(f"  Total images: {total_images}")

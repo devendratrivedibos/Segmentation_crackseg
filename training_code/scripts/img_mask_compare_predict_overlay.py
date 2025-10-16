@@ -31,12 +31,12 @@ orig_mask_dirs = [
 ]
 
 old_pred_mask_dirs = [
-    os.path.join(root_dir, "SECTION-1", 'process_distress_results'),
+    os.path.join(root_dir, "SECTION-1", 'process_distress_results_4oct_latest'),
     # os.path.join(root_dir, "SECTION-1", 'MASKS_4040'),
 ]
 
 new_pred_mask_dirs = [
-    os.path.join(root_dir, "SECTION-1", 'process_distress_results_4oct_latest'),
+    os.path.join(root_dir, "SECTION-1", 'process_distress_results_15oct_latest'),
     # os.path.join(root_dir, "SECTION-2", 'process_distress_results_4oct'),
 
 ]
@@ -220,7 +220,7 @@ class ImageMaskViewerOptimized:
             old_mask = cv2.cvtColor(old_mask, cv2.COLOR_BGR2RGB)
 
         pred_mask = cv2.imread(new_pred_mask_path, cv2.IMREAD_UNCHANGED)
-        pred_mask = cv2.flip(pred_mask, 0)
+        # pred_mask = cv2.flip(pred_mask, 0)
         if len(pred_mask.shape) == 2:
             pred_mask_colored = cv2.applyColorMap(pred_mask, cv2.COLORMAP_JET)
         else:
@@ -301,14 +301,19 @@ class ImageMaskViewerOptimized:
 
         del self.images[self.index]
         del self.orig_masks[self.index]
+        del self.old_pred_masks[self.index]
         del self.new_pred_masks[self.index]
-
+        # --- Clear cache and refresh ---
+        self.cache.clear()
+        # --- If images left, update display ---
+        if self.images:
+            self.update_display()
         if self.index >= len(self.images):
             self.index = max(0, len(self.images) - 1)
 
         self.comment = ""
         self.textbox.set_val("")
-        self.update_display()
+        # self.update_display()
 
     def accept(self, event):
         if self.images:

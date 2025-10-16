@@ -30,14 +30,13 @@ from models.unet.UnetPP import UNetPP
 # from models.dinov3.dinov3 import DINODeepLab
 
 
-# Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_384'  # Change this to your desired output path
-model_name = "UNET384"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_15oct'  # Change this to your desired output path
+model_name = "14oct"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
-def get_transform(train, mean=(0.541, 0.541, 0.541), std=(0.144, 0.144, 0.144)):
+def get_transform(train, mean=(0.487, 0.487, 0.487), std=(0.145, 0.145, 0.145)):
     img_size = 512
 
     if train:
@@ -66,11 +65,8 @@ def main(args):
     # segmentation nun_classes + background
     num_classes = args.num_classes + 1
 
-    # mean =  (0.389, 0.389, 0.389)
-    # std =  (0.120, 0.120, 0.120)
-
-    mean = (0.456, 0.456, 0.456)
-    std = (0.145, 0.145, 0.145)
+    mean = (0.478, 0.478, 0.478)   ##478
+    std = (0.145, 0.145, 0.145)   ###145
 
     num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
 
@@ -162,10 +158,10 @@ def main(args):
         'momentum': args.momentum,
         'weight_decay': args.weight_decay,
         'batch_size': args.batch_size,
-        'img_size': '512 * 512',
+        'img_size': '1024 * 419',
         'start_epoch': args.start_epoch,
         'epochs': args.epochs,
-        "warmup_epochs: 20\n"
+        "warmup_epochs: 10\n"
         'weights_save_best': args.save_best,
         'amp': args.amp,
         'num_workers': num_workers
@@ -188,7 +184,7 @@ def main(args):
     for epoch in range(args.start_epoch, args.epochs):
         epoch_start_time = time.time()
         mean_loss, lr = train_one_epoch_loss(model, optimizer, train_loader, device, epoch, num_classes,
-                                        lr_scheduler=lr_scheduler, print_freq=args.print_freq, scaler=scaler)
+                                             lr_scheduler=lr_scheduler, print_freq=args.print_freq, scaler=scaler)
 
         confmat, dice = evaluate(model, val_loader, device=device, num_classes=num_classes)
         val_info = str(confmat)
@@ -239,15 +235,13 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"G:/Devendra/ASPHALT_ACCEPTED/SPLITTED",
-                        help="root")
-    parser.add_argument("--num-classes", default=3, type=int)  # exclude background
+                        default=r"G:\Devendra\ASPHALT_ACCEPTED\COMBINED_SPLITTED", help="root")
+    parser.add_argument("--num-classes", default=5, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
     parser.add_argument("--phi", default="b5", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
-                        default="",
-                        default=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt_1024\UNET_best.pth",
+                        default=r"W:\Devendra_Files\CrackSegFormer-main\weights\cracks_segmentation_6oct_asphalt.pth",
                         help='pretrained weights path')
 
     parser.add_argument('--optimizer-type', default="adamw")
@@ -258,8 +252,8 @@ def parse_args():
     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
 
-    parser.add_argument("-b", "--batch-size", default=8, type=int)
-    parser.add_argument('--start-epoch', default=39, type=int, metavar='N', help='start epoch')
+    parser.add_argument("-b", "--batch-size", default=16, type=int)
+    parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
     parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")
     parser.add_argument('--print-freq', default=1, type=int, help='print frequency')

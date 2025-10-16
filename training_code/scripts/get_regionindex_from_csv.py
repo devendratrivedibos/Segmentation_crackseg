@@ -3,10 +3,10 @@ import os
 import pandas as pd
 
 # Base path
-base_dir = r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4"
+base_dir = r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-3"
 
 # Paths to the CSV files
-cracks_csv = os.path.join(base_dir, "process_distress_OG", "cracks_predictions.csv")
+cracks_csv = os.path.join(base_dir, "process_distress", "cracks_predictions.csv")
 potholes_csv = os.path.join(base_dir, "reportNew", "csv_reports", "potholes.csv")
 patches_csv = os.path.join(base_dir, "reportNew", "csv_reports", "patches.csv")
 
@@ -53,3 +53,4 @@ all_region_indices = sorted(set(all_region_indices))
 
 print("✅ Total Region Indices found:", len(all_region_indices))
 print(all_region_indices)
+print(len(all_region_indices))

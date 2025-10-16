@@ -2,6 +2,7 @@ import os
 import shutil
 from pathlib import Path
 
+
 def divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=10):
     process_dir = Path(process_dir)
     results_dir = Path(results_dir)
@@ -42,8 +43,7 @@ def divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=10
     print(f"✅ Done! Divided {total} matching pairs into {n_subfolders} subfolders (img/mask).")
 
 
-# Example usage:
-process_dir = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\REWORK_IMAGES"
-results_dir = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\REWORK_MASKS"
-output_dir = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\Rework_divided_images"
-divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=9)
+process_dir = r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1\process_distress_seg"
+results_dir = r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1\process_distress_seg_masks"
+output_dir = r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1\divided_images"
+divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=10)

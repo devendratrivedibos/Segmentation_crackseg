@@ -13,25 +13,25 @@ from concurrent.futures import ThreadPoolExecutor
 
 # --- CONFIG ---
 start_number = 0  # <<< starting image number
-root_dir = r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51"
+root_dir = r"R:\SHINGOTE-KOLHAR_2025-09-23_14-06-00"
 pcams_dir = os.path.join(root_dir, "SECTION-1", 'pcams')
 
 
 # --- Example multiple folders ---
 image_dirs = [
-    os.path.join(root_dir, "SECTION-1", 'process_distress_og'),
+    os.path.join(root_dir, "SECTION-1", 'process_distress_seg'),
     # os.path.join(root_dir, "SECTION-1", 'IMAGES_4040'),
 ]
 
 
 orig_mask_dirs = [
-    os.path.join(root_dir, "SECTION-1", 'ACCEPTED_MASKS'),
+    os.path.join(root_dir, "SECTION-1", 'process_distress_seg_masks'),
     # os.path.join(root_dir, "SECTION-1", 'process_distress_results'),
     # os.path.join(root_dir, "SECTION-1", 'MASKS_4040'),
 ]
 
 pred_mask_dirs = [
-    os.path.join(root_dir, "SECTION-1", 'process_distress_results_1024'),
+    os.path.join(root_dir, "SECTION-1", 'process_distress_results_14oct_latest'),
     # os.path.join(root_dir, "SECTION-1", 'process_distress_HIGH_RESULTS_UNET384'),
 
 ]
@@ -283,7 +283,11 @@ class ImageMaskViewerOptimized:
         del self.images[self.index]
         del self.orig_masks[self.index]
         del self.pred_masks[self.index]
-
+        # --- Clear cache and refresh ---
+        self.cache.clear()
+        # --- If images left, update display ---
+        if self.images:
+            self.update_display()
         if self.index >= len(self.images):
             self.index = max(0, len(self.images) - 1)
 

@@ -2,8 +2,8 @@ import os
 import shutil
 
 # --- Directories ---
-img_dir = r"V:\Devendra\Synthetic_Images"
-mask_dir = r"V:\Devendra\Synthetic_Masks"
+img_dir = r"V:\Devendra\ASPHALT_ACCEPTED\COMBINED_IMAGES"
+mask_dir = r"V:\Devendra\ASPHALT_ACCEPTED\COMBINED_MASKS"
 
 # --- Collect names without extension ---
 img_files = {os.path.splitext(f)[0] for f in os.listdir(img_dir)}

@@ -15,32 +15,32 @@ from pathlib import Path
 
 from torch.utils.data import DataLoader, SubsetRandomSampler
 from train_utils.train_and_eval_1 import evaluate, train_one_epoch_loss, create_lr_scheduler
-from train_utils.my_dataset_subset_full import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
+from train_utils.my_dataset_asphalt import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
 import train_utils.transforms as T
 from train_utils.utils import plot, show_config
 
 # Get project root (parent of tools/)
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_asphalt_1024'  # Change this to your desired output path
-model_name = "UNET_1024"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_asphalt_11oct'  # Change this to your desired output path
+model_name = "UNET_11oct"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 results_file = OUTPUT_SAVE_PATH / "{}-results.txt".format(model_name)
 def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training (subset loader + iter checkpoints)")
     parser.add_argument("--device", default="cuda:0", help="training device")
-    parser.add_argument("--data-path", default=r"Z:/Devendra/ASPHALT_ACCEPTED/SPLIT", help="root")
+    parser.add_argument("--data-path", default=r"V:\Devendra\ASPHALT_ACCEPTED\COMBINED_SPLITTED", help="root")
     parser.add_argument("--num-classes", default=5, type=int)  # exclude background
     parser.add_argument("--use-subset", default=False, type=bool, help="use random subset per epoch")
     parser.add_argument("--aux", default=True, type=bool, help="aux loss if any")
     parser.add_argument("--pretrained", default=True, type=bool, help="backbone pretrained")
     parser.add_argument("--pretrained-weights", type=str,
-                        default=r"X:/Devendra_Files/CrackSegFormer-main/weights/UNET_asphalt_1024/UNET_best.pth",
+                        default=r"D:\Devendra_Files\CrackSegFormer-main\weights\cracks_segmentation_6oct_asphalt.pth",
                         help="pretrained weights path")
     parser.add_argument("--optimizer-type", default="adam", choices=["adam", "adamw", "sgd"])
     parser.add_argument("--lr", default=1e-4, type=float)
     parser.add_argument("--momentum", default=0.9, type=float)
     parser.add_argument("--weight-decay", default=1e-4, type=float)
-    parser.add_argument("-b", "--batch-size", default=8, type=int)
+    parser.add_argument("-b", "--batch-size", default=24, type=int)
     parser.add_argument("--subset-size", default=30000, type=int, help="random subset size per epoch")
     parser.add_argument("--start-epoch", default=0, type=int)
     parser.add_argument("--epochs", default=500, type=int)
@@ -93,11 +93,11 @@ def create_model(num_classes, pretrained=True):
 
 def main(args):
     device = torch.device(args.device)
-    mean = (0.488, 0.488, 0.488)
-    std = (0.149, 0.149, 0.149)
-    img_size_h, img_size_w = 1024, 1024
+    mean = (0.478, 0.478, 0.478)   ##478
+    std = (0.145, 0.145, 0.145)   ###145
+    img_size_h, img_size_w = 256, 256
     # Dataset
-    num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
+    num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 4])
     train_dataset = CrackDataset(args.data_path,
                                  train=True,
                                  transforms=get_transform(train=True,img_size_h=img_size_h, img_size_w=img_size_w, mean=mean, std=std))
@@ -141,7 +141,9 @@ def main(args):
         print(f"=> resumed at epoch {start_epoch}, best dice: {best_dice:.4f}")
 
     global_iter = 0
-
+    train_loss = []
+    dice_coefficient = []
+    img_save_path = OUTPUT_SAVE_PATH / "{}-visualization.svg".format(model_name)
     for epoch in range(start_epoch, args.epochs):
         if args.use_subset:
             train_loader = get_subset_loader(train_dataset, args.batch_size, args.subset_size, num_workers=num_workers)
@@ -167,7 +169,9 @@ def main(args):
 
         confmat, dice_score = evaluate(model, val_loader, device, num_classes=args.num_classes + 1)
         val_info = str(confmat)
-
+        train_loss.append(epoch_loss)
+        dice_coefficient.append(dice_score)
+        plot(train_loss, dice_coefficient, img_save_path)
         print(f"Epoch {epoch} finished: mean_loss={epoch_loss:.4f}, dice={dice_score:.4f} val_info:\n{val_info}")
         with open(results_file, "a") as f:
             train_info = f"[epoch: {epoch}]\n" \
