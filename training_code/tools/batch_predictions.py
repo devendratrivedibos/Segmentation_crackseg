@@ -28,31 +28,25 @@ CLASS_COLOR_MAP = {
     3: [0, 255, 0],  # Green   - Longitudinal Crack
     4: [139, 69, 19],  # Brown   - Pothole
     5: [255, 165, 0],  # Orange  - Patches
-    # 4: [255, 0, 255],  # violet     - multiple crack
-    # 5: [255, 0, 255],  # Grey       - popout
-    # 6: [255, 0, 255],  # violet     - multiple crack
-    # 7: [0, 255, 255],  # Cyan    - Spalling
-    # 8: [0, 128, 0],  # Dark Green - Corner Break
-    # 9: [255, 100, 203],  # Light Pink - Sealed Joint - T
-    # 10: [199, 21, 133],  # Dark Pink  - Sealed Joint - L
-    # 11: [128, 0, 128],  # Purple  - Punchout
-    # 12: [112, 102, 255],  # popout Grey
-    # 13: [255, 255, 255],  # White      - Unclassified
-    # 14: [255, 215, 0],  # Gold       - Cracking
+    6: [255, 0, 255],  # violet     - multiple crack
+    7: [0, 255, 255],  # Cyan    - Spalling
+    8: [0, 128, 0],  # Dark Green - Corner Break
+    9: [255, 100, 203],  # Light Pink - Sealed Joint - T
+    10: [199, 21, 133],  # Dark Pink  - Sealed Joint - L
+    11: [128, 0, 128],  # Purple  - Punchout
+    12: [112, 102, 255],  # popout Grey
+    13: [255, 255, 255],  # White      - Unclassified
+    14: [255, 215, 0],  # Gold       - Cracking
 }
 
 
 def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_size=2):
-    num_classes = 5 + 1  #14 #5
+    num_classes = 14 + 1  #14 #5
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    mean = (0.456, 0.456, 0.456)
-    std = (0.145, 0.145, 0.145)
-    mean = (0.488, 0.488, 0.488)
-    std = (0.149, 0.149, 0.149)
-    mean = (0.478, 0.478, 0.478)   ##478
-    std = (0.145, 0.145, 0.145)   ###145
-    # mean =  (0.389, 0.389, 0.389)
-    # std =  (0.120, 0.120, 0.120)
+
+    mean = (0.548, 0.548, 0.548)   ##478
+    std = (0.146, 0.146, 0.146)   ###145
+
     data_transform = A.Compose([
         # A.Resize(1024, 1024),
         A.Normalize(mean=mean, std=std),
@@ -154,37 +148,14 @@ def remove_small_components_multiclass(mask, min_area=400):
 
     return cleaned
 
-
+#####
 if __name__ == '__main__':
-	main(imgs_root=r"R:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1\process_distress_seg",
-		prediction_save_path=r"R:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1\process_distress_results_14oct_latest",
-		weights_path=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_14oct\14oct_best_epoch4_dice0.695.pth",
-		batch_size=8)
+    SECTION_IDS = ["SECTION-2","SECTION-3","SECTION-4","SECTION-5","SECTION-6","SECTION-7"]
+    for SECTION_ID in SECTION_IDS:
+        main(imgs_root=rf"X:\THANE-BELAPUR_2025-05-11_07-35-42\{SECTION_ID}\ACCEPTED_IMAGES",
+             prediction_save_path=fr"X:\THANE-BELAPUR_2025-05-11_07-35-42\{SECTION_ID}\process_distress_results_18oct_latest",
+             weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete\concrete_best_epoch106_dice0.880.pth",
+             batch_size=8)
 
-	main(imgs_root=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_og",
-		prediction_save_path=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results_14oct_latest",
-	weights_path=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_14oct\14oct_best_epoch4_dice0.695.pth",
-	batch_size=8)
-
-	main(imgs_root=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\process_distress_og",
-		prediction_save_path=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\process_distress_results_14oct_latest",
-	weights_path=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_14oct\14oct_best_epoch4_dice0.695.pth",
-	batch_size=8)
-
-	main(imgs_root=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\process_distress_og",
-		prediction_save_path=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\process_distress_results_14oct_latest",
-	weights_path=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_14oct\14oct_best_epoch4_dice0.695.pth",
-	batch_size=8)
-
-	main(imgs_root=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\process_distress_og",
-		prediction_save_path=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\process_distress_results_14oct_latest",
-	weights_path=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_14oct\14oct_best_epoch4_dice0.695.pth",
-	batch_size=8)
-
-
-	main(imgs_root=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\process_distress_og",
-		prediction_save_path=r"S:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\process_distress_results_14oct_latest",
-	weights_path=r"W:\Devendra_Files\CrackSegFormer-main\weights\UNET_14oct\14oct_best_epoch4_dice0.695.pth",
-	batch_size=8)
 
 

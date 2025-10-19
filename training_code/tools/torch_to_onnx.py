@@ -65,7 +65,7 @@ class ONNXExporter:
         num_classes = self._detect_unet_num_classes(state_dict)
         print(f"Detected num_classes = {num_classes}")
 
-        model_seg = UNe123tPP(in_channels=3, num_classes=num_classes).to(self.device)
+        model_seg = UNetPP(in_channels=3, num_classes=num_classes).to(self.device)
         model_seg.load_state_dict(state_dict, strict=False)
         model_seg.eval()
 
@@ -108,16 +108,55 @@ if __name__ == "__main__":
         model_path=r"C:\Users\Admin\Code\survey-analytic\ai_model\guide_rcc_metal_median.pt",
         onnx_path=r"C:\Users\Admin\Code\survey-analytic\ai_model\guide_rcc_metal_median.onnx"
     )
-    exporter_yolo.export()
+    # exporter_yolo.export()
 
     # UNet++ Export with class names
     unet_classes = ["Background", "Alligator", "Longitudinal Crack", "Transverse Crack", "Pothole", "Patches"] #, "Multiple Crack", "Spalling", "Corner Break", "Gold", "Cracking", "Punchout", "Popout Grey", "White", "Unclassified"]", "Multiple", "Joint Seal"]
     exporter_unet = ONNXExporter(
         model_type="unet",
-        model_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\27Sept_Asphalt\27Sept_Asphalt_best_epoch267_dice0.742.pth",
-        onnx_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\cracks_segmentation_6oct.onnx",
+        model_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_16oct\16oct_best_epoch100_dice0.637.pth",
+        onnx_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\cracks_segmentation_18oct.onnx",
         input_size=(1024, 419),
         class_names=unet_classes,
         device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     )
-    exporter_unet.export()
+    # exporter_unet.export()
+
+
+import torch
+import torchvision
+
+# --- Load model architecture (assuming ResNet50 backbone) ---
+# If your model uses a custom backbone, share its definition
+model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
+
+# Adjust classifier for your number of classes
+num_classes = 3  # change this (1 class + background)
+in_features = model.roi_heads.box_predictor.cls_score.in_features
+model.roi_heads.box_predictor = torchvision.models.detection.faster_rcnn.FastRCNNPredictor(in_features, num_classes)
+
+# --- Load trained weights ---
+checkpoint = torch.load("C:/Users/Admin/Code/survey-analytic/ai_model/patch_model_13-06-2025.pth", map_location="cpu")
+model.load_state_dict(checkpoint)
+model.eval()
+
+dummy_input = torch.randn(1, 3, 720, 1280)
+
+
+
+
+onnx_path = "C:/Users/Admin/Code/survey-analytic/ai_model/onnx_patch.onnx"
+
+torch.onnx.export(
+    model,
+    dummy_input,
+    onnx_path,
+    export_params=True,
+    opset_version=11,
+    do_constant_folding=True,
+    input_names=['input'],
+    output_names=['output'],
+    dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}},
+)
+print("? Conversion complete: patch_model_13-06-2025.onnx saved successfully!")
+

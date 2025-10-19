@@ -32,16 +32,14 @@ folders = [
     # r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-2\process_distress_seg_masks"
 
 ]
-# # CONCRETE DAY
-# folders = [r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-3\AnnotationMasks",
-# r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-4\AnnotationMasks",
-# r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\AnnotationMasksNIGHT"
-# ]
+# CONCRETE DAY
+folders = [r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\OG_DATASET_CONCRETE\ACCEPTED_MASKS",
+]
 
 image_files = []
 for folder in folders:
     for f in os.listdir(folder):
-        if f.lower().endswith(('.png', '.jpg', '.jpeg')) and ("AMRAVTI" in f):
+        if f.lower().endswith(('.png', '.jpg', '.jpeg')):
             image_files.append((folder, f))
 
 total_images = len(image_files)

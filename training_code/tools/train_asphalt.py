@@ -13,7 +13,7 @@ sys.path.append(os.path.join(project_root, '..'))
 from pathlib import Path
 
 from torch.utils.data import DataLoader
-from train_utils.train_and_eval_2 import train_one_epoch, evaluate, create_lr_scheduler, train_one_epoch_loss
+from train_utils.train_and_eval_asphalt import train_one_epoch, evaluate, create_lr_scheduler, train_one_epoch_loss
 from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
 import train_utils.transforms as T
 from train_utils.utils import plot, show_config
@@ -31,8 +31,8 @@ from models.unet.UnetPP import UNetPP
 
 
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_15oct'  # Change this to your desired output path
-model_name = "14oct"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_16oct'  # Change this to your desired output path
+model_name = "16oct"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -235,13 +235,14 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"G:\Devendra\ASPHALT_ACCEPTED\COMBINED_SPLITTED", help="root")
+                        default=r"Z:/Devendra/ASPHALT_ACCEPTED/COMBINED_SPLITTED", help="root")
     parser.add_argument("--num-classes", default=5, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
     parser.add_argument("--phi", default="b5", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
-                        default=r"W:\Devendra_Files\CrackSegFormer-main\weights\cracks_segmentation_6oct_asphalt.pth",
+                        # default=r"Y:/Devendra_Files/CrackSegFormer-main/weights/cracks_segmentation_6oct_asphalt.pth",
+                        default='',
                         help='pretrained weights path')
 
     parser.add_argument('--optimizer-type', default="adamw")
@@ -253,14 +254,14 @@ def parse_args():
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
 
     parser.add_argument("-b", "--batch-size", default=16, type=int)
-    parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
+    parser.add_argument('--start-epoch', default=37, type=int, metavar='N', help='start epoch')
     parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")
     parser.add_argument('--print-freq', default=1, type=int, help='print frequency')
 
     parser.add_argument('--save-best', default=False, type=bool, help='only save best dice weights')
 
-    parser.add_argument('--resume', default='', help='resume from checkpoint')
+    parser.add_argument('--resume', default=r'Y:\Devendra_Files\CrackSegFormer-main\weights\UNET_16oct\16oct_best_epoch36_dice0.671.pth', help='resume from checkpoint')
     # Mixed precision training parameters
     parser.add_argument("--amp", default=True, type=bool,
                         help="Use torch.cuda.amp for automatic mixed precision training")

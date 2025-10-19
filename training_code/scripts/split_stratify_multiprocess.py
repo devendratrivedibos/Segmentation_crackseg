@@ -1,5 +1,6 @@
 import os
 import shutil
+import time
 import numpy as np
 from PIL import Image
 from collections import Counter, defaultdict
@@ -8,9 +9,9 @@ from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ===================== CONFIG =====================
-images_dir = r"V:\Devendra\ASPHALT_ACCEPTED\COMBINED_IMAGES"
-masks_dir = r"V:\Devendra\ASPHALT_ACCEPTED\COMBINED_MASKS"
-output_dir = r"V:\Devendra\ASPHALT_ACCEPTED\COMBINED_SPLITTED"
+images_dir = r"V:\Devendra\CONCRETE\COMBINED_IMAGES"
+masks_dir = r"V:\Devendra\CONCRETE\COMBINED_MASKS"
+output_dir = r"V:\Devendra\CONCRETE\COMBINED_SPLITTED"
 
 test_size = 0.01
 val_size = 0.20
@@ -73,8 +74,18 @@ def process_mask_file(f):
     return None
 
 
+def safe_link_or_copy(src, dst):
+    """Try to create a hard link; fall back to fast copy if needed"""
+    try:
+        if os.path.exists(dst):
+            return
+        os.link(src, dst)
+    except Exception:
+        shutil.copy(src, dst)
+
+
 def copy_pair(f, split):
-    """Copy image & mask pair"""
+    """Copy or link image & mask pair"""
     base = os.path.splitext(f)[0]
     img_src = os.path.join(images_dir, f)
     mask_src = os.path.join(masks_dir, base + ".png")
@@ -83,8 +94,8 @@ def copy_pair(f, split):
     mask_out = os.path.join(output_dir, split, "MASKS", base + ".png")
 
     if os.path.exists(img_src) and os.path.exists(mask_src):
-        shutil.copy2(img_src, img_out)
-        shutil.copy2(mask_src, mask_out)
+        safe_link_or_copy(img_src, img_out)
+        safe_link_or_copy(mask_src, mask_out)
 
 
 def count_classes_in_dir(mask_dir):
@@ -137,20 +148,23 @@ if __name__ == "__main__":
     test_files = [filenames[i] for i in test_idx]
     splits = {"TRAIN": train_files, "VAL": val_files, "TEST": test_files}
 
-    # -------- COPY FILES --------
-    print("Copying files into dataset/ ...")
+    # -------- COPY OR LINK FILES --------
+    print("Creating dataset folders and linking/copying files...")
     for split, files in splits.items():
         img_out_dir = os.path.join(output_dir, split, "IMAGES")
         mask_out_dir = os.path.join(output_dir, split, "MASKS")
         os.makedirs(img_out_dir, exist_ok=True)
         os.makedirs(mask_out_dir, exist_ok=True)
 
+        start_time = time.time()
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             list(tqdm(
                 executor.map(lambda f: copy_pair(f, split), files),
                 total=len(files),
                 desc=f"Copy {split}"
             ))
+        elapsed = time.time() - start_time
+        print(f"{split} done in {elapsed:.2f} sec ({len(files)} files)")
 
     # -------- DISTRIBUTION CHECK --------
     print("\nClass Distribution (per split):")
@@ -160,9 +174,11 @@ if __name__ == "__main__":
         split_counts[split] = count_classes_in_dir(mask_dir)
 
         print(f"\n{split}:")
-        total_images = len(os.listdir(os.path.join(output_dir, split, "MASKS")))
+        total_images = len(os.listdir(mask_dir))
         print(f"  Total images: {total_images}")
         for cls_id in range(NUM_CLASSES):
             count = split_counts[split].get(cls_id, 0)
             pct = (count / total_images) * 100 if total_images > 0 else 0
             print(f"  Class {cls_id}: {count} images ({pct:.2f}%)")
+
+    print("\n✅ Done.")

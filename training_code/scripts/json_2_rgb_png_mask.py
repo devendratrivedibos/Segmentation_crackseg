@@ -159,10 +159,23 @@ def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
 
 
 folderlist = [
-r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-6\process_distress_seg\Sharan (333-974)\project-13-at-2025-10-16-13-00-c3b64627.json"
+    r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\REWORK_divided_images\1\PRASAD_S1_(18-10-25)_(151-235)\project-59-at-2025-10-18-15-04-718402dc.json",
+r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\REWORK_divided_images\2\Jayesh 18-10-25 (400-569)\project-45-at-2025-10-18-15-09-93dbf6ce.json",
+    r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\REWORK_divided_images\3\RUTUJA(405-1067)\project-46-at-2025-10-18-16-17-0e5dd20c.json",
+    r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\REWORK_divided_images\4\Payal_P4_(2467-458)_18-10-2025\project-40-at-2025-10-18-16-03-287464b8.json",
+r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\REWORK_divided_images\5\Akash 220-449 18-10-2025\project-37-at-2025-10-18-15-13-9d13fb2e.json"
 ]
-
 for i in folderlist:
     save_masks_from_json(i,
-                         r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-6\AnnotationMasks",
+                         r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\REWORK_MASKS",
+                         use_rgb=True)
+
+
+folderlist = [
+    r"W:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\REWORK_divided_images\1\SHARAN_P1_ (2041-852)-10-18-2025\project-15-at-2025-10-18-16-10-d76687b1.json",
+    r"W:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\REWORK_divided_images\2\Prathamesh (2302-3873)\project-39-at-2025-10-18-16-42-945f2f91.json"
+]
+for i in folderlist:
+    save_masks_from_json(i,
+                         r"W:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\REWORK_MASKS",
                          use_rgb=True)

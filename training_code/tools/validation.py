@@ -14,7 +14,7 @@ import torch.nn.functional as F
 from train_utils.dice_coefficient_loss import multiclass_dice_coeff, build_target
 import train_utils.distributed_utils as utils
 from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
-from train_utils.train_and_eval import evaluate
+from train_utils.train_and_eval_asphalt import evaluate
 from models.segformer.segformer import SegFormer
 from models.unet.unet import UNet
 from models.unet.mobilenet_unet import MobileV3Unet

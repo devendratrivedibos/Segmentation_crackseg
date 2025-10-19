@@ -13,9 +13,9 @@ from concurrent.futures import ThreadPoolExecutor
 import gc
 
 # --- CONFIG ---
-root_dir = r"Y:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1"
-image_dir = os.path.join(root_dir, 'ACCEPTED_IMAGES')
-mask_dir = os.path.join(root_dir, 'ACCEPTED_MASKS')
+root_dir = r"W:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-1"
+image_dir = os.path.join(root_dir, 'only_JS_IMAGE')
+mask_dir = os.path.join(root_dir, 'only_JS_MASK')
 
 pcams_dir = os.path.join(root_dir, 'pcams')
 start_number = 0

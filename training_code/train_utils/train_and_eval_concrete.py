@@ -1,12 +1,12 @@
-import os
-
+"""TRAINING AND EVALUATION UTILITIES"""
 import torch
 from torch import nn
 from typing import Union, Dict
 import numpy as np
 from . import distributed_utils as utils
-from .dice_coefficient_loss import dice_loss, build_target  # kept for compatibility if you use elsewhere
-from .hybrid_loss import build_crack_criterion  # your hybrid criterion builder
+from .dice_coefficient_loss import dice_loss, build_target   # kept for compatibility if you use elsewhere
+from .hybrid_loss import build_crack_criterion               # your hybrid criterion builder
+
 
 # -----------------------------
 # Global config
@@ -16,7 +16,7 @@ IGNORE_INDEX = 255
 # Device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-num_classes = 5 + 1
+num_classes = 14 + 1
 
 class_counts = None
 
@@ -57,9 +57,9 @@ def evaluate(model, data_loader, device, num_classes):
         for image, target in metric_logger.log_every(data_loader, 50, header):
             image, target = image.to(device), target.to(device)
 
-            outputs = model(image)  # Tensor or dict
-            logits = _main_output(outputs)  # [B, C, H, W]
-            pred = logits.argmax(1)  # [B, H, W]
+            outputs = model(image)                 # Tensor or dict
+            logits = _main_output(outputs)         # [B, C, H, W]
+            pred = logits.argmax(1)                # [B, H, W]
 
             confmat.update(target.flatten(), pred.flatten())
             dice.update(logits, target)
@@ -97,7 +97,7 @@ def train_one_epoch(model,
         image, target = image.to(device), target.to(device)
 
         with torch.cuda.amp.autocast(enabled=scaler is not None):
-            outputs = model(image)  # Tensor or {'out', 'aux'}
+            outputs = model(image)        # Tensor or {'out', 'aux'}
             loss = criterion(outputs, target)
 
         optimizer.zero_grad(set_to_none=True)
@@ -123,23 +123,17 @@ def train_one_epoch(model,
     return metric_logger.meters["loss"].global_avg, lr
 
 
+
 def train_one_epoch_loss(model,
-                         optimizer,
-                         data_loader,
-                         device,
-                         epoch,
-                         num_classes,
-                         lr_scheduler,
-                         save_every_iter=100,
-                         output_dir=None,
-                         scaler=None,
-                         grad_clip_norm: float = 0.0,
-                         print_freq=10):
-    """
-    Trains one epoch and saves model every `save_every_iter` iterations.
-    Returns average epoch loss and last learning rate.
-    """
-    output_dir = output_dir if output_dir is not None else "./checkpoints"
+                    optimizer,
+                    data_loader,
+                    device,
+                    epoch,
+                    num_classes,
+                    lr_scheduler,
+                    print_freq=10,
+                    scaler=None,
+                    grad_clip_norm: float = 0.0):
     model.train()
     metric_logger = utils.MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
@@ -147,15 +141,12 @@ def train_one_epoch_loss(model,
 
     running_loss = 0.0
     total_batches = 0
-    global_iter = epoch * len(data_loader)  # iteration counter across epochs
-
-    os.makedirs(output_dir, exist_ok=True)
 
     for image, target in metric_logger.log_every(data_loader, print_freq, header):
         image, target = image.to(device), target.to(device)
 
         with torch.cuda.amp.autocast(enabled=scaler is not None):
-            outputs = model(image)
+            outputs = model(image)        # Tensor or {'out', 'aux'}
             loss = criterion(outputs, target)
 
         optimizer.zero_grad(set_to_none=True)
@@ -178,27 +169,12 @@ def train_one_epoch_loss(model,
         lr = optimizer.param_groups[0]["lr"]
         metric_logger.update(loss=loss.item(), lr=lr)
 
-        # Accumulate epoch loss
+        # --- NEW: accumulate for epoch average ---
         running_loss += loss.item()
         total_batches += 1
-        global_iter += 1
-
-        # --- Save checkpoint per iteration ---
-        if save_every_iter > 0 and (global_iter % save_every_iter == 0):
-            checkpoint_path = os.path.join(output_dir, f"epoch_{epoch}_iter_latest.pth")
-            torch.save({
-                "model": model.state_dict(),
-                "optimizer": optimizer.state_dict(),
-                "epoch": epoch,
-                "iteration": global_iter,
-                "lr": lr
-            }, checkpoint_path)
-            print(f"✔ Saved checkpoint at iteration {global_iter}: {checkpoint_path}")
 
     epoch_loss = running_loss / total_batches
     return epoch_loss, lr
-
-
 # -----------------------------
 # LR Scheduler (unchanged)
 # -----------------------------

@@ -3,18 +3,17 @@ import os
 import numpy as np
 import shutil
 
-
 # Paths
-mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_MASKS"
-output_mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_MASKS_COPY"
-image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_IMAGES"
-output_image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_IMAGES_COPY"
+mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\OG_DATASET_CONCRETE\ACCEPTED_MASKS"
+output_mask_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\OG_DATASET_CONCRETE\ACCEPTED_MASKS_COPY"
+image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\OG_DATASET_CONCRETE\ACCEPTED_IMAGES"
+output_image_folder = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\OG_DATASET_CONCRETE\ACCEPTED_IMAGES_COPY"
 
 os.makedirs(output_mask_folder, exist_ok=True)
 os.makedirs(output_image_folder, exist_ok=True)
 
 # --- Target classes (IDs) ---
-target_classes = {2}
+target_classes = {2, 4, 5, 7, 8, 11, 12}
 
 # --- Color map (RGB) → (ID, Name) ---
 COLOR_MAP = {
@@ -35,7 +34,6 @@ COLOR_MAP = {
     (255, 215, 0): (14, "Cracking"),
 }
 matching_images = []
-
 
 # Colors corresponding to target classes (RGB)
 target_colors = [color for color, (cls_id, cls_name) in COLOR_MAP.items() if cls_id in target_classes]

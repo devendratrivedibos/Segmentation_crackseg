@@ -158,14 +158,14 @@ if __name__ == "__main__":
     # copy_matched_images(main_folder)
 
     # copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1")
-    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-2")
-    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-3")
-    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-4")
-    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-5")
-    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-6")
+    # copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-2")
+    # copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-3")
+    # copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-4")
+    # copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-5")
+    # copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-6")
     copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-7")
-    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-8")
-    copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-9")
+    # copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-8")
+    # copy_images_with_masks_folder(r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-9")
 
     # # Base projects folder
     # process_section(r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3", name_prefix="THANE_BELAPUR_SECTION3_")
