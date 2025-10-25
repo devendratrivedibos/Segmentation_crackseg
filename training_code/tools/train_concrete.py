@@ -235,14 +235,13 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"G:/Devendra/CONCRETE/COMBINED_SPLITTED", help="root")
+                        default=r"V:/Devendra/CONCRETE/COMBINED_SPLITTED", help="root")
     parser.add_argument("--num-classes", default=14, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
     parser.add_argument("--phi", default="b5", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
-                        # default=r"Y:/Devendra_Files/CrackSegFormer-main/weights/cracks_segmentation_6oct_asphalt.pth",
-                        default='',
+                        default=r"Y:\Devendra_Files\CrackSegFormer-main\weights\concrete_best.pth",
                         help='pretrained weights path')
 
     parser.add_argument('--optimizer-type', default="adamw")

@@ -34,7 +34,7 @@ COLOR_MAP = {
 }
 
 COLOR_TO_ID = {k: v for k, v in COLOR_MAP.items()}
-DELETE_SETS = [{0}, {0, 5}]
+DELETE_SETS = [{0,4}, {1, 4}]
 
 
 def find_image(mask_name):

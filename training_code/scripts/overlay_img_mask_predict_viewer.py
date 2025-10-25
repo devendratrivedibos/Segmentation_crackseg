@@ -20,20 +20,20 @@ pcams_dir = os.path.join(root_dir, SECTION_ID, 'pcams')
 
 # --- Example multiple folders ---
 image_dirs = [
-    # os.path.join(root_dir, SECTION_ID, 'AnnotationImages'),
+    # os.path.join(root_dir,  'ONLY_JS_IMAGE'),
     os.path.join(root_dir, SECTION_ID, 'ACCEPTED_IMAGES'),
 ]
 
 
 orig_mask_dirs = [
-    # os.path.join(root_dir, SECTION_ID, 'AnnotationMasks'),
+    # os.path.join(root_dir,'ONLY_JS_MASK'),
     # os.path.join(root_dir, SECTION_ID, 'process_distress_results'),
     os.path.join(root_dir, SECTION_ID, 'ACCEPTED_MASKS'),
 ]
 
 pred_mask_dirs = [
     os.path.join(root_dir, SECTION_ID, 'process_distress_results_18oct_latest'),
-    # os.path.join(root_dir, SECTION_ID, 'process_distress_HIGH_RESULTS_UNET384'),
+    # os.path.join(root_dir,'ONLY_JS_MASK'),
 
 ]
 
@@ -215,7 +215,7 @@ class ImageMaskViewerOptimized:
         # --- Load pcams (LL) ---
         pcams_img = None
         number = self.get_number_from_name(os.path.basename(img_path))
-        number = int(number) + 1 if number else None
+        number = int(number)  if number else None
         if number and os.path.exists(self.pcams_dir):
             for f in os.listdir(self.pcams_dir):
                 if "LL" in f and re.search(rf"{number}", f):

@@ -13,21 +13,20 @@ GT_DIRS = [
     os.path.join(root_dir, "SECTION-3", "ACCEPTED_MASKS"),
     os.path.join(root_dir, "SECTION-4", "ACCEPTED_MASKS"),
     os.path.join(root_dir, "SECTION-5", "ACCEPTED_MASKS"),
-    os.path.join(root_dir, "SECTION-1", "AnnotationMasks"),
     # Add more GT dirs if needed
 ]
 
 PRED_DIRS = [
-    os.path.join(root_dir, "SECTION-1", "process_distress_results_18oct_latest"),
-    os.path.join(root_dir, "SECTION-2", "process_distress_results_18oct_latest"),
-    os.path.join(root_dir, "SECTION-3", "process_distress_results_18oct_latest"),
-    os.path.join(root_dir, "SECTION-4", "process_distress_results_18oct_latest"),
-    os.path.join(root_dir, "SECTION-5", "process_distress_results_18oct_latest"),
+    os.path.join(root_dir, "SECTION-1", "process_distress_results_24oct_latest"),
+    os.path.join(root_dir, "SECTION-2", "process_distress_results_24oct_latest"),
+    os.path.join(root_dir, "SECTION-3", "process_distress_results_24oct_latest"),
+    os.path.join(root_dir, "SECTION-4", "process_distress_results_24oct_latest"),
+    os.path.join(root_dir, "SECTION-5", "process_distress_results_24oct_latest"),
     # Add more GT dirs if needed
 ]
 
 SAVE_CSV = os.path.join(root_dir, "AMRAWATI-TALEGAON_mask_metrics.csv")
-# SAVE_CSV = os.path.join(root_dir, "SECTION-1", "S1_SHINGOTE-KOLHAR_mask_metrics.csv")
+# SAVE_CSV = os.path.join(root_dir, "SECTION-1", "S1_AMRAWATI-TALEGAON_mask_metrics.csv")
 
 COLOR_MAP = {
     (0, 0, 0): (0, "Background"),
@@ -55,7 +54,7 @@ IGNORE_CLASSES = {
 
 # ================== FILTER PIXELS PER CLASS ==================
 FILTER_PIXELS = {
-    "Pothole": [0, 500, 1000, 1500],
+    "Pothole": [0, 176, 500, 1000, 1500],
     # Add thresholds for other classes if required
 }
 
@@ -94,6 +93,7 @@ def compute_classwise_overlap(gt, pred):
         })
     return stats
 
+
 def get_objects(mask, class_id, min_pixels=50):
     binary = (mask == class_id).astype(np.uint8)
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary, connectivity=8)
@@ -105,10 +105,12 @@ def get_objects(mask, class_id, min_pixels=50):
             objects.append(obj_mask)
     return objects
 
+
 def compute_iou(mask1, mask2):
     inter = np.logical_and(mask1, mask2).sum()
     union = np.logical_or(mask1, mask2).sum()
     return inter / (union + 1e-7) if union > 0 else 0.0
+
 
 def compute_detection_metrics_multi_threshold(gt_mask, pred_mask, color_map, iou_thresh=0.0):
     all_stats = []

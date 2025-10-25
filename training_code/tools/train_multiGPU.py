@@ -27,8 +27,8 @@ import cv2
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(project_root, '..'))
 from models.unet.UnetPP import UNetPP
-from train_utils.train_and_eval_1 import evaluate, train_one_epoch_loss, create_lr_scheduler
-from train_utils.my_dataset_asphalt import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
+from train_utils.train_and_eval_asphalt import evaluate, train_one_epoch_loss, create_lr_scheduler
+from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
 
 
 # -----------------------------
@@ -68,7 +68,7 @@ def parse_args():
 
     # Training config
     parser.add_argument("--device", default="cuda")
-    parser.add_argument("--data-path", default=r"Z:/Devendra/ASPHALT_ACCEPTED/SPLIT")
+    parser.add_argument("--data-path", default=r"G:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED")
     parser.add_argument("--num-classes", default=5, type=int)
     parser.add_argument("--epochs", default=500, type=int)
     parser.add_argument("--batch-size", default=8, type=int)
@@ -77,8 +77,8 @@ def parse_args():
     parser.add_argument("--momentum", default=0.9, type=float)
     parser.add_argument("--weight-decay", default=1e-4, type=float)
     parser.add_argument("--pretrained", default=True, type=bool)
-    parser.add_argument("--pretrained-weights",
-                        default=r"X:/Devendra_Files/CrackSegFormer-main/weights/UNET_asphalt_1024/UNET_best.pth")
+    parser.add_argument("--pretrained-weights", default="")
+                        # default=r"X:/Devendra_Files/CrackSegFormer-main/weights/UNET_asphalt_1024/UNET_best.pth")
     parser.add_argument("--save-dir", default="./weights/UNETPP_DDP", type=str)
     parser.add_argument("--resume", default='', help="resume checkpoint path")
     parser.add_argument("--amp", default=True, type=bool)

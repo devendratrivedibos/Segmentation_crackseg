@@ -8,9 +8,11 @@ import os
 from torchvision import transforms as T
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+import itertools
 
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(project_root, '..'))
+
 from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
 from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
 from models.segformer.segformer import SegFormer
@@ -21,31 +23,31 @@ from models.fcn.fcn import fcn_resnet101
 from models.unet.UnetPP import UNetPP
 from random import shuffle
 
-CLASS_COLOR_MAP = {
-    0: [0, 0, 0],  # Black   - Background
-    1: [255, 0, 0],  # Red     - Alligator
-    2: [0, 0, 255],  # Blue    - Transverse Crack
-    3: [0, 255, 0],  # Green   - Longitudinal Crack
-    4: [139, 69, 19],  # Brown   - Pothole
-    5: [255, 165, 0],  # Orange  - Patches
-    6: [255, 0, 255],  # violet     - multiple crack
-    7: [0, 255, 255],  # Cyan    - Spalling
-    8: [0, 128, 0],  # Dark Green - Corner Break
-    9: [255, 100, 203],  # Light Pink - Sealed Joint - T
-    10: [199, 21, 133],  # Dark Pink  - Sealed Joint - L
-    11: [128, 0, 128],  # Purple  - Punchout
-    12: [112, 102, 255],  # popout Grey
-    13: [255, 255, 255],  # White      - Unclassified
-    14: [255, 215, 0],  # Gold       - Cracking
+COLOR_MAP = {
+    (0, 0, 0): (0, "Background"),
+    (255, 0, 0): (1, "Alligator"),
+    (0, 0, 255): (2, "Transverse Crack"),
+    (0, 255, 0): (3, "Longitudinal Crack"),
+    (139, 69, 19): (4, "Pothole"),
+    (255, 165, 0): (5, "Patches"),
+    # (255, 0, 255): (6, "Multiple Crack"),
+    # (0, 255, 255): (7, "Spalling"),
+    # (0, 128, 0): (8, "Corner Break"),
+    # (255, 100, 203): (9, "Sealed Joint - T"),
+    # (199, 21, 133): (10, "Sealed Joint - L"),
+    # (128, 0, 128): (11, "Punchout"),
+    # (112, 102, 255): (12, "Popout"),
+    # (255, 255, 255): (13, "Unclassified"),
+    # (255, 215, 0): (14, "Cracking"),
 }
 
 
 def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_size=2):
-    num_classes = 14 + 1  #14 #5
+    num_classes = 5 + 1  #14 #5
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    mean = (0.548, 0.548, 0.548)   ##478
-    std = (0.146, 0.146, 0.146)   ###145
+    mean = (0.478, 0.478, 0.478)  ##478 548
+    std = (0.146, 0.146, 0.146)  ###145 146
 
     data_transform = A.Compose([
         # A.Resize(1024, 1024),
@@ -91,7 +93,8 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
             # postprocess + save
             for pred, fname in zip(preds, orig_names):
                 # pred = cv2.resize(pred, (419, 1024), interpolation=cv2.INTER_NEAREST)
-                pred = remove_small_components_multiclass(pred, min_area=400)
+                pred = join_directional_multiclass(pred, radius=25, line_width=2)  # ⬅️ Added here
+                pred = remove_small_components_multiclass(pred, min_area=200)
                 pred_color = colorize_prediction(pred)
                 save_path = os.path.join(prediction_save_path, fname.split('.')[0] + '.png')
                 cv2.imwrite(save_path, cv2.cvtColor(pred_color, cv2.COLOR_RGB2BGR))
@@ -104,9 +107,75 @@ def colorize_prediction(prediction):
     Convert class-wise prediction (H, W) to RGB image.
     """
     color_mask = np.zeros((prediction.shape[0], prediction.shape[1], 3), dtype=np.uint8)
-    for class_id, color in CLASS_COLOR_MAP.items():
-        color_mask[prediction == class_id] = color
+    for rgb, (class_id, _) in COLOR_MAP.items():
+        color_mask[prediction == class_id] = rgb
     return color_mask
+
+
+# =====================================
+# UTILITIES
+# =====================================
+def find_endpoints(contour):
+    """Return two farthest points in contour (endpoints)."""
+    pts = contour.reshape(-1, 2)
+    max_dist = 0
+    endpoints = (pts[0], pts[0])
+    for i in range(len(pts)):
+        for j in range(i + 1, len(pts)):
+            d = np.linalg.norm(pts[i] - pts[j])
+            if d > max_dist:
+                max_dist = d
+                endpoints = (pts[i], pts[j])
+    return endpoints
+
+
+def join_directional(mask, crack_type, radius=5, line_width=2):
+    """Join cracks geometrically in direction-aware fashion."""
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    endpoints = []
+    for cnt in contours:
+        if len(cnt) < 2:
+            continue
+        p1, p2 = find_endpoints(cnt)
+        endpoints.append((p1, p2))
+
+    joined = mask.copy()
+
+    for (a1, a2), (b1, b2) in itertools.combinations(endpoints, 2):
+        for p, q in [(a1, b1), (a1, b2), (a2, b1), (a2, b2)]:
+            dx, dy = abs(int(p[0]) - int(q[0])), abs(int(p[1]) - int(q[1]))
+
+            if crack_type == "Longitudinal Crack":
+                if dx <= radius and dy <= 25:  # vertical direction
+                    cv2.line(joined, tuple(p), tuple(q), 255, line_width)
+
+            elif crack_type == "Transverse Crack":
+                if dy <= radius and dx <= 25:  # horizontal direction
+                    cv2.line(joined, tuple(p), tuple(q), 255, line_width)
+
+            elif crack_type == "Alligator":
+                if np.hypot(dx, dy) <= radius:  # general small gaps
+                    cv2.line(joined, tuple(p), tuple(q), 255, line_width)
+
+    return joined
+
+
+def join_directional_multiclass(pred_idx_map, radius=5, line_width=2):
+    """
+    Applies direction-aware joining to specific crack types in a class index map.
+    """
+    joined_idx = pred_idx_map.copy()
+    inv_color_map = {v[0]: v[1] for v in COLOR_MAP.values()}  # idx → name
+
+    for idx, name in inv_color_map.items():
+        if name not in ["Longitudinal Crack", "Transverse Crack", "Alligator"]:
+            continue
+
+        mask = (pred_idx_map == idx).astype(np.uint8) * 255
+        joined_mask = join_directional(mask, name, radius=radius, line_width=line_width)
+        joined_idx[joined_mask > 0] = idx
+
+    return joined_idx
 
 
 def overlay_mask_on_image(image, color_mask, alpha=0.5):
@@ -117,7 +186,7 @@ def overlay_mask_on_image(image, color_mask, alpha=0.5):
     return overlay
 
 
-def remove_small_components_multiclass(mask, min_area=400):
+def remove_small_components_multiclass(mask, min_area=5):
     """
     Removes small connected components per class in a multi-class segmentation mask.
 
@@ -134,7 +203,7 @@ def remove_small_components_multiclass(mask, min_area=400):
     cleaned = np.zeros_like(mask, dtype=mask.dtype)
 
     for cls in np.unique(mask):
-        if cls == 0:  # skip background
+        if cls == 0 or cls == 4:  # skip background
             continue
 
         class_mask = (mask == cls).astype(np.uint8)
@@ -145,17 +214,27 @@ def remove_small_components_multiclass(mask, min_area=400):
             area = stats[i, cv2.CC_STAT_AREA]
             if area >= min_area:
                 cleaned[labels == i] = cls
-
+    cleaned[mask == 4] = 4
     return cleaned
+
 
 #####
 if __name__ == '__main__':
-    SECTION_IDS = ["SECTION-2","SECTION-3","SECTION-4","SECTION-5","SECTION-6","SECTION-7"]
+    SECTION_IDS = ["SECTION-2", "SECTION-3", "SECTION-4", "SECTION-5", "SECTION-6", "SECTION-7"]
+    # for SECTION_ID in SECTION_IDS:
+    #     main(imgs_root=rf"X:\THANE-BELAPUR_2025-05-11_07-35-42\{SECTION_ID}\ACCEPTED_IMAGES",
+    #          prediction_save_path=fr"X:\THANE-BELAPUR_2025-05-11_07-35-42\{SECTION_ID}\process_distress_results_20oct_latest",
+    #         weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete\concrete_best_epoch50_dice0.895.pth",
+    #          batch_size=8)
+
+    SECTION_IDS = ["SECTION-2", "SECTION-3", "SECTION-4", "SECTION-5", "SECTION-1"]
     for SECTION_ID in SECTION_IDS:
-        main(imgs_root=rf"X:\THANE-BELAPUR_2025-05-11_07-35-42\{SECTION_ID}\ACCEPTED_IMAGES",
-             prediction_save_path=fr"X:\THANE-BELAPUR_2025-05-11_07-35-42\{SECTION_ID}\process_distress_results_18oct_latest",
-             weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete\concrete_best_epoch106_dice0.880.pth",
+        main(imgs_root=rf"E:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\{SECTION_ID}\process_distress_og",
+             prediction_save_path=fr"E:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\{SECTION_ID}\process_distress_results_24oct_latest",
+             weights_path=r"Y:\Devendra_Files\CrackSegFormer-main\weights\asphalt_best.pth",
              batch_size=8)
 
-
-
+    # main(imgs_root=rf"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\ACCEPTED_IMAGES",
+    #      prediction_save_path=fr"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\ACCEPTED_IMAGESRES",
+    #      weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\asphalt_best.pth",
+    #      batch_size=8)

@@ -23,23 +23,23 @@ folders = [
 folders = [
     # r"Y:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\ACCEPTED_MASKS",
     # r"Y:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\ACCEPTED_MASKS",
-    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\ACCEPTED_MASKS",
-    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\ACCEPTED_MASKS",
-    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\ACCEPTED_MASKS",
-    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\ACCEPTED_MASKS",
-    r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\ACCEPTED_MASKS",
+    r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results_20oct_latest",
+    r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\process_distress_results_20oct_latest",
+    r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\process_distress_results_20oct_latest",
+    r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\process_distress_results_20oct_latest",
+    r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\process_distress_results_20oct_latest",
     # r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1\process_distress_seg_masks",
     # r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-2\process_distress_seg_masks"
 
 ]
-# CONCRETE DAY
-folders = [r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\OG_DATASET_CONCRETE\ACCEPTED_MASKS",
-]
+# # CONCRETE DAY
+# folders = [r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\OG_DATASET_CONCRETE\ACCEPTED_MASKS",
+# ]
 
 image_files = []
 for folder in folders:
     for f in os.listdir(folder):
-        if f.lower().endswith(('.png', '.jpg', '.jpeg')):
+        if f.lower().endswith(('.png', '.jpg', '.jpeg')) and ("AMR" in f):
             image_files.append((folder, f))
 
 total_images = len(image_files)
@@ -125,7 +125,7 @@ if __name__ == "__main__":
         if res["unknown_colors"]:
             invalid_color_files[res["path"]] = res["unknown_colors"]
 
-        if 13 in res["known_ids"]:  # Unclassified
+        if any(x in res["known_ids"] for x in [8, 11, 12]):
             unclassified.append(res["path"])
 
     # --- Summary Report ---
@@ -147,4 +147,4 @@ if __name__ == "__main__":
 
     print("\n📂 Files containing ID=13 (Unclassified, White):")
     for f in unclassified:
-        print(f)
+        print(os.path.basename(f))

@@ -43,7 +43,7 @@ def divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=10
     print(f"✅ Done! Divided {total} matching pairs into {n_subfolders} subfolders (img/mask).")
 
 
-process_dir = r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\REWORK_IMAGES"
-results_dir = r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\REWORK_MASKS"
-output_dir = r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\REWORK_divided_images"
+process_dir = r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\only_JS_IMAGE"
+results_dir = fr"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\only_JS_MASK"
+output_dir = r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\divided_images"
 divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=5)
