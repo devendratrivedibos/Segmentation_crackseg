@@ -31,19 +31,25 @@ def divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=10
         # Separate folders for images and masks
         output_dir = Path(output_dir)
 
-        img_folder = output_dir/ f"{part}" / f"AnnotationImages{i+1}"
-        mask_folder = output_dir/f"{part}" / f"AnnotationMasks{i+1}"
+        img_folder = output_dir / f"{part}" / f"AnnotationImages{i + 1}"
+        mask_folder = output_dir / f"{part}" / f"AnnotationMasks{i + 1}"
         img_folder.mkdir(parents=True, exist_ok=True)
         mask_folder.mkdir(parents=True, exist_ok=True)
         part += 1
-        for key in matching_keys[i*chunk_size:(i+1)*chunk_size]:
+        for key in matching_keys[i * chunk_size:(i + 1) * chunk_size]:
             shutil.copy(process_files[key], img_folder / process_files[key].name)
             shutil.copy(results_files[key], mask_folder / results_files[key].name)
 
     print(f"✅ Done! Divided {total} matching pairs into {n_subfolders} subfolders (img/mask).")
 
 
-process_dir = r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\only_JS_IMAGE"
-results_dir = fr"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\only_JS_MASK"
-output_dir = r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\divided_images"
-divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=5)
+process_dir = r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-1\process_distress"
+results_dir = r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-1\process_distress_results_4nov_latest"
+output_dir = r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-1\divided"
+divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=9)
+
+
+process_dir = r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\process_distress"
+results_dir = r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\process_distress_results_4nov_latest"
+output_dir = r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\divided"
+divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=9)

@@ -6,16 +6,17 @@ import pandas as pd
 base_dir = r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-3"
 
 # Paths to the CSV files
-cracks_csv = os.path.join(base_dir, "process_distress", "cracks_predictions.csv")
+# cracks_csv = os.path.join(base_dir, "process_distress", "cracks_predictions.csv")
 potholes_csv = os.path.join(base_dir, "reportNew", "csv_reports", "potholes.csv")
-patches_csv = os.path.join(base_dir, "reportNew", "csv_reports", "patches.csv")
+# patches_csv = os.path.join(base_dir, "reportNew", "csv_reports", "patches.csv")
 
 # Collect CSV paths
 csv_files = [cracks_csv, potholes_csv, patches_csv]
+csv_files = [potholes_csv]
 csv_files = {
-    "cracks": cracks_csv,
+    # "cracks": cracks_csv,
     "potholes": potholes_csv,
-    "patches": patches_csv
+    # "patches": patches_csv
 }
 # Read and collect all region indices
 all_region_indices = []

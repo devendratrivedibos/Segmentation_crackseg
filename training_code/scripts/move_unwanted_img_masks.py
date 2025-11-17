@@ -5,11 +5,11 @@ import numpy as np
 from multiprocessing import Pool, cpu_count
 
 # --- Paths ---
-BASE_DIR = r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1"
-img_dir = os.path.join(BASE_DIR, "process_distress_seg")
-mask_dir = os.path.join(BASE_DIR, "process_distress_seg_masks")
-delete_mask_dir = os.path.join(BASE_DIR, "only_background_MASK")
-delete_image_dir = os.path.join(BASE_DIR, "only_background_IMAGE")
+BASE_DIR = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7"
+img_dir = os.path.join(BASE_DIR, "ACCEPTED_IMAGES")
+mask_dir = os.path.join(BASE_DIR, "ACCEPTED_MASKS")
+delete_mask_dir = os.path.join(BASE_DIR, "only_JS_MASK")
+delete_image_dir = os.path.join(BASE_DIR, "only_JS_IMAGE")
 
 os.makedirs(delete_mask_dir, exist_ok=True)
 os.makedirs(delete_image_dir, exist_ok=True)
@@ -34,7 +34,7 @@ COLOR_MAP = {
 }
 
 COLOR_TO_ID = {k: v for k, v in COLOR_MAP.items()}
-DELETE_SETS = [{0,4}, {1, 4}]
+DELETE_SETS = [{0,9}, {0, 10}, {0,9,10}, {0}]
 
 
 def find_image(mask_name):
@@ -74,6 +74,7 @@ def process_mask(mask_name: str):
             img_path = find_image(mask_name)
             if img_path:
                 shutil.move(img_path, os.path.join(delete_image_dir, os.path.basename(img_path)))
+                print(f"MOVED {img_path}")
             return mask_name
         except Exception as e:
             return f"Error moving {mask_name}: {e}"

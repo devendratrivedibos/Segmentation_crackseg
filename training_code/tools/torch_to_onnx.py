@@ -114,15 +114,15 @@ if __name__ == "__main__":
     unet_classes = ["Background", "Alligator", "Longitudinal Crack", "Transverse Crack", "Pothole", "Patches"] #, "Multiple Crack", "Spalling", "Corner Break", "Gold", "Cracking", "Punchout", "Popout Grey", "White", "Unclassified"]", "Multiple", "Joint Seal"]
     exporter_unet = ONNXExporter(
         model_type="unet",
-        model_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_16oct\16oct_best_epoch100_dice0.637.pth",
-        onnx_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\cracks_segmentation_18oct.onnx",
+        model_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\cracks_segmentation_4nov_asphalt.pth",
+        onnx_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\cracks_segmentation_4nov_asphalt.onnx",
         input_size=(1024, 419),
         class_names=unet_classes,
         device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     )
-    # exporter_unet.export()
+    exporter_unet.export()
 
-
+"""
 import torch
 import torchvision
 
@@ -142,11 +142,7 @@ model.eval()
 
 dummy_input = torch.randn(1, 3, 720, 1280)
 
-
-
-
 onnx_path = "C:/Users/Admin/Code/survey-analytic/ai_model/onnx_patch.onnx"
-
 torch.onnx.export(
     model,
     dummy_input,
@@ -159,4 +155,4 @@ torch.onnx.export(
     dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}},
 )
 print("? Conversion complete: patch_model_13-06-2025.onnx saved successfully!")
-
+"""

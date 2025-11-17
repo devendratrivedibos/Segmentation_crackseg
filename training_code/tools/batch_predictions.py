@@ -30,23 +30,23 @@ COLOR_MAP = {
     (0, 255, 0): (3, "Longitudinal Crack"),
     (139, 69, 19): (4, "Pothole"),
     (255, 165, 0): (5, "Patches"),
-    # (255, 0, 255): (6, "Multiple Crack"),
-    # (0, 255, 255): (7, "Spalling"),
-    # (0, 128, 0): (8, "Corner Break"),
-    # (255, 100, 203): (9, "Sealed Joint - T"),
-    # (199, 21, 133): (10, "Sealed Joint - L"),
-    # (128, 0, 128): (11, "Punchout"),
-    # (112, 102, 255): (12, "Popout"),
-    # (255, 255, 255): (13, "Unclassified"),
-    # (255, 215, 0): (14, "Cracking"),
+    (255, 0, 255): (6, "Multiple Crack"),
+    (0, 255, 255): (7, "Spalling"),
+    (0, 128, 0): (8, "Corner Break"),
+    (255, 100, 203): (9, "Sealed Joint - T"),
+    (199, 21, 133): (10, "Sealed Joint - L"),
+    (128, 0, 128): (11, "Punchout"),
+    (112, 102, 255): (12, "Popout"),
+    (255, 255, 255): (13, "Unclassified"),
+    (255, 215, 0): (14, "Cracking"),
 }
 
 
 def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_size=2):
-    num_classes = 5 + 1  #14 #5
+    num_classes = 14 + 1  #14 #5
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    mean = (0.478, 0.478, 0.478)  ##478 548
+    mean = (0.548, 0.548, 0.548)  ##478 548
     std = (0.146, 0.146, 0.146)  ###145 146
 
     data_transform = A.Compose([
@@ -94,7 +94,7 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
             for pred, fname in zip(preds, orig_names):
                 # pred = cv2.resize(pred, (419, 1024), interpolation=cv2.INTER_NEAREST)
                 pred = join_directional_multiclass(pred, radius=25, line_width=2)  # ⬅️ Added here
-                pred = remove_small_components_multiclass(pred, min_area=200)
+                # pred = remove_small_components_multiclass(pred, min_area=200)
                 pred_color = colorize_prediction(pred)
                 save_path = os.path.join(prediction_save_path, fname.split('.')[0] + '.png')
                 cv2.imwrite(save_path, cv2.cvtColor(pred_color, cv2.COLOR_RGB2BGR))
@@ -168,7 +168,8 @@ def join_directional_multiclass(pred_idx_map, radius=5, line_width=2):
     inv_color_map = {v[0]: v[1] for v in COLOR_MAP.values()}  # idx → name
 
     for idx, name in inv_color_map.items():
-        if name not in ["Longitudinal Crack", "Transverse Crack", "Alligator"]:
+        if name not in ["Longitudinal Crack", "Transverse Crack", "Alligator", "Multiple Crack", "Sealed Joint - T",
+                        "Sealed Joint - L"]:
             continue
 
         mask = (pred_idx_map == idx).astype(np.uint8) * 255
@@ -186,7 +187,7 @@ def overlay_mask_on_image(image, color_mask, alpha=0.5):
     return overlay
 
 
-def remove_small_components_multiclass(mask, min_area=5):
+def remove_small_components_multiclass(mask, min_area=200):
     """
     Removes small connected components per class in a multi-class segmentation mask.
 
@@ -203,7 +204,7 @@ def remove_small_components_multiclass(mask, min_area=5):
     cleaned = np.zeros_like(mask, dtype=mask.dtype)
 
     for cls in np.unique(mask):
-        if cls == 0 or cls == 4:  # skip background
+        if cls in [0, 4, 7, 11, 12]:  # skip background
             continue
 
         class_mask = (mask == cls).astype(np.uint8)
@@ -214,7 +215,7 @@ def remove_small_components_multiclass(mask, min_area=5):
             area = stats[i, cv2.CC_STAT_AREA]
             if area >= min_area:
                 cleaned[labels == i] = cls
-    cleaned[mask == 4] = 4
+    # cleaned[mask == 4] = 4
     return cleaned
 
 
@@ -227,14 +228,37 @@ if __name__ == '__main__':
     #         weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete\concrete_best_epoch50_dice0.895.pth",
     #          batch_size=8)
 
-    SECTION_IDS = ["SECTION-2", "SECTION-3", "SECTION-4", "SECTION-5", "SECTION-1"]
+    # SECTION_IDS = ["SECTION-2", "SECTION-3", "SECTION-4", "SECTION-5", "SECTION-1"]
+    # for SECTION_ID in SECTION_IDS:
+    #     main(imgs_root=rf"E:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\{SECTION_ID}\process_distress_og",
+    #          prediction_save_path=fr"E:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\{SECTION_ID}\process_distress_results_4nov_latest",
+    #          weights_path=r"E:\Devendra_Files\CrackSegFormer-main\weights\UNET_4nov\4nov_best_epoch284_dice0.815.pth",
+    #          batch_size=8)
+
+    SECTION_IDS = ["SECTION-1", "SECTION-2"]
     for SECTION_ID in SECTION_IDS:
-        main(imgs_root=rf"E:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\{SECTION_ID}\process_distress_og",
-             prediction_save_path=fr"E:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\{SECTION_ID}\process_distress_results_24oct_latest",
-             weights_path=r"Y:\Devendra_Files\CrackSegFormer-main\weights\asphalt_best.pth",
+        main(imgs_root=rf"Y:\BOS\SHIVMANDIR-AASHNA_2025-06-22_09-56-38\{SECTION_ID}\ACCEPTED_IMAGES",
+             prediction_save_path=fr"Y:\BOS\SHIVMANDIR-AASHNA_2025-06-22_09-56-38\{SECTION_ID}\ACCEPTED_MASKS",
+             weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete\concrete_best_epoch272_dice0.905.pth",
              batch_size=8)
 
-    # main(imgs_root=rf"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\ACCEPTED_IMAGES",
-    #      prediction_save_path=fr"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\ACCEPTED_IMAGESRES",
-    #      weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\asphalt_best.pth",
-    #      batch_size=8)
+    # SECTION_IDS = ["SECTION-1", "SECTION-2"]
+    # for SECTION_ID in SECTION_IDS:
+    #     main(imgs_root=rf"E:\BOS\SIDDHATEK-KORTI_2025-06-21_13-25-10\{SECTION_ID}\process_distress",
+    #          prediction_save_path=fr"E:\BOS\SIDDHATEK-KORTI_2025-06-21_13-25-10\{SECTION_ID}\process_distress_results_4nov_latest",
+    #          weights_path=r"Y:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete\concrete_best_epoch272_dice0.905.pth",
+    #          batch_size=8)
+    #
+    # SECTION_IDS = ["SECTION-2", "SECTION-3", "SECTION-4"]
+    # for SECTION_ID in SECTION_IDS:
+    #     main(imgs_root=rf"E:\BOS\SIDDHATEK-KOTRI_2025-06-21_16-36-53\{SECTION_ID}\process_distress",
+    #          prediction_save_path=fr"E:\BOS\SIDDHATEK-KOTRI_2025-06-21_16-36-53\{SECTION_ID}\process_distress_results_4nov_latest",
+    #          weights_path=r"Y:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete\concrete_best_epoch272_dice0.905.pth",
+    #          batch_size=8)
+    #
+    # SECTION_IDS = ["SECTION-1", "SECTION-2"]
+    # for SECTION_ID in SECTION_IDS:
+    #     main(imgs_root=rf"E:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\{SECTION_ID}\process_distress",
+    #          prediction_save_path=fr"E:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\{SECTION_ID}\process_distress_results_4nov_latest",
+    #          weights_path=r"Y:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete\concrete_best_epoch272_dice0.905.pth",
+    #          batch_size=8)

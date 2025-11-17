@@ -7,9 +7,9 @@ from iterstrat.ml_stratifiers import MultilabelStratifiedShuffleSplit
 from tqdm import tqdm
 
 # ===================== CONFIG =====================
-images_dir = r"V:\Devendra\ASPHALT_ACCEPTED\COMBINED_IMAGES"
-masks_dir = r"V:\Devendra\ASPHALT_ACCEPTED\COMBINED_MASKS"
-output_dir = r"V:\Devendra\ASPHALT_ACCEPTED\COMBINED_SPLITTED"
+images_dir = r"V:\Devendra\CONCRETE\COMBINED_IMAGES"
+masks_dir = r"V:\Devendra\CONCRETE\COMBINED_MASKS"
+output_dir = r"V:\Devendra\CONCRETE\COMBINED_SPLITTED"
 
 
 test_size = 0.01

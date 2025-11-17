@@ -13,9 +13,11 @@ from concurrent.futures import ThreadPoolExecutor
 import gc
 
 # --- CONFIG ---
-root_dir = r"W:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-1"
-image_dir = os.path.join(root_dir, 'only_JS_IMAGE')
-mask_dir = os.path.join(root_dir, 'only_JS_MASK')
+root_dir = r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-1"
+# root_dir = r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4"
+image_dir = os.path.join(root_dir, 'process_distress')
+
+mask_dir = os.path.join(root_dir, 'process_distress_results_4nov_latest')
 
 pcams_dir = os.path.join(root_dir, 'pcams')
 start_number = 0
@@ -45,7 +47,7 @@ masks = [mask_stems[k] for k in common_keys]
 assert len(images) == len(masks), "Images and masks count mismatch!"
 print(len(images), "image-mask pairs found.")
 combined = list(zip(images, masks))
-# random.shuffle(combined)
+random.shuffle(combined)
 images, masks = zip(*combined)
 images, masks = list(images), list(masks)
 
@@ -58,6 +60,7 @@ def find_start_index(files, number):
 
 
 start_index = find_start_index(images, start_number)
+
 
 class LRUCache:
     """Simple LRU cache for images with memory management"""
@@ -150,7 +153,6 @@ class ImageMaskViewerOptimized:
                 if "LL" in f:
                     numbers = re.findall(r"(\d+)", f)
                     if numbers:
-
                         number = str(int(numbers[-1]))  # Remove leading zeros
                         lookup[number] = f
         return lookup
@@ -211,7 +213,7 @@ class ImageMaskViewerOptimized:
         pcams_img = None
         number = self.get_number_from_name(self.images[idx])
         if number:
-            adjusted_number = str(int(number))   #+1
+            adjusted_number = str(int(number))  #+1
             if adjusted_number in self.pcams_lookup:
                 pcams_path = os.path.join(self.pcams_dir, self.pcams_lookup[adjusted_number])
                 pcams_img = cv2.imread(pcams_path)

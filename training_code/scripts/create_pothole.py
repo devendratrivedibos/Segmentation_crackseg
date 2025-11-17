@@ -6,8 +6,8 @@ from multiprocessing import Pool, cpu_count
 
 # --- Paths ---
 BASE_DIR = r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5"
-img_dir = os.path.join(BASE_DIR, "process_distress_og")
-mask_dir = os.path.join(BASE_DIR, "process_distress_results_24oct_latest")
+img_dir = os.path.join(BASE_DIR, "ACCEPTED_IMAGES")
+mask_dir = os.path.join(BASE_DIR, "ACCEPTED_MASKS")
 delete_mask_dir = os.path.join(BASE_DIR, "only_background_MASK")
 delete_image_dir = os.path.join(BASE_DIR, "only_background_IMAGE")
 pothole_mask_dir = os.path.join(BASE_DIR, "pothole_MASK")

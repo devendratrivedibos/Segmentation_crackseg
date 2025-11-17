@@ -15,7 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 start_number = 0  # <<< starting image number
 root_dir = r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51"
 # root_dir = "X:\THANE-BELAPUR_2025-05-11_07-35-42"
-SECTION_ID = "SECTION-2"
+SECTION_ID = "SECTION-1"
 pcams_dir = os.path.join(root_dir, SECTION_ID, 'pcams')
 
 image_dirs = [
@@ -32,11 +32,11 @@ orig_mask_dirs = [
 
 old_pred_mask_dirs = [
     # os.path.join(root_dir, SECTION_ID, 'process_distress_results_17oct_latest'),
-    os.path.join(root_dir, SECTION_ID, 'process_distress_results_18oct_latest'),
+    os.path.join(root_dir, SECTION_ID, 'process_distress_results_24oct_latest'),
 ]
 
 new_pred_mask_dirs = [
-    os.path.join(root_dir, SECTION_ID, 'process_distress_results_24oct_latest'),
+    os.path.join(root_dir, SECTION_ID, 'process_distress_results_4nov_latest'),
     # os.path.join(root_dir, "SECTION-2", 'process_distress_results_4oct'),
 
 ]

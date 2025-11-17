@@ -9,29 +9,31 @@ from tqdm import tqdm
 # --- Define Folders ---
 # Concreete Day
 folders = [
-    r"Y:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\SECTION-1\AnnotationMasks",
-    r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\DayMasks",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7\AnnotationMasks",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-6\AnnotationMasks",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-5\AnnotationMasks",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-4\AnnotationMasks",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3\AnnotationMasks",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-2\AnnotationMasks",
+    r"W:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\ACCEPTED_MASKS",
+    r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\ACCEPTED_MASKS",
+    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7\ACCEPTED_MASKS",
+    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-6\ACCEPTED_MASKS",
+    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-5\ACCEPTED_MASKS",
+    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-4\ACCEPTED_MASKS",
+    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3\ACCEPTED_MASKS",
+    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-2\ACCEPTED_MASKS",
+r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-1\process_distress_results_4nov_latest"
 ]
 
 ##ASPHALT DAY
-folders = [
+# folders = [
     # r"Y:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\ACCEPTED_MASKS",
     # r"Y:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\ACCEPTED_MASKS",
-    r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results_20oct_latest",
-    r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\process_distress_results_20oct_latest",
-    r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\process_distress_results_20oct_latest",
-    r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\process_distress_results_20oct_latest",
-    r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\process_distress_results_20oct_latest",
+    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results_20oct_latest",
+    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\process_distress_results_20oct_latest",
+    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\process_distress_results_20oct_latest",
+    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\process_distress_results_20oct_latest",
+    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\process_distress_results_20oct_latest",
     # r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1\process_distress_seg_masks",
     # r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-2\process_distress_seg_masks"
 
-]
+# ]
+
 # # CONCRETE DAY
 # folders = [r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\OG_DATASET_CONCRETE\ACCEPTED_MASKS",
 # ]
@@ -39,7 +41,7 @@ folders = [
 image_files = []
 for folder in folders:
     for f in os.listdir(folder):
-        if f.lower().endswith(('.png', '.jpg', '.jpeg')) and ("AMR" in f):
+        if f.lower().endswith(('.png', '.jpg', '.jpeg')):
             image_files.append((folder, f))
 
 total_images = len(image_files)
@@ -125,7 +127,7 @@ if __name__ == "__main__":
         if res["unknown_colors"]:
             invalid_color_files[res["path"]] = res["unknown_colors"]
 
-        if any(x in res["known_ids"] for x in [8, 11, 12]):
+        if any(x in res["known_ids"] for x in [13]):
             unclassified.append(res["path"])
 
     # --- Summary Report ---
