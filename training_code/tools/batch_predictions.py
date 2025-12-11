@@ -46,8 +46,8 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
     num_classes = 14 + 1  #14 #5
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    mean = (0.548, 0.548, 0.548)  ##478 548
-    std = (0.146, 0.146, 0.146)  ###145 146
+    mean = (0.478, 0.478, 0.478)  ##478 548
+    std = (0.145, 0.145, 0.145)  ###145 146
 
     data_transform = A.Compose([
         # A.Resize(1024, 1024),
@@ -94,7 +94,7 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
             for pred, fname in zip(preds, orig_names):
                 # pred = cv2.resize(pred, (419, 1024), interpolation=cv2.INTER_NEAREST)
                 pred = join_directional_multiclass(pred, radius=25, line_width=2)  # ⬅️ Added here
-                # pred = remove_small_components_multiclass(pred, min_area=200)
+                pred = remove_small_components_multiclass(pred, min_area=50)
                 pred_color = colorize_prediction(pred)
                 save_path = os.path.join(prediction_save_path, fname.split('.')[0] + '.png')
                 cv2.imwrite(save_path, cv2.cvtColor(pred_color, cv2.COLOR_RGB2BGR))
@@ -168,8 +168,8 @@ def join_directional_multiclass(pred_idx_map, radius=5, line_width=2):
     inv_color_map = {v[0]: v[1] for v in COLOR_MAP.values()}  # idx → name
 
     for idx, name in inv_color_map.items():
-        if name not in ["Longitudinal Crack", "Transverse Crack", "Alligator", "Multiple Crack", "Sealed Joint - T",
-                        "Sealed Joint - L"]:
+        if name not in ["Longitudinal Crack", "Transverse Crack", "Alligator",
+                        "Multiple Crack", "Sealed Joint - T", "Sealed Joint - L"]:
             continue
 
         mask = (pred_idx_map == idx).astype(np.uint8) * 255
@@ -204,7 +204,7 @@ def remove_small_components_multiclass(mask, min_area=200):
     cleaned = np.zeros_like(mask, dtype=mask.dtype)
 
     for cls in np.unique(mask):
-        if cls in [0, 4, 7, 11, 12]:  # skip background
+        if cls in [0, 2, 4, 7, 8, 11, 12]:  # skip background
             continue
 
         class_mask = (mask == cls).astype(np.uint8)
@@ -215,50 +215,44 @@ def remove_small_components_multiclass(mask, min_area=200):
             area = stats[i, cv2.CC_STAT_AREA]
             if area >= min_area:
                 cleaned[labels == i] = cls
-    # cleaned[mask == 4] = 4
+    cleaned[mask == 2] = 2
+    cleaned[mask == 4] = 4
+    cleaned[mask == 7] = 7
+    cleaned[mask == 8] = 8
+    cleaned[mask == 11] = 11
+    cleaned[mask == 12] = 12
     return cleaned
 
 
-#####
 if __name__ == '__main__':
-    SECTION_IDS = ["SECTION-2", "SECTION-3", "SECTION-4", "SECTION-5", "SECTION-6", "SECTION-7"]
+    # PROJECT_PATH = r"Z:/SIDDHATEK-KORTI_2025-06-21_13-25-10"
+    # SECTION_IDS = ["SECTION-1", "SECTION-2"]
     # for SECTION_ID in SECTION_IDS:
-    #     main(imgs_root=rf"X:\THANE-BELAPUR_2025-05-11_07-35-42\{SECTION_ID}\ACCEPTED_IMAGES",
-    #          prediction_save_path=fr"X:\THANE-BELAPUR_2025-05-11_07-35-42\{SECTION_ID}\process_distress_results_20oct_latest",
-    #         weights_path = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete\concrete_best_epoch50_dice0.895.pth",
+    #     main(imgs_root=rf"{PROJECT_PATH}\{SECTION_ID}\ACCEPTED_IMAGES",
+    #          prediction_save_path=fr"{PROJECT_PATH}\{SECTION_ID}\QC_Masks_pretrain",
+    #          weights_path=r"Y:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_10dec_pretrained\UNET_concrete_10dec_pretrained_best_epoch71_dice0.891.pth",
     #          batch_size=8)
 
-    # SECTION_IDS = ["SECTION-2", "SECTION-3", "SECTION-4", "SECTION-5", "SECTION-1"]
-    # for SECTION_ID in SECTION_IDS:
-    #     main(imgs_root=rf"E:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\{SECTION_ID}\process_distress_og",
-    #          prediction_save_path=fr"E:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\{SECTION_ID}\process_distress_results_4nov_latest",
-    #          weights_path=r"E:\Devendra_Files\CrackSegFormer-main\weights\UNET_4nov\4nov_best_epoch284_dice0.815.pth",
-    #          batch_size=8)
-
-    SECTION_IDS = ["SECTION-1", "SECTION-2"]
+    PROJECT_PATH = r"U:\THANE-BELAPUR_2025-05-11_07-35-42"
+    SECTION_IDS = ["SECTION-2", "SECTION-3","SECTION-4", "SECTION-5","SECTION-6", "SECTION-7"]
     for SECTION_ID in SECTION_IDS:
-        main(imgs_root=rf"Y:\BOS\SHIVMANDIR-AASHNA_2025-06-22_09-56-38\{SECTION_ID}\ACCEPTED_IMAGES",
-             prediction_save_path=fr"Y:\BOS\SHIVMANDIR-AASHNA_2025-06-22_09-56-38\{SECTION_ID}\ACCEPTED_MASKS",
-             weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete\concrete_best_epoch272_dice0.905.pth",
+        main(imgs_root=rf"{PROJECT_PATH}\{SECTION_ID}\ACCEPTED_IMAGES",
+             prediction_save_path=fr"{PROJECT_PATH}\{SECTION_ID}\11Dec_result",
+             weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_10dec_pretrained\UNET_concrete_10dec_pretrained_best_epoch83_dice0.933.pth",
              batch_size=8)
 
+    # PROJECT_PATH = r"Z:/SIDDHATEK-KORTI_2025-06-21_13-13-05"
     # SECTION_IDS = ["SECTION-1", "SECTION-2"]
     # for SECTION_ID in SECTION_IDS:
-    #     main(imgs_root=rf"E:\BOS\SIDDHATEK-KORTI_2025-06-21_13-25-10\{SECTION_ID}\process_distress",
-    #          prediction_save_path=fr"E:\BOS\SIDDHATEK-KORTI_2025-06-21_13-25-10\{SECTION_ID}\process_distress_results_4nov_latest",
-    #          weights_path=r"Y:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete\concrete_best_epoch272_dice0.905.pth",
+    #     main(imgs_root=rf"{PROJECT_PATH}\{SECTION_ID}\ACCEPTED_IMAGES",
+    #          prediction_save_path=fr"{PROJECT_PATH}\{SECTION_ID}\QC_Masks_pretrain",
+    #          weights_path = r"Y:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_10dec_pretrained\UNET_concrete_10dec_pretrained_best_epoch71_dice0.891.pth",
     #          batch_size=8)
     #
-    # SECTION_IDS = ["SECTION-2", "SECTION-3", "SECTION-4"]
+    # PROJECT_PATH = r"Z:/SIDDHATEK-KOTRI_2025-06-21_16-36-53"
+    # SECTION_IDS = ["SECTION-3", "SECTION-4"]
     # for SECTION_ID in SECTION_IDS:
-    #     main(imgs_root=rf"E:\BOS\SIDDHATEK-KOTRI_2025-06-21_16-36-53\{SECTION_ID}\process_distress",
-    #          prediction_save_path=fr"E:\BOS\SIDDHATEK-KOTRI_2025-06-21_16-36-53\{SECTION_ID}\process_distress_results_4nov_latest",
-    #          weights_path=r"Y:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete\concrete_best_epoch272_dice0.905.pth",
-    #          batch_size=8)
-    #
-    # SECTION_IDS = ["SECTION-1", "SECTION-2"]
-    # for SECTION_ID in SECTION_IDS:
-    #     main(imgs_root=rf"E:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\{SECTION_ID}\process_distress",
-    #          prediction_save_path=fr"E:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\{SECTION_ID}\process_distress_results_4nov_latest",
-    #          weights_path=r"Y:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete\concrete_best_epoch272_dice0.905.pth",
+    #     main(imgs_root=rf"{PROJECT_PATH}\{SECTION_ID}\ACCEPTED_IMAGES",
+    #          prediction_save_path=fr"{PROJECT_PATH}\{SECTION_ID}\QC_Masks_predict",
+    #          weights_path=r"Y:\Devendra_Files\CrackSegFormer-main\QC_Masks_pretrain\UNET_concrete_10dec_pretrained\UNET_concrete_10dec_pretrained_best_epoch71_dice0.891.pth",
     #          batch_size=8)

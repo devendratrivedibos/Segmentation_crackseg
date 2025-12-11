@@ -7,7 +7,6 @@ from PIL import Image, ImageDraw
 from label_studio_converter.brush import decode_rle
 
 COLOR_MAP = {
-
     "alligator crack": (255, 0, 0),  # Red
     "transverse crack": (0, 0, 255),  # Blue
     "transverse": (0, 0, 255),  # Blue
@@ -159,10 +158,11 @@ def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
 
 
 folderlist = [
-    r"Z:\BOS\SIDDHATEK-KORTI_2025-06-21_13-25-10\SECTION-1\RUTUJA_S1(0-23)_15-11-2025\project-28-at-2025-11-15-18-01-e70e95d7.json"
-]
 
+r"W:\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\divided\8\Prathamesh P8 (1813-1999)\project-55-at-2025-12-10-17-46-e91176d2.json",
+r"W:\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\divided\9\Jayesh_10-12-25(2129-2242)\project-56-at-2025-12-10-17-50-fc5d2859.json"
+]
 for i in folderlist:
     save_masks_from_json(i,
-                         r"Z:\BOS\SIDDHATEK-KORTI_2025-06-21_13-25-10\SECTION-1\ACCEPTED_MASKS",
+                         r"W:\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\ACCEPTED_MASKS",
                          use_rgb=True)

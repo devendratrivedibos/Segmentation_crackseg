@@ -27,13 +27,12 @@ from train_utils.utils import plot, show_config
 
 # from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
 from models.unet.UnetPP import UNetPP
-
 # from models.dinov3.dinov3 import DINODeepLab
 
 
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_concrete_10dec'  # Change this to your desired output path
-model_name = "UNET_concrete_10dec"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_concrete_10dec_pretrained'  # Change this to your desired output path
+model_name = "UNET_concrete_10dec_pretrained"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -68,8 +67,8 @@ def main(args):
 
     # mean = (0.548, 0.548, 0.548)   ##478
     # std = (0.146, 0.146, 0.146)   ###145
-    mean = (0.478, 0.478, 0.478)  ##478
-    std = (0.145, 0.145, 0.145)  ###145
+    mean = (0.478, 0.478, 0.478)   ##478
+    std = (0.145, 0.145, 0.145)   ###145
     num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
 
     train_dataset = CrackDataset(args.data_path,
@@ -238,13 +237,13 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"Z:/Devendra/CONCRETE/COMBINED_SPLITTED", help="root")
+                        default=r"G:/Devendra/CONCRETE/COMBINED_SPLITTED", help="root")
     parser.add_argument("--num-classes", default=14, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
     parser.add_argument("--phi", default="b5", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
-                        default=r"",
+                        default=r"Y:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_10dec_pretrained\UNET_concrete_10dec_pretrained_best_epoch71_dice0.891.pth",
                         help='pretrained weights path')
     parser.add_argument('--optimizer-type', default="adamw")
     parser.add_argument('--lr', default=0.00001, type=float, help='initial learning rate')  # 0.00006
@@ -253,16 +252,13 @@ def parse_args():
                         help='momentum')
     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
-    parser.add_argument("-b", "--batch-size", default=16, type=int)
-    parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
+    parser.add_argument("-b", "--batch-size", default=8, type=int)
+    parser.add_argument('--start-epoch', default=72, type=int, metavar='N', help='start epoch')
     parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")
     parser.add_argument('--print-freq', default=1, type=int, help='print frequency')
-
     parser.add_argument('--save-best', default=False, type=bool, help='only save best dice weights')
-
-    parser.add_argument('--resume', default=r"",
-                        help='resume from checkpoint')
+    parser.add_argument('--resume', default=r'Y:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_10dec_pretrained\UNET_concrete_10dec_pretrained_best_epoch71_dice0.891.pth', help='resume from checkpoint')
     # Mixed precision training parameters
     parser.add_argument("--amp", default=True, type=bool,
                         help="Use torch.cuda.amp for automatic mixed precision training")

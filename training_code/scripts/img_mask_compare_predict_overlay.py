@@ -13,31 +13,25 @@ from concurrent.futures import ThreadPoolExecutor
 
 # --- CONFIG ---
 start_number = 0  # <<< starting image number
-root_dir = r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51"
-# root_dir = "X:\THANE-BELAPUR_2025-05-11_07-35-42"
+root_dir = r"W:\SIDDHATEK-KORTI_2025-06-21_13-25-10"
 SECTION_ID = "SECTION-1"
 pcams_dir = os.path.join(root_dir, SECTION_ID, 'pcams')
 
 image_dirs = [
-    # os.path.join(root_dir, SECTION_ID, 'process_distress'),
     os.path.join(root_dir, SECTION_ID, 'ACCEPTED_IMAGES'),
 ]
 
 
 orig_mask_dirs = [
-    # os.path.join(root_dir, SECTION_ID, 'AnnotationMasks'),
-    # os.path.join(root_dir, SECTION_ID, 'process_distress_results'),
     os.path.join(root_dir, SECTION_ID, 'ACCEPTED_MASKS'),
 ]
 
 old_pred_mask_dirs = [
-    # os.path.join(root_dir, SECTION_ID, 'process_distress_results_17oct_latest'),
-    os.path.join(root_dir, SECTION_ID, 'process_distress_results_24oct_latest'),
+    os.path.join(root_dir, SECTION_ID, 'QC_Masks'),
 ]
 
 new_pred_mask_dirs = [
-    os.path.join(root_dir, SECTION_ID, 'process_distress_results_4nov_latest'),
-    # os.path.join(root_dir, "SECTION-2", 'process_distress_results_4oct'),
+    os.path.join(root_dir, SECTION_ID, 'QC_Masks_pretrain'),
 
 ]
 
@@ -267,9 +261,9 @@ class ImageMaskViewerOptimized:
         self.axs[1].imshow(orig_mask);
         self.axs[1].set_title("Original Mask")
         self.axs[2].imshow(old_mask);
-        self.axs[2].set_title("OLD Predicted Mask")
+        self.axs[2].set_title("Scratch")
         self.axs[3].imshow(pred_mask);
-        self.axs[3].set_title("NEW Predicted Mask")
+        self.axs[3].set_title("Pretrained")
         self.axs[4].imshow(overlay);
         self.axs[4].set_title("Overlay")
         if pcams_img is not None:

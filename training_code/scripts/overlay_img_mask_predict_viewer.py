@@ -13,28 +13,23 @@ from concurrent.futures import ThreadPoolExecutor
 
 # --- CONFIG ---
 start_number = 0  # <<< starting image number
-root_dir = r"X:\THANE-BELAPUR_2025-05-11_07-35-42"
-SECTION_ID = "SECTION-2"
+root_dir = r"W:\SIDDHATEK-KORTI_2025-06-21_13-25-10"
+root_dir = r"W:\SIDDHATEK-KORTI_2025-06-21_13-13-05"
+SECTION_ID = "SECTION-1"
 pcams_dir = os.path.join(root_dir, SECTION_ID, 'pcams')
 
 
 # --- Example multiple folders ---
 image_dirs = [
-    # os.path.join(root_dir,  'ONLY_JS_IMAGE'),
     os.path.join(root_dir, SECTION_ID, 'ACCEPTED_IMAGES'),
 ]
 
-
 orig_mask_dirs = [
-    # os.path.join(root_dir,'ONLY_JS_MASK'),
-    # os.path.join(root_dir, SECTION_ID, 'process_distress_results'),
     os.path.join(root_dir, SECTION_ID, 'ACCEPTED_MASKS'),
 ]
 
 pred_mask_dirs = [
-    os.path.join(root_dir, SECTION_ID, 'process_distress_results_18oct_latest'),
-    # os.path.join(root_dir,'ONLY_JS_MASK'),
-
+    os.path.join(root_dir, SECTION_ID, 'QC_Masks_pretrain'),
 ]
 
 # --- Output dirs ---

@@ -9,15 +9,7 @@ from tqdm import tqdm
 # --- Define Folders ---
 # Concreete Day
 folders = [
-    r"W:\NSV_DATA\LALGANJ-HANUMANA_2024-10-05_10-23-09\ACCEPTED_MASKS",
-    r"W:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\ACCEPTED_MASKS",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7\ACCEPTED_MASKS",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-6\ACCEPTED_MASKS",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-5\ACCEPTED_MASKS",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-4\ACCEPTED_MASKS",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-3\ACCEPTED_MASKS",
-    r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-2\ACCEPTED_MASKS",
-r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-1\process_distress_results_4nov_latest"
+r"Z:\Devendra\CONCRETE\ACCEPTED_MASKS"
 ]
 
 ##ASPHALT DAY
@@ -147,6 +139,6 @@ if __name__ == "__main__":
     else:
         print("\n✅ All images use only valid colors.")
 
-    print("\n📂 Files containing ID=13 (Unclassified, White):")
-    for f in unclassified:
-        print(os.path.basename(f))
+    # print("\n📂 Files containing ID=13 (Unclassified, White):")
+    # for f in unclassified:
+        # print(os.path.basename(f))

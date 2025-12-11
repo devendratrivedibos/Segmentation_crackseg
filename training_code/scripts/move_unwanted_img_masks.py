@@ -5,9 +5,9 @@ import numpy as np
 from multiprocessing import Pool, cpu_count
 
 # --- Paths ---
-BASE_DIR = r"X:\THANE-BELAPUR_2025-05-11_07-35-42\SECTION-7"
-img_dir = os.path.join(BASE_DIR, "ACCEPTED_IMAGES")
-mask_dir = os.path.join(BASE_DIR, "ACCEPTED_MASKS")
+BASE_DIR = r"Z:\Devendra\CONCRETE"
+img_dir = os.path.join(BASE_DIR, "COMBINED_IMAGES")
+mask_dir = os.path.join(BASE_DIR, "COMBINED_MASKS")
 delete_mask_dir = os.path.join(BASE_DIR, "only_JS_MASK")
 delete_image_dir = os.path.join(BASE_DIR, "only_JS_IMAGE")
 
@@ -69,7 +69,6 @@ def process_mask(mask_name: str):
         try:
             # Move mask
             shutil.move(mask_path, os.path.join(delete_mask_dir, mask_name))
-
             # Move image (png or jpg)
             img_path = find_image(mask_name)
             if img_path:

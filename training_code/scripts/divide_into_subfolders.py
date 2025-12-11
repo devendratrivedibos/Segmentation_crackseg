@@ -43,13 +43,12 @@ def divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=10
     print(f"✅ Done! Divided {total} matching pairs into {n_subfolders} subfolders (img/mask).")
 
 
-process_dir = r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-1\process_distress"
-results_dir = r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-1\process_distress_results_4nov_latest"
-output_dir = r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-1\divided"
+process_dir = r"D:\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-1\QC_Images"
+results_dir = r"D:\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-1\QC_Masks"
+output_dir = r"D:\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-1\divided"
 divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=9)
 
-
-process_dir = r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\process_distress"
-results_dir = r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\process_distress_results_4nov_latest"
-output_dir = r"Y:\BOS\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\divided"
+process_dir = r"D:\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\QC_Images"
+results_dir = r"D:\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\QC_Masks"
+output_dir = r"D:\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\divided"
 divide_into_subfolders(process_dir, results_dir, output_dir, n_subfolders=9)

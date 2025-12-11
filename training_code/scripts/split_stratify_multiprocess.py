@@ -9,9 +9,9 @@ from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ===================== CONFIG =====================
-images_dir = r"V:\Devendra\CONCRETE\COMBINED_IMAGES"
-masks_dir = r"V:\Devendra\CONCRETE\COMBINED_MASKS"
-output_dir = r"V:\Devendra\CONCRETE\COMBINED_SPLITTED"
+images_dir = r"G:\Devendra\CONCRETE\COMBINED_IMAGES"
+masks_dir = r"G:\Devendra\CONCRETE\COMBINED_MASKS"
+output_dir = r"G:\Devendra\CONCRETE\COMBINED_SPLITTED"
 
 test_size = 0.01
 val_size = 0.20
