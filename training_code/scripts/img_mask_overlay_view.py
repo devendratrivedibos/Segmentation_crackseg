@@ -13,9 +13,10 @@ from concurrent.futures import ThreadPoolExecutor
 import gc
 
 # --- CONFIG ---
-root_dir = r"V:\SHIVMANDIR-AASHNA_2025-06-22_09-56-38\SECTION-2"
-image_dir = os.path.join(root_dir,'ACCEPTED_IMAGES')
-mask_dir = os.path.join(root_dir, 'ACCEPTED_MASKS')
+root_dir = root_dir = r"X:\MALSHEJGHAT-ANEGHAT_2025-12-05_11-17-24\SECTION-1"
+root_dir = r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-1"
+image_dir = os.path.join(root_dir,'process_distress')
+mask_dir = os.path.join(root_dir, '11Dec_result')
 pcams_dir = os.path.join(root_dir, 'pcams')
 start_number = 0
 
@@ -192,11 +193,11 @@ class ImageMaskViewerOptimized:
         # Load main image
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        # img = cv2.flip(img, 0)
+        img = cv2.flip(img, 0)
 
         # Load mask
         mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
-        # mask = cv2.flip(mask, 0)
+        mask = cv2.flip(mask, 0)
         # mask = cv2.resize(mask, (4183, 10217), interpolation=cv2.INTER_NEAREST)
         if len(mask.shape) == 2:
             mask_colored = cv2.applyColorMap(mask, cv2.COLORMAP_JET)
