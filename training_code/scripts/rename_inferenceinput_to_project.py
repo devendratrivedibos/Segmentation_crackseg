@@ -2,9 +2,9 @@ import os
 
 # List all folders to process
 folders = [
-r"X:\MALSHEJGHAT-ANEGHAT_2025-12-05_11-17-24\SECTION-1\process_distress",
-r"X:\MALSHEJGHAT-ANEGHAT_2025-12-05_11-17-24\SECTION-2\process_distress",
-r"X:\MALSHEJGHAT-ANEGHAT_2025-12-05_09-15-43\SECTION-3\process_distress"
+r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-1\process_distress",
+r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-2\process_distress",
+r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-4\process_distress",
 ]
 
 for folder_path in folders:

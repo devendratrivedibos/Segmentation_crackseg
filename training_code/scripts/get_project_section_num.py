@@ -3,8 +3,8 @@ import re
 import csv
 
 # Folder containing files
-FOLDER_PATH = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_MASKS"
-OUTPUT_CSV = r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\ASPHALT_ACCEPTED\ACCEPTED_MASKS\asphalt.csv"
+FOLDER_PATH = r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_MASKS"
+OUTPUT_CSV = r"D:/Data.csv"
 
 results = []
 

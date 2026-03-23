@@ -111,11 +111,11 @@ if __name__ == "__main__":
     # exporter_yolo.export()
 
     # UNet++ Export with class names
-    unet_classes = ["Background", "Alligator", "Longitudinal Crack", "Transverse Crack", "Pothole", "Patches"] #, "Multiple Crack", "Spalling", "Corner Break", "Gold", "Cracking", "Punchout", "Popout Grey", "White", "Unclassified"]", "Multiple", "Joint Seal"]
+    unet_classes = ["Background", "Alligator", "Longitudinal Crack", "Transverse Crack", "Pothole", "Patches", "Multiple Crack", "Spalling", "Corner Break", "Sealed Joint - T", "Sealed Joint - L", "Punchout", "Popout", "White", "Unclassified"]
     exporter_unet = ONNXExporter(
         model_type="unet",
-        model_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\cracks_segmentation_4nov_asphalt.pth",
-        onnx_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\cracks_segmentation_4nov_asphalt.onnx",
+        model_path= r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_3Feb_imagenet\UNET_concrete_7Feb_imagenet_best_epoch262_dice0.776.pth",
+        onnx_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_7Feb_imagenet_best_epoch262_dice0.onnx",
         input_size=(1024, 419),
         class_names=unet_classes,
         device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

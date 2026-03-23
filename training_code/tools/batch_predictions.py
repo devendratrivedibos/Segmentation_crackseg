@@ -1,3 +1,5 @@
+import pdb
+
 from tqdm import tqdm
 import cv2
 import numpy as np
@@ -89,12 +91,13 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
             batch_tensor = torch.stack(batch_imgs).to(device)
             outputs = model(batch_tensor)
             preds = outputs['out'].argmax(1).cpu().numpy().astype(np.uint8)
-
+            print(preds)
+            pdb.set_trace()
             # postprocess + save
             for pred, fname in zip(preds, orig_names):
                 # pred = cv2.resize(pred, (419, 1024), interpolation=cv2.INTER_NEAREST)
-                pred = join_directional_multiclass(pred, radius=50, line_width=2)  # ⬅️ Added here
-                pred = remove_small_components_multiclass(pred, min_area=100)
+                pred = join_directional_multiclass(pred, radius=25, line_width=2)  # ⬅️ Added here
+                pred = remove_small_components_multiclass(pred, min_area=50)
                 pred_color = colorize_prediction(pred)
                 save_path = os.path.join(prediction_save_path, fname.split('.')[0] + '.png')
                 cv2.imwrite(save_path, cv2.cvtColor(pred_color, cv2.COLOR_RGB2BGR))
@@ -157,35 +160,24 @@ def join_directional(mask, crack_type, radius=5, line_width=2):
                 if np.hypot(dx, dy) <= radius:  # general small gaps
                     cv2.line(joined, tuple(p), tuple(q), 255, line_width)
 
-            if crack_type == "Sealed Joint - L":
-                if dx <= radius and dy <= 100:  # horizontal direction
-                    cv2.line(joined, tuple(p), tuple(q), 255, line_width)
-            elif crack_type == "Sealed Joint - T":
-                if dy <= radius and dx <= 100:  #vertical  direction
-                    cv2.line(joined, tuple(p), tuple(q), 255, line_width)
     return joined
 
 
 def join_directional_multiclass(pred_idx_map, radius=5, line_width=2):
+    """
+    Applies direction-aware joining to specific crack types in a class index map.
+    """
     joined_idx = pred_idx_map.copy()
-    inv_color_map = {v[0]: v[1] for v in COLOR_MAP.values()}
+    inv_color_map = {v[0]: v[1] for v in COLOR_MAP.values()}  # idx → name
 
     for idx, name in inv_color_map.items():
+        if name not in ["Longitudinal Crack", "Transverse Crack", "Alligator",
+                        "Multiple Crack", "Sealed Joint - T", "Sealed Joint - L"]:
+            continue
 
         mask = (pred_idx_map == idx).astype(np.uint8) * 255
-
-        if name == "Sealed Joint - T":
-            # vertical extension
-            mask = extend_sealed_joint(mask, orientation="vertical", extend_pixels=200)
-
-        elif name == "Sealed Joint - L":
-            # horizontal extension
-            mask = extend_sealed_joint(mask, orientation="horizontal", extend_pixels=200)
-
-        elif name in ["Longitudinal Crack", "Transverse Crack", "Alligator", "Multiple Crack"]:
-            mask = join_directional(mask, name, radius=radius, line_width=line_width)
-
-        joined_idx[mask > 0] = idx
+        joined_mask = join_directional(mask, name, radius=radius, line_width=line_width)
+        joined_idx[joined_mask > 0] = idx
 
     return joined_idx
 
@@ -234,78 +226,21 @@ def remove_small_components_multiclass(mask, min_area=200):
     cleaned[mask == 12] = 12
     return cleaned
 
-def extend_sealed_joint(mask, orientation="vertical", extend_pixels=150, thickness=3):
-    """
-    Extend sealed joint mask in a specific direction.
-
-    Args:
-        mask (uint8): binary mask (0/255)
-        orientation (str): "vertical" or "horizontal"
-        extend_pixels (int): how far to extend
-        thickness (int): line thickness
-
-    Returns:
-        uint8 mask
-    """
-    kernel_size = (extend_pixels, thickness) if orientation == "vertical" else (thickness, extend_pixels)
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, kernel_size)
-
-    extended = cv2.dilate(mask, kernel)
-
-    # Optional: keep extension thin
-    thin_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    extended = cv2.morphologyEx(extended, cv2.MORPH_OPEN, thin_kernel)
-
-    return extended
 
 if __name__ == "__main__":
-    WEIGHTS_PATH = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_10dec_pretrained\UNET_concrete_10dec_pretrained_best_epoch155_dice0.900.pth"
-    BATCH_SIZE = 8
-    # projects = [
-    #     {
-    #         "path": r"F:\MALSHEJGHAT-ANEGHAT_2025-12-05_09-15-43",
-    #         "sections": [f"SECTION-{i}" for i in range(3, 4)]
-    #     },
-    #     {
-    #         "path": r"F:\MALSHEJGHAT-ANEGHAT_2025-12-05_11-17-24",
-    #         "sections": [f"SECTION-{i}" for i in range(1, 3)]
-    #     }
-    # ]
-    #
-    # for project in projects:
-    #     for section in project["sections"]:
-    #         main(
-    #             imgs_root=rf"{project['path']}\{section}\process_distress",
-    #             prediction_save_path=rf"{project['path']}\{section}\11Dec_result",
-    #             weights_path=WEIGHTS_PATH,
-    #             batch_size=BATCH_SIZE
-    #         )
-    # print("✅ All done!")
-    # main(
-    #     imgs_root=rf"Y:\NSV_DATA\VARANASI-DAGMAGPUR_2024-10-04_09-34-33\SECTION-1\REWORK_IMAGES",
-    #     prediction_save_path=rf"Y:\NSV_DATA\VARANASI-DAGMAGPUR_2024-10-04_09-34-33\SECTION-1\REWORK_MASKS",
-    #     weights_path=WEIGHTS_PATH,
-    #     batch_size=BATCH_SIZE
-    # )
-
-    main(
-        imgs_root=rf"Y:\NSV_DATA\VARANASI-DAGMAGPUR_2024-10-04_09-34-33\SECTION-2\REWORK_IMAGES",
-        prediction_save_path=rf"Y:\NSV_DATA\VARANASI-DAGMAGPUR_2024-10-04_09-34-33\SECTION-2\REWORK_MASKS",
-        weights_path=WEIGHTS_PATH,
-        batch_size=BATCH_SIZE
-    )
-
-    main(
-        imgs_root=rf"Y:\NSV_DATA\VARANASI-DAGMAGPUR_2024-10-04_09-34-33\SECTION-4\REWORK_IMAGES",
-        prediction_save_path=rf"Y:\NSV_DATA\VARANASI-DAGMAGPUR_2024-10-04_09-34-33\SECTION-4\REWORK_MASKS",
-        weights_path=WEIGHTS_PATH,
-        batch_size=BATCH_SIZE
-    )
-
-
-    main(
-        imgs_root=rf"Y:\NSV_DATA\VARANASI-DAGMAGPUR_2024-10-04_09-34-33\SECTION-5\REWORK_IMAGES",
-        prediction_save_path=rf"Y:\NSV_DATA\VARANASI-DAGMAGPUR_2024-10-04_09-34-33\SECTION-5\REWORK_MASKS",
-        weights_path=WEIGHTS_PATH,
-        batch_size=BATCH_SIZE
-    )
+    WEIGHTS_PATH = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_2Feb_imahenet\UNET_concrete_2Feb_imahenet_best_epoch81_dice0.790.pth"
+    BATCH_SIZE = 1
+    projects = [
+        # {
+        #     "path": r"F:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33",
+        #     "sections": [f"SECTION-{i}" for i in range(2, 8)]
+        # },
+        # {
+        #     "path": r"F:\NSV_DATA\VARANASI-DAGMAGPUR_2024-10-04_09-34-33",
+        #     "sections": [f"SECTION-{i}" for i in range(1, 10)]
+        # },
+    ]
+    main(imgs_root=rf"D:\LALITPUR-LAKHNADON_2025-11-16_10-35-41\SECTION-5\M",
+         prediction_save_path=rf"D:\LALITPUR-LAKHNADON_2025-11-16_10-35-41\SECTION-5\M_",
+         weights_path=WEIGHTS_PATH,
+         batch_size=BATCH_SIZE)

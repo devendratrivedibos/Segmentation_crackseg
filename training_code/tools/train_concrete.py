@@ -18,7 +18,7 @@ from train_utils.my_dataset_concrete import CrackDataset, SegmentationPresetTrai
 import train_utils.transforms as T
 from train_utils.utils import plot, show_config
 
-# from models.segformer.segformer import SegFormer
+from models.segformer.segformer import SegFormer
 # from models.unet.unet import UNet
 # from models.unet.mobilenet_unet import MobileV3Unet
 # from models.unet.vgg_unet import VGG16UNet
@@ -26,14 +26,14 @@ from train_utils.utils import plot, show_config
 # from models.fcn.fcn import fcn_resnet50
 
 # from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
-from models.unet.UnetPP import UNetPP
+# from models.unet.UnetPP import UNetPP
 
 # from models.dinov3.dinov3 import DINODeepLab
 
 
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_concrete_10dec'  # Change this to your desired output path
-model_name = "UNET_concrete_10dec"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_concrete_segformer'  # Change this to your desired output path
+model_name = "UNET_concrete_segformer"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -51,12 +51,12 @@ def create_model(aux, num_classes, pretrained=True):
     # model = fcn_resnet50(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
     # model = deeplabv3_resnet101(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
     # model = deeplabv3_mobilenetv3_large(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
-    # model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
+    model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
     # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
     # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = DINODeepLab(num_classes=num_classes, backbone_name="dinov2_vitl14")
-    model = UNetPP(in_channels=3, num_classes=num_classes)
+    # model = UNetPP(in_channels=3, num_classes=num_classes)
     return model
 
 
@@ -238,10 +238,10 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"Z:/Devendra/CONCRETE/COMBINED_SPLITTED", help="root")
+                        default=r"G:\Devendra\CONCRETE\COMBINED_SPLITTED", help="root")
     parser.add_argument("--num-classes", default=14, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
-    parser.add_argument("--phi", default="b5", help="Use backbone")
+    parser.add_argument("--phi", default="b0", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
                         default=r"",

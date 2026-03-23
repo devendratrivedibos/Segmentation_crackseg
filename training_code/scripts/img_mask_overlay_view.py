@@ -13,10 +13,10 @@ from concurrent.futures import ThreadPoolExecutor
 import gc
 
 # --- CONFIG ---
-root_dir = root_dir = r"X:\MALSHEJGHAT-ANEGHAT_2025-12-05_11-17-24\SECTION-1"
+
 root_dir = r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-1"
-image_dir = os.path.join(root_dir,'process_distress')
-mask_dir = os.path.join(root_dir, '11Dec_result')
+image_dir = os.path.join(root_dir, 'process_distress')
+mask_dir = os.path.join(root_dir, '31Dec_result')
 pcams_dir = os.path.join(root_dir, 'pcams')
 start_number = 0
 

@@ -4,7 +4,7 @@ import numpy as np
 from tqdm import tqdm
 from multiprocessing import Pool, cpu_count
 
-image_folder = r"V:\Devendra\CONCRETE\ACCEPTED_IMAGES"
+image_folder = r"W:\Devendra\Dashcam\TRAIN\IMAGES"
 
 # List all image files
 image_files = [
