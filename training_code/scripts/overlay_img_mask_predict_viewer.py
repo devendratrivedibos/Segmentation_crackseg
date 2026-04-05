@@ -13,22 +13,25 @@ from concurrent.futures import ThreadPoolExecutor
 
 # --- CONFIG ---
 start_number = 0  # <<< starting image number
-root_dir = r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-4"
+root_dir = r""
 SECTION_ID = "SECTION-1"
 pcams_dir = os.path.join(root_dir, 'pcams')
 
 
 # --- Example multiple folders ---
 image_dirs = [
-    os.path.join(root_dir, 'process_distress'),
+    # os.path.join(root_dir, 'process_distress'),
+rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\IMAGES",
 ]
 
 orig_mask_dirs = [
-    os.path.join(root_dir, 'NoFilter_result'),
+    # os.path.join(root_dir, 'NoFilter_result'),
+rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\MASKS",
 ]
 
 pred_mask_dirs = [
-    os.path.join(root_dir,'31Dec_result'),
+    # os.path.join(root_dir,'31Dec_result'),
+rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN_UNETPP",
 ]
 
 # --- Output dirs ---
@@ -47,10 +50,15 @@ for d in [accepted_img_dir, accepted_mask_dir, rework_img_dir, rework_mask_dir]:
 def load_files(dirs, exts):
     files = []
     for d in dirs:
+        print("Checking folder:", d)
         if os.path.exists(d):
             for f in os.listdir(d):
                 if f.lower().endswith(exts):
                     files.append(os.path.join(d, f))
+        else:
+            print("Path not found:", d)
+
+    print("Loaded", len(files), "files")
     return sorted(files)
 
 

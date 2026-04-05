@@ -26,14 +26,14 @@ from models.segformer.segformer import SegFormer
 # from models.fcn.fcn import fcn_resnet50
 
 # from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
-# from models.unet.UnetPP import UNetPP
+from models.unet.UnetPP import UNetPP
 
 # from models.dinov3.dinov3 import DINODeepLab
 
 
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_concrete_segformer'  # Change this to your desired output path
-model_name = "UNET_concrete_segformer"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_concrete_4apr_seg'  # Change this to your desired output path
+model_name = "UNET_concrete_4apr_seg"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -238,7 +238,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"G:\Devendra\CONCRETE\COMBINED_SPLITTED", help="root")
+                        default=r"G:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT", help="root")
     parser.add_argument("--num-classes", default=14, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
     parser.add_argument("--phi", default="b0", help="Use backbone")
@@ -266,9 +266,7 @@ def parse_args():
     # Mixed precision training parameters
     parser.add_argument("--amp", default=True, type=bool,
                         help="Use torch.cuda.amp for automatic mixed precision training")
-
     args = parser.parse_args()
-
     return args
 
 

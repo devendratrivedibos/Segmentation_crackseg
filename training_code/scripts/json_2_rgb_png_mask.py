@@ -158,11 +158,23 @@ def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
 
 
 folderlist = [
-
-r"W:\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\divided\8\Prathamesh P8 (1813-1999)\project-55-at-2025-12-10-17-46-e91176d2.json",
-r"W:\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\divided\9\Jayesh_10-12-25(2129-2242)\project-56-at-2025-12-10-17-50-fc5d2859.json"
+r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\JAYESH\Jayesh_04-04-26\project-91-at-2026-04-04-18-05-110a325f.json"
 ]
 for i in folderlist:
     save_masks_from_json(i,
-                         r"W:\SIDDHATEK-KORTI_2025-06-21_13-13-05\SECTION-2\ACCEPTED_MASKS",
+                         r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL",
                          use_rgb=True)
+
+folderlist = [
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\omkar\02-04-2026\project-24-at-2026-04-02-18-09-32ed75c1.json",
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\omkar\project-24-at-2026-04-02-18-09-32ed75c1.json",
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\Payal\project-108-at-2026-04-02-18-09-4b67ef5f.json",
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\Payal\Payal-Concrete_04-04-2026\project-109-at-2026-04-04-18-10-8b7cbefe.json",
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\rutuja\4-4-2026\project-139-at-2026-04-04-18-12-6b577a04.json",
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\Sharan\project-52-at-2026-04-02-14-23-c1a12410.json",
+]
+#
+# for i in folderlist:
+#     save_masks_from_json(i,
+#                          r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL",
+#                          use_rgb=True)

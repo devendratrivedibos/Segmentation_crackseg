@@ -18,7 +18,7 @@ from train_utils.my_dataset_dashcam import DashcamDataset, SegmentationPresetTra
 import train_utils.transforms as T
 from train_utils.utils import plot, show_config
 
-# from models.segformer.segformer import SegFormer
+from models.segformer.segformer import SegFormer
 # from models.unet.unet import UNet
 # from models.unet.mobilenet_unet import MobileV3Unet
 # from models.unet.vgg_unet import VGG16UNet
@@ -32,8 +32,8 @@ from models.unet.UnetPP import UNetPP
 
 
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_dashcam'  # Change this to your desired output path
-model_name = "UNET_dashcam"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'dashcam'  # Change this to your desired output path
+model_name = "dashcam_"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -68,8 +68,9 @@ def main(args):
 
     # mean = (0.548, 0.548, 0.548)   ##478
     # std = (0.146, 0.146, 0.146)   ###145
-    mean = (0.44847219, 0.47385546, 0.45364538)  ##478
-    std = (0.15289337, 0.16670668, 0.20705531)  ###145
+    mean = (0.44459679, 0.46256054, 0.45075304)  ##478
+    std = (0.18520499, 0.19963554, 0.22746077)  ###145
+
     num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
 
     train_dataset = DashcamDataset(args.data_path,
@@ -238,13 +239,13 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"W:\Devendra\Dashcam", help="root")
-    parser.add_argument("--num-classes", default=7, type=int)  # exclude background
+                        default=r"C:\GPS_DOWNLOAD\DOWNLOAD_FILE\split_dataset", help="root")
+    parser.add_argument("--num-classes", default=17, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
-    parser.add_argument("--phi", default="b5", help="Use backbone")
+    parser.add_argument("--phi", default="b0", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
-                        default=r"W:\Devendra\CrackSegFormer-main\training_code\pretrained_weights\imagenet\resnet101.pth",
+                        default=r"Y:\Devendra_Files\segmentation_training\training_code\pretrained_weights\imagenet\resnet101.pth",
                         help='pretrained weights path')
     parser.add_argument('--optimizer-type', default="adamw")
     parser.add_argument('--lr', default=0.00001, type=float, help='initial learning rate')  # 0.00006
@@ -253,7 +254,7 @@ def parse_args():
                         help='momentum')
     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
-    parser.add_argument("-b", "--batch-size", default=4, type=int)
+    parser.add_argument("-b", "--batch-size", default=16, type=int)
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
     parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")

@@ -13,12 +13,19 @@ from concurrent.futures import ThreadPoolExecutor
 import gc
 
 # --- CONFIG ---
-
 root_dir = r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-1"
-image_dir = os.path.join(root_dir, 'process_distress')
-mask_dir = os.path.join(root_dir, '31Dec_result')
+image_dir = r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\IMAGES"
+mask_dir = r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL"
 pcams_dir = os.path.join(root_dir, 'pcams')
+pcams_dir =  "Z:\Devendra\CONCRETE\ACCEPTED_MASKS"
 start_number = 0
+
+# root_dir = r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33\SECTION-1"
+# image_dir = "Z:\Devendra\CONCRETE\ACCEPTED_IMAGES"
+# mask_dir = "Z:\Devendra\CONCRETE\ACCEPTED_MASKS"
+# pcams_dir = os.path.join(root_dir, 'pcams')
+# pcams_dir =  "Z:\Devendra\CONCRETE\ACCEPTED_MASKS"
+# start_number = 0
 
 accepted_img_dir = os.path.join(root_dir, "ACCEPTED_IMAGES")
 accepted_mask_dir = os.path.join(root_dir, "ACCEPTED_MASKS")

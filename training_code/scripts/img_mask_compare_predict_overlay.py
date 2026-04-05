@@ -13,29 +13,43 @@ from concurrent.futures import ThreadPoolExecutor
 
 # --- CONFIG ---
 start_number = 0  # <<< starting image number
-root_dir = r"W:\SIDDHATEK-KORTI_2025-06-21_13-25-10"
-SECTION_ID = "SECTION-1"
-pcams_dir = os.path.join(root_dir, SECTION_ID, 'pcams')
+root_dir = r"D:/"
+# SECTION_ID = "SECTION-1"
+# pcams_dir = os.path.join(root_dir, SECTION_ID, 'pcams')
+#
+# image_dirs = [
+#     os.path.join(root_dir, SECTION_ID, 'ACCEPTED_IMAGES'),
+# ]
 
+# orig_mask_dirs = [
+#     os.path.join(root_dir, SECTION_ID, 'ACCEPTED_MASKS'),
+# ]
+
+# old_pred_mask_dirs = [
+#     os.path.join(root_dir, SECTION_ID, 'QC_Masks'),
+# ]#
+# new_pred_mask_dirs = [
+#     os.path.join(root_dir, SECTION_ID, 'QC_Masks_pretrain'),
+# ]
+pcams_dir = r"Z:/Devendra/CONCRETE/COMBINED_SPLITTED/TEST/IMAGES"
 image_dirs = [
-    os.path.join(root_dir, SECTION_ID, 'ACCEPTED_IMAGES'),
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\IMAGES",
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\IMAGES"
 ]
-
-
 orig_mask_dirs = [
-    os.path.join(root_dir, SECTION_ID, 'ACCEPTED_MASKS'),
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\MASKS",
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\TRAiN\MASKS"
 ]
-
 old_pred_mask_dirs = [
-    os.path.join(root_dir, SECTION_ID, 'QC_Masks'),
-]
-
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\4apr_unet",
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\4apr_unetpp"
+                      ]
 new_pred_mask_dirs = [
-    os.path.join(root_dir, SECTION_ID, 'QC_Masks_pretrain'),
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\4apr_seg",
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\4apr_seg"
+                      ]
 
-]
-
-# --- Output dirs ---
+# --- Output dirs ---)
 accepted_img_dir = os.path.join(root_dir, "ACCEPTED_IMAGES")
 accepted_mask_dir = os.path.join(root_dir, "ACCEPTED_MASKS")
 rework_img_dir = os.path.join(root_dir, "REWORK_IMAGES")
@@ -51,12 +65,16 @@ for d in [accepted_img_dir, accepted_mask_dir, rework_img_dir, rework_mask_dir]:
 def load_files(dirs, exts):
     files = []
     for d in dirs:
+        print("Checking folder:", d)
         if os.path.exists(d):
             for f in os.listdir(d):
                 if f.lower().endswith(exts):
                     files.append(os.path.join(d, f))
-    return sorted(files)
+        else:
+            print("Path not found:", d)
 
+    print("Loaded", len(files), "files")
+    return sorted(files)
 
 images = load_files(image_dirs, ('.png', '.jpg', '.jpeg'))
 orig_masks = load_files(orig_mask_dirs, ('.png',))
@@ -261,10 +279,10 @@ class ImageMaskViewerOptimized:
         self.axs[1].imshow(orig_mask);
         self.axs[1].set_title("Original Mask")
         self.axs[2].imshow(old_mask);
-        self.axs[2].set_title("Scratch")
+        self.axs[2].set_title("UNET")
         self.axs[3].imshow(pred_mask);
-        self.axs[3].set_title("Pretrained")
-        self.axs[4].imshow(overlay);
+        self.axs[3].set_title("SEGFORMER")
+        self.axs[4].imshow(overlay)
         self.axs[4].set_title("Overlay")
         if pcams_img is not None:
             self.axs[5].imshow(pcams_img);

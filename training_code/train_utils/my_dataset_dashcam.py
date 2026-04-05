@@ -11,25 +11,36 @@ COLOR_MAP = {
     (0, 0, 0): (0, "background"),  # #000000
     (212, 56, 13): (1, "kerb_damaged"),  # #D4380D
     (255, 192, 105): (2, "kerb_faded"),  # #FFC069
-    (173, 139, 0): (3, "kerd_normal"),  # #AD8B00
+    (173, 139, 0): (3, "kerb_normal"),  # #AD8B00 (fixed typo)
     (56, 158, 13): (4, "lane_mark"),  # #389E0D
     (92, 219, 211): (5, "lane_mark_faded"),  # #5CDBD3
     (255, 163, 158): (6, "shoulder"),  # #FFA39E
     (114, 46, 209): (7, "median"),  # #722ED1
+    (0, 80, 179): (8, "normal_road_marking"),  # fixed missing comma
+    (168, 7, 26): (9, "faded_road_marking"),  # fixed missing comma
+    (255, 215, 0): (10, "normal_rumble_strips"),
+    (140, 140, 140): (11, "damaged_rumble_strips"),
+    (0, 255, 255): (12, "crash_barrier_normal"),
+    (255, 0, 255): (13, "crash_barrier_faded"),
+    (128, 255, 0): (14, "rcc_barrier_normal"),
+    (255, 128, 0): (15, "rcc_barrier_faded"),  # fixed missing comma inside tuple
+    (0, 128, 255): (16, "guard_rail_normal"),
+    (165, 42, 42): (17, "guard_rail_faded"),
 }
+
 
 
 class DashcamDataset(Dataset):
     def __init__(self, root: str, train: bool, transforms=None):
         super(DashcamDataset, self).__init__()
         data_root = root
-        flag = "TRAIN" if train else "VAL"
+        flag = "train" if train else "val"
 
         data_root = os.path.join(data_root, flag)
         assert os.path.exists(data_root), "path '{}' does not exist.".format(data_root)
         # data_root = root
-        imgs_root = os.path.join(data_root, "IMAGES")
-        masks_root = os.path.join(data_root, "MASKS")
+        imgs_root = os.path.join(data_root, "images")
+        masks_root = os.path.join(data_root, "masks")
 
         self.images_list = os.listdir(imgs_root)
         valid_exts = ['.png', '.jpg', '.jpeg']
@@ -54,17 +65,17 @@ class DashcamDataset(Dataset):
         img = cv2.imread(self.images_path[idx])
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         h, w, c = img.shape
-        img = cv2.resize(
-            img,
-            (w // 2, h // 2),  # (width, height)
-            interpolation=cv2.INTER_NEAREST)
-        # img = cv2.resize(img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
+        # img = cv2.resize(
+        #     img,
+        #     (w // 2, h // 2),  # (width, height)
+        #     interpolation=cv2.INTER_NEAREST)
+        img = cv2.resize(img, (512, 512), interpolation=cv2.INTER_NEAREST)
         # Load mask in color and convert to RGB
         mask_rgb = cv2.imread(self.masks_path[idx], cv2.IMREAD_COLOR)
         mask_rgb = cv2.cvtColor(mask_rgb, cv2.COLOR_BGR2RGB)
-        mask_rgb = cv2.resize(mask_rgb,(w // 2, h // 2),  # (width, height)
-                                interpolation=cv2.INTER_NEAREST)
-        # mask_rgb = cv2.resize(mask_rgb, (1024, 1024), interpolation=cv2.INTER_NEAREST)
+        # mask_rgb = cv2.resize(mask_rgb,(w // 2, h // 2),  # (width, height)
+        #                         interpolation=cv2.INTER_NEAREST)
+        mask_rgb = cv2.resize(mask_rgb, (512, 512), interpolation=cv2.INTER_NEAREST)
         # Convert RGB mask to class ID map
         mask = self.rgb_to_class_id(mask_rgb, COLOR_MAP)
         if self.transforms is not None:
@@ -100,31 +111,39 @@ class SegmentationPresetTrain:
             # --- Geometric ---
             A.HorizontalFlip(p=0.4),
             A.VerticalFlip(p=0.4),  # vertical cracks possible, but rare
-            # A.ShiftScaleRotate(
-            #     shift_limit=0.02,  # small shifts only
-            #     scale_limit=0.1,  # mild zoom in/out
-            #     rotate_limit=5,  # small rotations
-            #     border_mode=0,  # fill with zeros (black)
-            #     p=0.5
-            # ),
-            # # --- Photometric ---
-            # A.RandomBrightnessContrast(
-            #     brightness_limit=0.2,
-            #     contrast_limit=0.2,
-            #     p=0.4
-            # ),
-            # A.CLAHE(clip_limit=2, tile_grid_size=(8, 8), p=0.3),  # enhance faint cracks
-            # A.RandomGamma(gamma_limit=(80, 120), p=0.3),  # simulate different lighting
-            # A.HueSaturationValue(hue_shift_limit=5, sat_shift_limit=10, val_shift_limit=10, p=0.2),
-            #
-            # # --- Noise & blur (light) ---
-            # A.GaussNoise(var_limit=(5.0, 15.0), p=0.3),  # simulate sensor noise
-            # A.MotionBlur(blur_limit=3, p=0.2),  # cracks under motion blur (vehicle speed)
-            #
-            # # --- Advanced distortions ---
-            # A.ElasticTransform(alpha=20, sigma=5, alpha_affine=10, p=0.2),  # realistic surface distortions
-            # A.GridDistortion(num_steps=5, distort_limit=0.05, p=0.2),  # mild surface warps
-            # A.Perspective(scale=(0.02, 0.05), p=0.2),  # simulate road tilt
+            A.ShiftScaleRotate(
+                shift_limit=0.02,  # small shifts only
+                scale_limit=0.1,  # mild zoom in/out
+                rotate_limit=5,  # small rotations
+                border_mode=0,  # fill with zeros (black)
+                p=0.5
+            ),
+            # --- Photometric ---
+            A.RandomBrightnessContrast(
+                brightness_limit=0.2,
+                contrast_limit=0.2,
+                p=0.4
+            ),
+            A.CLAHE(clip_limit=2, tile_grid_size=(8, 8), p=0.3),  # enhance faint cracks
+            A.RandomGamma(gamma_limit=(80, 120), p=0.3),  # simulate different lighting
+            A.HueSaturationValue(hue_shift_limit=5, sat_shift_limit=10, val_shift_limit=10, p=0.2),
+            
+            # --- Noise & blur (light) ---
+            A.GaussNoise(var_limit=(5.0, 15.0), p=0.3),  # simulate sensor noise
+            A.MotionBlur(blur_limit=3, p=0.2),  # cracks under motion blur (vehicle speed)
+            
+            # --- Advanced distortions ---
+            A.ElasticTransform(alpha=20, sigma=5, alpha_affine=10, p=0.2),  # realistic surface distortions
+            A.GridDistortion(num_steps=5, distort_limit=0.05, p=0.2),  # mild surface warps
+            A.Perspective(scale=(0.02, 0.05), p=0.2),  # simulate road tilt
+            # Define the resize transformation
+            # A.Resize(
+            #     height=512,       # Target height
+            #     width=512,        # Target width
+            #     interpolation=cv2.INTER_LINEAR,  # Interpolation method
+            #     always_apply=False,  # Apply only when called
+            #     p=1.0              # Probability of applying
+            # )
             A.Normalize(mean=mean, std=std),
             ToTensorV2(),
         ])

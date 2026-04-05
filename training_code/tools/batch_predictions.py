@@ -45,7 +45,7 @@ COLOR_MAP = {
 
 
 def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_size=2):
-    num_classes = 14 + 1  #14 #5
+    num_classes = 5 + 1  #14 #5
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     mean = (0.478, 0.478, 0.478)  ##478 548
@@ -91,8 +91,7 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
             batch_tensor = torch.stack(batch_imgs).to(device)
             outputs = model(batch_tensor)
             preds = outputs['out'].argmax(1).cpu().numpy().astype(np.uint8)
-            print(preds)
-            pdb.set_trace()
+
             # postprocess + save
             for pred, fname in zip(preds, orig_names):
                 # pred = cv2.resize(pred, (419, 1024), interpolation=cv2.INTER_NEAREST)
@@ -228,19 +227,10 @@ def remove_small_components_multiclass(mask, min_area=200):
 
 
 if __name__ == "__main__":
-    WEIGHTS_PATH = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_2Feb_imahenet\UNET_concrete_2Feb_imahenet_best_epoch81_dice0.790.pth"
-    BATCH_SIZE = 1
-    projects = [
-        # {
-        #     "path": r"F:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33",
-        #     "sections": [f"SECTION-{i}" for i in range(2, 8)]
-        # },
-        # {
-        #     "path": r"F:\NSV_DATA\VARANASI-DAGMAGPUR_2024-10-04_09-34-33",
-        #     "sections": [f"SECTION-{i}" for i in range(1, 10)]
-        # },
-    ]
-    main(imgs_root=rf"D:\LALITPUR-LAKHNADON_2025-11-16_10-35-41\SECTION-5\M",
-         prediction_save_path=rf"D:\LALITPUR-LAKHNADON_2025-11-16_10-35-41\SECTION-5\M_",
+    WEIGHTS_PATH = r"D:\Devendra_Files\segmentation_training\weights\UNET_Asphalt\asp__best_epoch4_dice0.815.pth"
+    BATCH_SIZE = 4
+
+    main(imgs_root=rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\IMAGES",
+         prediction_save_path=rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN_UNETPP",
          weights_path=WEIGHTS_PATH,
          batch_size=BATCH_SIZE)

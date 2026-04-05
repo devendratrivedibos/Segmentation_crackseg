@@ -60,6 +60,7 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
     os.makedirs(prediction_save_path, exist_ok=True)
 
     # Model
+    model = SegFormer(num_classes=15, phi="b0")
     model = UNetPP(in_channels=3, num_classes=num_classes)
     pretrain_weights = torch.load(weights_path, map_location=device)
     if "model" in pretrain_weights:
@@ -420,30 +421,13 @@ def extend_joint_seals_to_image_end(mask):
 
 
 if __name__ == "__main__":
-    WEIGHTS_PATH = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_10dec_pretrained\UNET_concrete_10dec_pretrained_best_epoch409_dice0.871.pth"
+
+    WEIGHTS_PATH = r"D:\Devendra_Files\segmentation_training\weights\UNET_concrete_4ap_netpp\UNET_concrete_4apr_best_epoch300_dice0.844.pth"
     BATCH_SIZE = 4
-
-    projects = [
-        {
-            "path": r"Y:\NSV_DATA\DAGMAGPUR-LALGANJ_2024-10-04_16-13-33",
-            "sections": [f"SECTION-{i}" for i in range(1, 11)]
-        },
-        {
-            "path": r"Y:\NSV_DATA\VARANASI-DAGMAGPUR_2024-10-04_09-34-33",
-            "sections": [f"SECTION-{i}" for i in range(1, 10)]
-        },
-    ]
-
-    for project in projects:
-        for section in project["sections"]:
-            try:
-                main(
-                    imgs_root=rf"{project['path']}\{section}\process_distress",
-                    prediction_save_path=rf"{project['path']}\{section}\409_MASKS",
-                    weights_path=WEIGHTS_PATH,
-                    batch_size=BATCH_SIZE
-                )
-            except Exception as e:
-                print(f"❌ Error processing {project['path']} {section}: {e}")
-                continue
+    main(
+        imgs_root=rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\IMAGES",
+        prediction_save_path=rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\4apr_unetpp",
+        weights_path=WEIGHTS_PATH,
+        batch_size=BATCH_SIZE
+    )
     print("✅ All done!")

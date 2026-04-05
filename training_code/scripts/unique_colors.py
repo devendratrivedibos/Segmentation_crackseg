@@ -6,29 +6,13 @@ from multiprocessing import Pool, cpu_count
 from functools import partial
 from tqdm import tqdm
 
-# --- Define Folders ---
-# Concreete Day
+# -------------------------------
+# Folder path
+# -------------------------------
 folders = [
-r"Z:\Devendra\CONCRETE\ACCEPTED_MASKS"
+r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL",
+    # r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL"
 ]
-
-##ASPHALT DAY
-# folders = [
-    # r"Y:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-1\ACCEPTED_MASKS",
-    # r"Y:\BOS\DAMOH-SIMARIYA_2025-06-17_05-55-01\SECTION-2\ACCEPTED_MASKS",
-    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-1\process_distress_results_20oct_latest",
-    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-2\process_distress_results_20oct_latest",
-    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-3\process_distress_results_20oct_latest",
-    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-4\process_distress_results_20oct_latest",
-    # r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51\SECTION-5\process_distress_results_20oct_latest",
-    # r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-1\process_distress_seg_masks",
-    # r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00\SECTION-2\process_distress_seg_masks"
-
-# ]
-
-# # CONCRETE DAY
-# folders = [r"D:\cracks\Semantic-Segmentation of pavement distress dataset\Combined\OG_DATASET_CONCRETE\ACCEPTED_MASKS",
-# ]
 
 image_files = []
 for folder in folders:
@@ -38,7 +22,9 @@ for folder in folders:
 
 total_images = len(image_files)
 
-# --- Color map (RGB) → (ID, Name) ---
+# -------------------------------
+# Color map (RGB) → (ID, Name)
+# -------------------------------
 COLOR_MAP = {
     (0, 0, 0): (0, "Background"),
     (255, 0, 0): (1, "Alligator"),
@@ -57,88 +43,160 @@ COLOR_MAP = {
     (255, 215, 0): (14, "Cracking"),
 }
 
+# reverse lookup for faster name access
+ID_TO_NAME = {v[0]: v[1] for v in COLOR_MAP.values()}
 
-# --- Worker function ---
+# minimum pixel size for object to be counted
+MIN_PIXELS = 20
+
+
+# -------------------------------
+# Worker function
+# -------------------------------
 def process_image(COLOR_MAP, item):
+
     folder, filename = item
     path = os.path.join(folder, filename)
 
     image = cv2.imread(path)
+
     if image is None:
-        return {"path": path, "error": True}
+        return {
+            "path": path,
+            "error": True
+        }
 
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    pixels = image.reshape(-1, image.shape[2])
+
+    image_class_ids = set()
+    instance_counts = defaultdict(int)
+
+    # find unique colors in image
+    pixels = image.reshape(-1, 3)
     unique_colors = set(map(tuple, pixels))
 
     unknown_colors = set()
-    known_ids = set()
 
     for color in unique_colors:
-        if color in COLOR_MAP:
-            cid, cname = COLOR_MAP[color]
-            known_ids.add(cid)
-        else:
+
+        if color not in COLOR_MAP:
             unknown_colors.add(color)
+            continue
+
+        cid, cname = COLOR_MAP[color]
+
+        # mark image contains this class
+        image_class_ids.add(cid)
+
+        # binary mask
+        mask = np.all(image == color, axis=-1).astype(np.uint8)
+
+        if np.sum(mask) == 0:
+            continue
+
+        # connected components
+        num_labels, labels = cv2.connectedComponents(mask)
+
+        # skip label 0 (background)
+        for label in range(1, num_labels):
+
+            area = np.sum(labels == label)
+
+            if area >= MIN_PIXELS:
+                instance_counts[cid] += 1
 
     return {
         "path": path,
         "error": False,
-        "known_ids": known_ids,
-        "unknown_colors": unknown_colors,
+        "image_class_ids": image_class_ids,
+        "instance_counts": instance_counts,
+        "unknown_colors": unknown_colors
     }
 
 
-# --- Main multiprocessing logic ---
+# -------------------------------
+# Main multiprocessing
+# -------------------------------
 if __name__ == "__main__":
-    print(f"🔍 Processing {total_images} images using {cpu_count()} CPUs...")
+
+    print(f"\n🔍 Processing {total_images} images using {cpu_count()} CPUs...\n")
 
     results = []
+
     with Pool(processes=cpu_count()) as pool:
-        for res in tqdm(pool.imap_unordered(partial(process_image, COLOR_MAP), image_files),
-                        total=total_images, desc="Processing images"):
+
+        for res in tqdm(
+                pool.imap_unordered(
+                    partial(process_image, COLOR_MAP),
+                    image_files),
+                total=total_images,
+                desc="Processing images"):
+
             results.append(res)
 
-    # --- Aggregate results ---
-    id_image_count = defaultdict(int)
-    name_image_count = defaultdict(int)
+    # -------------------------------
+    # Aggregate Results
+    # -------------------------------
+
+    image_count_per_class = defaultdict(int)
+    instance_count_per_class = defaultdict(int)
+
     invalid_color_files = {}
-    unclassified = []
+    unclassified_files = []
 
     for res in results:
+
         if res["error"]:
             print(f"⚠️ Could not read: {res['path']}")
             continue
 
-        for cid in res["known_ids"]:
-            # Increment both ID and name counts
-            cname = [name for (rgb, (idx, name)) in COLOR_MAP.items() if idx == cid][0]
-            id_image_count[cid] += 1
-            name_image_count[cname] += 1
+        # image count
+        for cid in res["image_class_ids"]:
+            image_count_per_class[cid] += 1
 
+        # individual object count
+        for cid, count in res["instance_counts"].items():
+            instance_count_per_class[cid] += count
+
+        # unknown colors
         if res["unknown_colors"]:
             invalid_color_files[res["path"]] = res["unknown_colors"]
 
-        if any(x in res["known_ids"] for x in [13]):
-            unclassified.append(res["path"])
+        # unclassified
+        if 1 in res["image_class_ids"]:
+            unclassified_files.append(res["path"])
 
-    # --- Summary Report ---
-    print("\n✔️ Image count per known class ID:")
-    for cid in sorted(id_image_count):
-        cname = [name for (rgb, (idx, name)) in COLOR_MAP.items() if idx == cid][0]
-        print(f"ID-{cid:2d} ({cname}): {id_image_count[cid]} image(s)")
-
-    print("\n✔️ Image count per class Name:")
-    for cname in sorted(name_image_count):
-        print(f"{cname:20s}: {name_image_count[cname]} image(s)")
+    # -------------------------------
+    # Unknown color report
+    # -------------------------------
 
     if invalid_color_files:
-        print("\n⚠️ Files with unknown colors:")
+        print("\n⚠️ Files with unknown colors:\n")
         for fname, colors in invalid_color_files.items():
-            print(f"{fname} → {sorted(colors)}")
+            print(f"{fname}")
+            print(f"Unknown colors: {sorted(colors)}\n")
     else:
-        print("\n✅ All images use only valid colors.")
+        print("\n✅ All images contain only valid colors")
 
-    # print("\n📂 Files containing ID=13 (Unclassified, White):")
-    # for f in unclassified:
-        # print(os.path.basename(f))
+    if len(unclassified_files) > 0:
+        print("\n📂 Images containing UNCLASSIFIED (ID=13):")
+        for f in unclassified_files:
+            print(os.path.basename(f))
+
+    print("\n===============================================")
+    print(" CLASS DISTRIBUTION (Image count vs Object count)")
+    print("===============================================\n")
+
+    all_class_ids = sorted(set(image_count_per_class.keys()) | set(instance_count_per_class.keys()))
+
+    for cid in all_class_ids:
+
+        cname = ID_TO_NAME[cid]
+
+        img_count = image_count_per_class.get(cid, 0)
+        obj_count = instance_count_per_class.get(cid, 0)
+
+        print(
+            f"ID-{cid:2d} ({cname:25s}) : "
+            f"{img_count:6d} images    "
+            f"{obj_count:6d} objects")
