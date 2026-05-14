@@ -4,18 +4,31 @@ import numpy as np
 import torch
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+import sys
+project_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(project_root, '..'))
+from models.unet.UnetPP import UNetPP
 from models.unet.UnetPP import UNetPP
 
-
-# ---- CLASS COLOR MAP ----
+# -------------------------------
+# CLASS COLOR MAP
+# -------------------------------
 CLASS_COLOR_MAP = {
-    0: [0, 0, 0],      # Background
-    1: [255, 0, 0],    # Alligator
-    2: [0, 0, 255],    # Transverse Crack
-    3: [0, 255, 0],    # Longitudinal Crack
-    4: [139, 69, 19],  # Pothole
-    5: [255, 165, 0],  # Patches
-    12: [112, 102, 255],  # Popout
+    0: [0, 0, 0],
+    1: [255, 0, 0],
+    2: [0, 0, 255],
+    3: [0, 255, 0],
+    4: [139, 69, 19],
+    5: [255, 165, 0],
+    6: [255, 0, 255],
+    7: [0, 255, 255],
+    8: [0, 128, 0],
+    9: [255, 100, 203],
+    10: [199, 21, 133],
+    11: [128, 0, 128],
+    12: [112, 102, 255],
+    13: [255, 255, 255],
+    14: [255, 215, 0],
 }
 
 
@@ -75,7 +88,7 @@ def overlay_mask_on_image(image, color_mask, alpha=0.5):
 
 # ---- MAIN ----
 def main(imgs_root=None, prediction_save_path=None, weights_path=None):
-    num_classes = 5 + 1
+    num_classes = 14 + 1
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     mean, std = (0.456, 0.456, 0.456), (0.145, 0.145, 0.145)
     # mean, std = (0.488, 0.488, 0.488), (0.149, 0.149, 0.149)
@@ -148,16 +161,11 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None):
                                                   cv2.cvtColor(prediction_color, cv2.COLOR_RGB2BGR))
             cv2.imwrite(os.path.join(prediction_save_path, image_name.split('.')[0] + '_final_overlay.png'),
                         overlay_final)
-
             print(f"\r[{image_name}] processed [{index + 1}/{len(images_list)}]", end="")
-
     print("\nProcessing done!")
-
-
 if __name__ == '__main__':
     main(
-        imgs_root=r"C:\Users\Admin\Downloads",
-        prediction_save_path=r"C:\Users\Admin\Downloads\Newfolder",
-        weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_asphalt_1024\UNET_asp_1024_best_epoch243_dice0.705.pth"
-        # weights_path=r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_subset\epoch_9_iter_latest.pth"
+        imgs_root=r"Z:\Devendra\CONCRETE\HIGH_RES_IMAGES",
+        prediction_save_path=r"Z:\Devendra\CONCRETE\HIGH_RES_IMAGES\B",
+        weights_path=r"D:\Devendra_Files\segmentation_training\weights\UNET_concrete_tile\UNET_concrete_tile_best_epoch28_dice0.946.pth"
     )

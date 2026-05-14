@@ -9,25 +9,14 @@ root_dir = r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51"
 # root_dir = r"T:\SHINGOTE-KOLHAR_2025-09-23_14-06-00"
 GT_DIRS = [
     os.path.join(root_dir, "SECTION-1", "ACCEPTED_MASKS"),
-    os.path.join(root_dir, "SECTION-2", "ACCEPTED_MASKS"),
-    os.path.join(root_dir, "SECTION-3", "ACCEPTED_MASKS"),
-    os.path.join(root_dir, "SECTION-4", "ACCEPTED_MASKS"),
-    os.path.join(root_dir, "SECTION-5", "ACCEPTED_MASKS"),
-    # Add more GT dirs if needed
 ]
 
 PRED_DIRS = [
     os.path.join(root_dir, "SECTION-1", "process_distress_results_24oct_latest"),
-    os.path.join(root_dir, "SECTION-2", "process_distress_results_24oct_latest"),
-    os.path.join(root_dir, "SECTION-3", "process_distress_results_24oct_latest"),
-    os.path.join(root_dir, "SECTION-4", "process_distress_results_24oct_latest"),
-    os.path.join(root_dir, "SECTION-5", "process_distress_results_24oct_latest"),
-    # Add more GT dirs if needed
+
 ]
 
 SAVE_CSV = os.path.join(root_dir, "AMRAWATI-TALEGAON_mask_metrics.csv")
-# SAVE_CSV = os.path.join(root_dir, "SECTION-1", "S1_AMRAWATI-TALEGAON_mask_metrics.csv")
-
 COLOR_MAP = {
     (0, 0, 0): (0, "Background"),
     (255, 0, 0): (1, "Alligator"),

@@ -378,5 +378,4 @@ def build_crack_criterion(num_classes: int,
         aux_weight=0.5,
         normalize_losses=True
     ).to(device)
-
     return crit

@@ -5,9 +5,9 @@ import numpy as np
 from multiprocessing import Pool, cpu_count
 
 # --- Paths ---
-BASE_DIR = r"Z:\Devendra\CONCRETE"
-img_dir = os.path.join(BASE_DIR, "COMBINED_IMAGES")
-mask_dir = os.path.join(BASE_DIR, "COMBINED_MASKS")
+BASE_DIR = r"Z:\Devendra\CONCRETE\TILE"
+img_dir = os.path.join(BASE_DIR, "IMAGES")
+mask_dir = os.path.join(BASE_DIR, "MASKS")
 delete_mask_dir = os.path.join(BASE_DIR, "only_JS_MASK")
 delete_image_dir = os.path.join(BASE_DIR, "only_JS_IMAGE")
 

@@ -17,21 +17,23 @@ root_dir = r""
 SECTION_ID = "SECTION-1"
 pcams_dir = os.path.join(root_dir, 'pcams')
 
-
 # --- Example multiple folders ---
 image_dirs = [
-    # os.path.join(root_dir, 'process_distress'),
-rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\IMAGES",
+    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\IMAGES",
+    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\IMAGES",
+    rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\IMAGES",
 ]
 
 orig_mask_dirs = [
-    # os.path.join(root_dir, 'NoFilter_result'),
-rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\MASKS",
+    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\MASKS",
+    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\MASKS",
+    rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\MASKS",
 ]
 
 pred_mask_dirs = [
-    # os.path.join(root_dir,'31Dec_result'),
-rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN_UNETPP",
+    # rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\PRED",
+    # rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\PRED",
+    rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\PRED",
 ]
 
 # --- Output dirs ---
@@ -217,7 +219,7 @@ class ImageMaskViewerOptimized:
         # --- Load pcams (LL) ---
         pcams_img = None
         number = self.get_number_from_name(os.path.basename(img_path))
-        number = int(number)  if number else None
+        number = int(number) if number else None
         if number and os.path.exists(self.pcams_dir):
             for f in os.listdir(self.pcams_dir):
                 if "LL" in f and re.search(rf"{number}", f):

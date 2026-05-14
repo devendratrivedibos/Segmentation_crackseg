@@ -32,8 +32,8 @@ from models.unet.UnetPP import UNetPP
 
 
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_concrete_4apr_seg'  # Change this to your desired output path
-model_name = "UNET_concrete_4apr_seg"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_concrete'  # Change this to your desired output path
+model_name = "UNET_concrete"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -51,12 +51,12 @@ def create_model(aux, num_classes, pretrained=True):
     # model = fcn_resnet50(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
     # model = deeplabv3_resnet101(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
     # model = deeplabv3_mobilenetv3_large(aux=aux, num_classes=num_classes, pretrain_backbone=pretrained)
-    model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
+    # model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
     # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
     # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = DINODeepLab(num_classes=num_classes, backbone_name="dinov2_vitl14")
-    # model = UNetPP(in_channels=3, num_classes=num_classes)
+    model = UNetPP(in_channels=3, num_classes=num_classes)
     return model
 
 
@@ -244,16 +244,16 @@ def parse_args():
     parser.add_argument("--phi", default="b0", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
-                        default=r"",
+                        default=r"Y:\Devendra_Files\segmentation_training\weights\concrete_best.pth",
                         help='pretrained weights path')
     parser.add_argument('--optimizer-type', default="adamw")
-    parser.add_argument('--lr', default=0.00001, type=float, help='initial learning rate')  # 0.00006
+    parser.add_argument('--lr', default=0.00001, type=float, help='initial learning rate')  # 0.000s06
     parser.add_argument('--warmup-epochs', default=10, type=int)
     parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                         help='momentum')
     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
-    parser.add_argument("-b", "--batch-size", default=16, type=int)
+    parser.add_argument("-b", "--batch-size", default=8, type=int)
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
     parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")

@@ -14,40 +14,23 @@ from concurrent.futures import ThreadPoolExecutor
 # --- CONFIG ---
 start_number = 0  # <<< starting image number
 root_dir = r"D:/"
-# SECTION_ID = "SECTION-1"
-# pcams_dir = os.path.join(root_dir, SECTION_ID, 'pcams')
-#
-# image_dirs = [
-#     os.path.join(root_dir, SECTION_ID, 'ACCEPTED_IMAGES'),
-# ]
 
-# orig_mask_dirs = [
-#     os.path.join(root_dir, SECTION_ID, 'ACCEPTED_MASKS'),
-# ]
-
-# old_pred_mask_dirs = [
-#     os.path.join(root_dir, SECTION_ID, 'QC_Masks'),
-# ]#
-# new_pred_mask_dirs = [
-#     os.path.join(root_dir, SECTION_ID, 'QC_Masks_pretrain'),
-# ]
 pcams_dir = r"Z:/Devendra/CONCRETE/COMBINED_SPLITTED/TEST/IMAGES"
 image_dirs = [
-    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\IMAGES",
-    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\IMAGES"
+    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\IMAGES",
 ]
+
 orig_mask_dirs = [
-    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\MASKS",
-    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\TRAiN\MASKS"
+    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\MASKS"
 ]
+
 old_pred_mask_dirs = [
-    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\4apr_unet",
-    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\4apr_unetpp"
-                      ]
+   rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\pred_4nov"
+]
+
 new_pred_mask_dirs = [
-    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\4apr_seg",
-    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\4apr_seg"
-                      ]
+    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\pred_8may"
+]
 
 # --- Output dirs ---)
 accepted_img_dir = os.path.join(root_dir, "ACCEPTED_IMAGES")
@@ -238,7 +221,7 @@ class ImageMaskViewerOptimized:
         else:
             pred_mask_colored = cv2.cvtColor(pred_mask, cv2.COLOR_BGR2RGB)
         pred_mask_colored = cv2.resize(pred_mask_colored, (419, 1024), interpolation=cv2.INTER_NEAREST)
-        overlay = cv2.addWeighted(img, 0.5, pred_mask_colored, 0.5, 0)
+        overlay = cv2.addWeighted(img, 0.5, old_mask, 0.5, 0)
 
         # --- Load pcams (LL) ---
         pcams_img = None
@@ -279,9 +262,9 @@ class ImageMaskViewerOptimized:
         self.axs[1].imshow(orig_mask);
         self.axs[1].set_title("Original Mask")
         self.axs[2].imshow(old_mask);
-        self.axs[2].set_title("UNET")
+        self.axs[2].set_title("OLD")
         self.axs[3].imshow(pred_mask);
-        self.axs[3].set_title("SEGFORMER")
+        self.axs[3].set_title("NEW")
         self.axs[4].imshow(overlay)
         self.axs[4].set_title("Overlay")
         if pcams_img is not None:

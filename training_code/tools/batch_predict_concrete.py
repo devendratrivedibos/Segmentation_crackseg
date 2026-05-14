@@ -98,7 +98,7 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
 
                     pred = fix_fragmented_cracks_and_joints(pred)  # ⬅️ THIS SOLVES YOUR ISSUE
                     pred = remove_small_components_multiclass(pred)
-                    pred = extend_joint_seals_to_image_end(pred)  # ✅ FINAL STEP
+                    # pred = extend_joint_seals_to_image_end(pred)  # ✅ FINAL STEP
 
                     pred_color = colorize_prediction(pred)
                     save_path = os.path.join(prediction_save_path, fname.split('.')[0] + '.png')
@@ -422,12 +422,17 @@ def extend_joint_seals_to_image_end(mask):
 
 if __name__ == "__main__":
 
-    WEIGHTS_PATH = r"D:\Devendra_Files\segmentation_training\weights\UNET_concrete_4ap_netpp\UNET_concrete_4apr_best_epoch300_dice0.844.pth"
+    WEIGHTS_PATH = r"Y:\Devendra_Files\segmentation_training\weights\UNET_concrete_10may.pth"
     BATCH_SIZE = 4
-    main(
-        imgs_root=rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\IMAGES",
-        prediction_save_path=rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\4apr_unetpp",
-        weights_path=WEIGHTS_PATH,
-        batch_size=BATCH_SIZE
-    )
-    print("✅ All done!")
+    main(imgs_root=rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\IMAGES",
+         prediction_save_path=rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\PRED_10may",
+         weights_path=WEIGHTS_PATH,
+         batch_size=BATCH_SIZE)
+
+    WEIGHTS_PATH = r"Y:\Devendra_Files\segmentation_training\weights\concrete_best.pth"
+    BATCH_SIZE = 4
+    main(imgs_root=rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\IMAGES",
+         prediction_save_path=rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\PRED_old",
+         weights_path=WEIGHTS_PATH,
+         batch_size=BATCH_SIZE)
+

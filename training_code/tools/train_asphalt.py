@@ -31,8 +31,8 @@ from models.unet.UnetPP import UNetPP
 
 
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_Asphalt'  # Change this to your desired output path
-model_name = "asp_"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_Asphalt_scratch'  # Change this to your desired output path
+model_name = "8may_asp_scratch_"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -242,7 +242,8 @@ def parse_args():
     parser.add_argument("--phi", default="b0", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
-                        default=r"Y:\Devendra_Files\segmentation_training\weights\asphalt_best.pth",
+                        # default=r"Y:\Devendra_Files\segmentation_training\weights\asphalt_best.pth",
+                        default=r"",
                         help='pretrained weights path')
     parser.add_argument('--optimizer-type', default="adamw")
     parser.add_argument('--lr', default=0.0001, type=float, help='initial learning rate')  # 0.00006

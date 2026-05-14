@@ -6,27 +6,19 @@ from tqdm import tqdm
 from skimage.morphology import skeletonize
 
 # ================== CONFIG ==================
-root_dir = r"Y:\NHAI_Amaravati_Data\AMRAVTI-TALEGAON_2025-06-14_06-38-51"
+root_dir = r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL"
 
 GT_DIRS = [
-    os.path.join(root_dir, "SECTION-1", "ACCEPTED_MASKS"),
-    # os.path.join(root_dir, "SECTION-2", "ACCEPTED_MASKS"),
-    # os.path.join(root_dir, "SECTION-3", "ACCEPTED_MASKS"),
-    # os.path.join(root_dir, "SECTION-4", "ACCEPTED_MASKS"),
-    # os.path.join(root_dir, "SECTION-5", "ACCEPTED_MASKS"),
+"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\MASKS"
+
 ]
 
 PRED_DIRS = [
-    # os.path.join(root_dir, "SECTION-1", "process_distress_results_4oct_latest"),
-    os.path.join(root_dir, "SECTION-1", "process_distress_results"),
-    # os.path.join(root_dir, "SECTION-2", "process_distress_results"),
-    # os.path.join(root_dir, "SECTION-3", "process_distress_results"),
-    # os.path.join(root_dir, "SECTION-4", "process_distress_results"),
-    # os.path.join(root_dir, "SECTION-5", "process_distress_results"),
+    "Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\PRED_10may"
+    # rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\PRED_old"
 ]
 
-SAVE_CSV = os.path.join(root_dir,"SECTION-1", "AMRAWATI-TALEGAON_mask_metrics.csv")
-
+SAVE_CSV = os.path.join(root_dir, "pred_8may.csv")
 COLOR_MAP = {
     (0, 0, 0): (0, "Background"),
     (255, 0, 0): (1, "Alligator"),
@@ -46,15 +38,15 @@ COLOR_MAP = {
 }
 
 IGNORE_CLASSES = {
-    "Spalling", "Corner Break",
-    "Sealed Joint Transverse", "Sealed Joint Longitudinal",
-    "Punchout", "Popout", "Cracking"
+    # "Spalling", "Corner Break",
+    # "Sealed Joint Transverse", "Sealed Joint Longitudinal",
+    # "Punchout", "Popout", "Cracking"
 }
 
-CRACK_CLASSES = {"Alligator", "Transverse Crack", "Longitudinal Crack"}
+CRACK_CLASSES = {"Alligator", "Transverse Crack", "Longitudinal Crack", "Multiple Crack"}
 
 FILTER_PIXELS = {
-    "Pothole": [0, 500, 1000, 1500],
+    # "Pothole": [0, 500, 1000, 1500],
     # "Alligator": [0, 50, 100],  # example thresholds for crack lengths
     # "Transverse Crack": [0, 20, 50],
     # "Longitudinal Crack": [0, 20, 50],

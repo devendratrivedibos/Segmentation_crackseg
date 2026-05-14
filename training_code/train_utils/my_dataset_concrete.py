@@ -36,17 +36,10 @@ class CrackDataset(Dataset):
         # data_root = root
         imgs_root = os.path.join(data_root, "IMAGES")
         masks_root = os.path.join(data_root, "MASKS")
-
         self.images_list = os.listdir(imgs_root)
         valid_exts = ['.png', '.jpg', '.jpeg']
         self.images_list = [f for f in os.listdir(imgs_root) if Path(f).suffix.lower() in valid_exts]
-
         self.images_path = [os.path.join(imgs_root, i) for i in self.images_list]
-
-        # self.masks_path = [os.path.join(masks_root, i) for i in self.images_list]  # same_name
-
-        # Build a lookup dictionary for masks (key = base name without extension)
-
         self.masks_path = [os.path.join(masks_root, os.path.splitext(i)[0] + '.png')
                             for i in self.images_list]
         print("LEN IMAGES:", len(self.images_path))
@@ -59,12 +52,10 @@ class CrackDataset(Dataset):
         # Load image using OpenCV and convert to RGB
         img = cv2.imread(self.images_path[idx])
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        # img = cv2.resize(img, (1024, 1024), interpolation=cv2.INTER_NEAREST)
-        # Load mask in color and convert to RGB
+        # img = cv2.resize(img, (384, 384), interpolation=cv2.INTER_NEAREST)
         mask_rgb = cv2.imread(self.masks_path[idx], cv2.IMREAD_COLOR)
         mask_rgb = cv2.cvtColor(mask_rgb, cv2.COLOR_BGR2RGB)
-        # mask_rgb = cv2.resize(mask_rgb, (1024, 1024), interpolation=cv2.INTER_NEAREST)
-        # Convert RGB mask to class ID map
+        # mask_rgb = cv2.resize(mask_rgb, (384, 384), interpolation=cv2.INTER_NEAREST)
         mask = self.rgb_to_class_id(mask_rgb, COLOR_MAP)
         if self.transforms is not None:
             # img, mask = self.transforms(img, mask)

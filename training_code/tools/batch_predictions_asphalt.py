@@ -32,15 +32,15 @@ COLOR_MAP = {
     (0, 255, 0): (3, "Longitudinal Crack"),
     (139, 69, 19): (4, "Pothole"),
     (255, 165, 0): (5, "Patches"),
-    (255, 0, 255): (6, "Multiple Crack"),
-    (0, 255, 255): (7, "Spalling"),
-    (0, 128, 0): (8, "Corner Break"),
-    (255, 100, 203): (9, "Sealed Joint - T"),
-    (199, 21, 133): (10, "Sealed Joint - L"),
-    (128, 0, 128): (11, "Punchout"),
-    (112, 102, 255): (12, "Popout"),
-    (255, 255, 255): (13, "Unclassified"),
-    (255, 215, 0): (14, "Cracking"),
+    # (255, 0, 255): (6, "Multiple Crack"),
+    # (0, 255, 255): (7, "Spalling"),
+    # (0, 128, 0): (8, "Corner Break"),
+    # (255, 100, 203): (9, "Sealed Joint - T"),
+    # (199, 21, 133): (10, "Sealed Joint - L"),
+    # (128, 0, 128): (11, "Punchout"),
+    # (112, 102, 255): (12, "Popout"),
+    # (255, 255, 255): (13, "Unclassified"),
+    # (255, 215, 0): (14, "Cracking"),
 }
 
 
@@ -227,10 +227,16 @@ def remove_small_components_multiclass(mask, min_area=200):
 
 
 if __name__ == "__main__":
-    WEIGHTS_PATH = r"D:\Devendra_Files\segmentation_training\weights\UNET_Asphalt\asp__best_epoch4_dice0.815.pth"
+    WEIGHTS_PATH = r"Y:\Devendra_Files\segmentation_training\weights\8may_asp_scratch.pth"
     BATCH_SIZE = 4
-
-    main(imgs_root=rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN\IMAGES",
-         prediction_save_path=rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN_UNETPP",
+    main(imgs_root=rf"G:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\IMAGES",
+         prediction_save_path=rf"G:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\PRED_8may",
+         weights_path=WEIGHTS_PATH,
+         batch_size=BATCH_SIZE)
+    
+    WEIGHTS_PATH = r"Y:\Devendra_Files\segmentation_training\weights\asphalt_best.pth"
+    BATCH_SIZE = 4
+    main(imgs_root=rf"G:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\IMAGES",
+         prediction_save_path=rf"G:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\PRED_4nov",
          weights_path=WEIGHTS_PATH,
          batch_size=BATCH_SIZE)

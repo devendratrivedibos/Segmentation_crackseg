@@ -2,6 +2,7 @@ import os
 import cv2
 import re
 
+
 def tile_dataset(image_dir, mask_dir, save_dir_img, save_dir_mask,
                  tile_size=(1024, 1024), overlap=128):
     """
@@ -76,15 +77,11 @@ def tile_dataset(image_dir, mask_dir, save_dir_img, save_dir_mask,
         print(f"✅ {fname}: saved {tile_id} tiles.")
 
 
+path = rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\TRAIN"
 
-for i in range(1,2):
-    path = rf"F:\NSV_DATA\Demo Data\SA DATA\CHAS-RAMGARH_2024-11-14_11-09-22\SECTION-{i}"
-    if os.path.isdir(path) is False:
-        print(f"❌ Path does not exist: {path}")
-        continue
-    image_dir = os.path.join(path, "process_distress_HIGH_RES")  # input image folder
-    mask_dir = os.path.join(path, "HIGH_RES_MASKS") # input mask folder
-    save_dir_img = os.path.join(path, "TILE_HIGH_RES_IMAGES")
-    save_dir_mask = os.path.join(path, "TILE_HIGH_RES_MASKS")
-    tile_dataset(image_dir, mask_dir, save_dir_img, save_dir_mask,
-                 tile_size=(1024, 1024), overlap=256)
+image_dir = r"Z:\Devendra\CONCRETE\TILE\HIGH_RES_IMAGES"
+mask_dir = r"Z:\Devendra\CONCRETE\TILE\HIGH_RES_MASKS"
+save_dir_img = "Z:\Devendra\CONCRETE\TILE\TILE_HIGH_RES_IMAGES"
+save_dir_mask = "Z:\Devendra\CONCRETE\TILE\TILE_HIGH_RES_MASKS"
+tile_dataset(image_dir, mask_dir, save_dir_img, save_dir_mask,
+             tile_size=(1024, 1024), overlap=256)
