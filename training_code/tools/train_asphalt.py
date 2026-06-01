@@ -27,12 +27,13 @@ from models.segformer.segformer import SegFormer
 
 # from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
 from models.unet.UnetPP import UNetPP
+
 # from models.dinov3.dinov3 import DINODeepLab
 
 
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_Asphalt_scratch'  # Change this to your desired output path
-model_name = "8may_asp_scratch_"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_Asphalt_30may'  # Change this to your desired output path
+model_name = "30may_asp_"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -65,8 +66,8 @@ def main(args):
     # segmentation nun_classes + background
     num_classes = args.num_classes + 1
 
-    mean = (0.478, 0.478, 0.478)   ##478
-    std = (0.145, 0.145, 0.145)   ###145
+    mean = (0.47668327, 0.47668327, 0.47668327)  # 478
+    std = (0.148, 0.148, 0.148)  # 145
 
     num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
 
@@ -242,8 +243,7 @@ def parse_args():
     parser.add_argument("--phi", default="b0", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
-                        # default=r"Y:\Devendra_Files\segmentation_training\weights\asphalt_best.pth",
-                        default=r"",
+                        default=r"Y:\Devendra_Files\segmentation_training\weights\asp_2may.pth",
                         help='pretrained weights path')
     parser.add_argument('--optimizer-type', default="adamw")
     parser.add_argument('--lr', default=0.0001, type=float, help='initial learning rate')  # 0.00006
@@ -252,7 +252,6 @@ def parse_args():
                         help='momentum')
     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
-
     parser.add_argument("-b", "--batch-size", default=16, type=int)
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
     parser.add_argument("--epochs", default=500, type=int, metavar="N",

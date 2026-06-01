@@ -9,14 +9,14 @@ from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ===================== CONFIG =====================
-images_dir = r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\IMAGES"
-masks_dir = r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL"
-output_dir = r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT"
+# images_dir = r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\IMAGES"
+# masks_dir = r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL"
+# output_dir = r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT"
 
 # ===================== CONFIG =====================
-# images_dir = r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\IMAGES"
-# masks_dir = r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL"
-# output_dir = r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT"
+images_dir = r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\IMAGES"
+masks_dir = r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL"
+output_dir = r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT"
 
 
 test_size = 0.01

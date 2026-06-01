@@ -158,14 +158,20 @@ def save_masks_from_json(json_file, output_dir="./masks", use_rgb=True):
 
 
 folderlist = [
-
 ]
+
 for i in folderlist:
     save_masks_from_json(i,
-                         r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL",
+                         r"Z:\Devendra\ASPHALT\MASKS_TRAIL",
                          use_rgb=True)
     save_masks_from_json(i,
-                         r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\MASKS",
+                         r"Z:\Devendra\ASPHALT\MASKS",
+                         use_rgb=True)
+    save_masks_from_json(i,
+                         r"D:\cracks\ASPHALT\MASKS_TRAIL",
+                         use_rgb=True)
+    save_masks_from_json(i,
+                         r"D:\cracks\ASPHALT\MASKS",
                          use_rgb=True)
 
 folderlist = [
@@ -177,4 +183,11 @@ for i in folderlist:
                          use_rgb=True)
     save_masks_from_json(i,
                          r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\MASKS",
+                         use_rgb=True)
+
+    save_masks_from_json(i,
+                         r"D:\cracks\CONCRETE\MASKS",
+                         use_rgb=True)
+    save_masks_from_json(i,
+                         r"D:\cracks\CONCRETE\MASKS_TRAIL",
                          use_rgb=True)

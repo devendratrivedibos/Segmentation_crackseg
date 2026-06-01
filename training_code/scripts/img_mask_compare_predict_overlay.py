@@ -17,19 +17,19 @@ root_dir = r"D:/"
 
 pcams_dir = r"Z:/Devendra/CONCRETE/COMBINED_SPLITTED/TEST/IMAGES"
 image_dirs = [
-    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\IMAGES",
+    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\potpatch_image",
 ]
 
 orig_mask_dirs = [
-    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\MASKS"
+    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\potpatch_mask"
 ]
 
 old_pred_mask_dirs = [
-   rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\pred_4nov"
+   rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\potpatch_imagpred"
 ]
 
 new_pred_mask_dirs = [
-    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\pred_8may"
+    rf"D:\Devendra_Files\ultralytics_11\runs\segment\predict-3"
 ]
 
 # --- Output dirs ---)
@@ -60,9 +60,9 @@ def load_files(dirs, exts):
     return sorted(files)
 
 images = load_files(image_dirs, ('.png', '.jpg', '.jpeg'))
-orig_masks = load_files(orig_mask_dirs, ('.png',))
-new_pred_masks = load_files(new_pred_mask_dirs, ('.png',))
-old_pred_masks = load_files(old_pred_mask_dirs, ('.png',))
+orig_masks = load_files(orig_mask_dirs, ('.png', '.jpg', '.jpeg'))
+new_pred_masks = load_files(new_pred_mask_dirs, ('.png', '.jpg', '.jpeg'))
+old_pred_masks = load_files(old_pred_mask_dirs, ('.png', '.jpg', '.jpeg'))
 
 # --- Strip extensions for matching ---
 image_stems = {os.path.splitext(os.path.basename(f))[0]: f for f in images}

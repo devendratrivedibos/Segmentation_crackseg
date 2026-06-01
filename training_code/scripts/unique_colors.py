@@ -10,8 +10,8 @@ from tqdm import tqdm
 # Folder path
 # -------------------------------
 folders = [
-r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL",
-    # r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL"
+# r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL",
+    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL"
 ]
 
 image_files = []
@@ -180,8 +180,8 @@ if __name__ == "__main__":
 
     if len(unclassified_files) > 0:
         print("\n📂 Images containing UNCLASSIFIED (ID=13):")
-        for f in unclassified_files:
-            print(os.path.basename(f))
+        # for f in unclassified_files:
+        #     print(os.path.basename(f))
 
     print("\n===============================================")
     print(" CLASS DISTRIBUTION (Image count vs Object count)")

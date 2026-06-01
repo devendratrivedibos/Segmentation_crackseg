@@ -15,10 +15,10 @@ GT_DIRS = [
 
 PRED_DIRS = [
     "Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\PRED_10may"
-    # rf"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\PRED_old"
+
 ]
 
-SAVE_CSV = os.path.join(root_dir, "pred_8may.csv")
+SAVE_CSV = os.path.join(root_dir, " .csv")
 COLOR_MAP = {
     (0, 0, 0): (0, "Background"),
     (255, 0, 0): (1, "Alligator"),

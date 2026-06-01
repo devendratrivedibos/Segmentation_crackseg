@@ -227,16 +227,10 @@ def remove_small_components_multiclass(mask, min_area=200):
 
 
 if __name__ == "__main__":
-    WEIGHTS_PATH = r"Y:\Devendra_Files\segmentation_training\weights\8may_asp_scratch.pth"
+    WEIGHTS_PATH = r"y:\Devendra_Files\segmentation_training\weights\8may_asp_scratch.pth"
     BATCH_SIZE = 4
-    main(imgs_root=rf"G:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\IMAGES",
-         prediction_save_path=rf"G:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\PRED_8may",
+    main(imgs_root=rf"g:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\potpatch_image",
+         prediction_save_path=r"g:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\potpatch_imagpred",
          weights_path=WEIGHTS_PATH,
          batch_size=BATCH_SIZE)
     
-    WEIGHTS_PATH = r"Y:\Devendra_Files\segmentation_training\weights\asphalt_best.pth"
-    BATCH_SIZE = 4
-    main(imgs_root=rf"G:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\IMAGES",
-         prediction_save_path=rf"G:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\PRED_4nov",
-         weights_path=WEIGHTS_PATH,
-         batch_size=BATCH_SIZE)
