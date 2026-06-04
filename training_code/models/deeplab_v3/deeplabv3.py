@@ -220,10 +220,9 @@ def deeplabv3_resnet101(aux, num_classes=21, pretrain_backbone=False):
     # 'resnet101_imagenet': 'https://download.pytorch.org/models/resnet101-63fe2227.pth'
     # 'deeplabv3_resnet101_coco': 'https://download.pytorch.org/models/deeplabv3_resnet101_coco-586e9e4e.pth'
     backbone = resnet101(replace_stride_with_dilation=[False, True, True])
-
     if pretrain_backbone:
         # 载入resnet101 backbone预训练权重
-        backbone.load_state_dict(torch.load("pretrained_weights/imagenet/resnet101.pth", map_location='cpu'))
+        backbone.load_state_dict(torch.load(rf"pretrained_weights\resnet101-imagenet.pth", map_location='cpu'))
         print("load backbone pretrained weights.")
 
     out_inplanes = 2048

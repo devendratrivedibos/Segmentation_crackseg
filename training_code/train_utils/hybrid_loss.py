@@ -230,7 +230,7 @@ class CombinedCriterion(nn.Module):
                  focal_tversky_gamma: float = 1.33,
                  ignore_index: int = 255,
                  aux_weight: float = 0.5,
-                 normalize_losses: bool = True):
+                 normalize_losses: bool = False):   #True
         super().__init__()
 
         self.num_classes = num_classes
@@ -276,22 +276,25 @@ class CombinedCriterion(nn.Module):
             parts["ftversky"] = self.ftversky(logits, target)
         return parts
 
-    def _mix(self, parts: Dict[str, torch.Tensor]) -> torch.Tensor:
-        # Optional: normalize each term by its detached mean so no term dominates
-        scales = {}
-        if self.normalize_losses and len(parts) > 1:
-            for k, v in parts.items():
-                scales[k] = detach_mean(v)  # per-batch adaptive
-        else:
-            for k in parts.keys():
-                scales[k] = torch.tensor(1.0, device=next(self.parameters()).device)
+    def _mix(self, parts):
 
         total = 0.0
-        if "ce" in parts:        total = total + self.w_ce        * (parts["ce"]        / scales["ce"])
-        if "focal" in parts:     total = total + self.w_focal     * (parts["focal"]     / scales["focal"])
-        if "dice" in parts:      total = total + self.w_dice      * (parts["dice"]      / scales["dice"])
-        if "tversky" in parts:   total = total + self.w_tversky   * (parts["tversky"]   / scales["tversky"])
-        if "ftversky" in parts:  total = total + self.w_ftversky  * (parts["ftversky"]  / scales["ftversky"])
+
+        if "ce" in parts:
+            total += self.w_ce * parts["ce"]
+
+        if "focal" in parts:
+            total += self.w_focal * parts["focal"]
+
+        if "dice" in parts:
+            total += self.w_dice * parts["dice"]
+
+        if "tversky" in parts:
+            total += self.w_tversky * parts["tversky"]
+
+        if "ftversky" in parts:
+            total += self.w_ftversky * parts["ftversky"]
+
         return total
 
     def forward(self, outputs: Union[torch.Tensor, Dict[str, torch.Tensor]], target: torch.Tensor) -> torch.Tensor:
@@ -343,39 +346,52 @@ def build_crack_criterion(num_classes: int,
         # CE weights via effective number (stable for extreme imbalance)
         ce_w = effective_number_weights(class_counts, beta=0.9999)
         ce_w = normalize_weights(ce_w, "mean1")
-
+        ce_w = torch.clamp(ce_w, min=0.5, max=10.0)
         # Make background a bit less dominant (optional, but helpful)
         # Reduce background weight toward 0.5x of the average
         bg_idx = 0
-        ce_w[bg_idx] = ce_w[bg_idx] * 0.5
+        ce_w[bg_idx] = ce_w[bg_idx] * 0.8
 
         # For Dice/Tversky per-class weights, use inverse frequency but milder
         inv_freq = (class_counts.sum() / class_counts).clamp_max(1000.0)
         inv_freq = normalize_weights(inv_freq, "mean1")
+        inv_freq = torch.clamp(inv_freq, min=0.5, max=10.0)
         # Down-weight background again
         inv_freq[bg_idx] = inv_freq[bg_idx] * 0.5
 
         dice_w = inv_freq.clone()
         tv_w = inv_freq.clone()
+    print("\nClass Counts:")
+    print(class_counts)
 
+    print("\nCE Weights:")
+    print(ce_w)
+
+    print("\nDice Weights:")
+    print(dice_w)
     crit = CombinedCriterion(
         num_classes=num_classes,
-        # Mix weights (good defaults for cracks)
-        ce_weight=0.25,
-        focal_weight=0.35,
-        dice_weight=0.15,
+
+        ce_weight=0.5,
+        focal_weight=0.3,
+        dice_weight=0.2,
+
         tversky_weight=0.0,
-        focal_tversky_weight=0.40,  # strongest for thin cracks
-        # class weights
+        focal_tversky_weight=0.0,
+
         ce_class_weights=ce_w,
         dice_class_weights=dice_w,
-        tversky_class_weights=tv_w,
-        # Tversky params: emphasize recall (FN) for cracks
-        alpha_tversky=0.7, beta_tversky=0.3,
-        focal_gamma=1.5,
+        tversky_class_weights=None,
+
+        alpha_tversky=0.7,
+        beta_tversky=0.3,
+
+        focal_gamma=2.0,
         focal_tversky_gamma=1.33,
+
         ignore_index=ignore_index,
         aux_weight=0.5,
-        normalize_losses=True
+
+        normalize_losses=False
     ).to(device)
     return crit

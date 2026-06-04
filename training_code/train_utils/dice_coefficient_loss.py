@@ -36,13 +36,35 @@ def dice_coeff(x: torch.Tensor, target: torch.Tensor, ignore_index: int = -100, 
     return d / batch_size
 
 
-def multiclass_dice_coeff(x: torch.Tensor, target: torch.Tensor, ignore_index: int = -100, epsilon=1e-6):
-    """Average of Dice coefficient for all classes"""
-    dice = 0.
-    for channel in range(x.shape[1]):
-        dice += dice_coeff(x[:, channel, ...], target[:, channel, ...], ignore_index, epsilon)
+def multiclass_dice_coeff(
+        x,
+        target,
+        ignore_index=-100,
+        epsilon=1e-6):
 
-    return dice / x.shape[1]
+    dice = 0.
+    valid_classes = 0
+
+    for channel in range(1, x.shape[1]):
+
+        gt_pixels = target[:, channel].sum()
+
+        if gt_pixels > 0:
+            dice += dice_coeff(
+                x[:, channel],
+                target[:, channel],
+                ignore_index,
+                epsilon
+            )
+            valid_classes += 1
+
+    if valid_classes == 0:
+        return torch.tensor(
+            1.0,
+            device=x.device
+        )
+
+    return dice / valid_classes
 
 
 def dice_loss(x: torch.Tensor, target: torch.Tensor, multiclass: bool = False, ignore_index: int = -100):

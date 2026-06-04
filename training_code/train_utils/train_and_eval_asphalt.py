@@ -19,6 +19,15 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 num_classes = 5 + 1
 
 class_counts = None
+class_counts = torch.tensor([
+    2115730079,
+    64987876,
+    394513,
+    4182415,
+    3542392,
+    46115429
+], dtype=torch.float32)
+
 
 # ✅ FIX: use counts_tensor, not the Python list
 counts_tensor = class_counts
@@ -174,6 +183,12 @@ def train_one_epoch_loss(model,
         total_batches += 1
 
     epoch_loss = running_loss / total_batches
+    if total_batches == 0:
+        pred = outputs.argmax(1)
+
+        print("GT:", torch.unique(target))
+        print("PRED:", torch.unique(pred))
+        print("LOSS:", loss.item())
     return epoch_loss, lr
 # -----------------------------
 # LR Scheduler (unchanged)

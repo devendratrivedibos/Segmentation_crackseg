@@ -11,7 +11,7 @@ from tqdm import tqdm
 # -------------------------------
 folders = [
 # r"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL",
-    r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL"
+    r"Z:\Devendra\CONCRETE\MASKS_TRIAL"
 ]
 
 image_files = []

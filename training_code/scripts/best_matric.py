@@ -1,4 +1,5 @@
 import re
+import re
 
 def top10_metric(log_file, metric_name):
     results = []
@@ -6,25 +7,34 @@ def top10_metric(log_file, metric_name):
     with open(log_file, "r") as f:
         text = f.read()
 
-    # Find all blocks for given metric
-    blocks = re.findall(rf"{metric_name}:\s*\[(.*?)\]", text, re.DOTALL)
+    # Accuracy is stored as a single value
+    if metric_name.lower() == "accuracy":
 
-    for epoch_idx, block in enumerate(blocks):
-        values = [float(x) for x in re.findall(r"[\d.]+", block)]
-        first6 = values[:6]
-        avg_first6 = sum(first6) / len(first6) if first6 else 0
-        results.append((epoch_idx, avg_first6))
+        epoch_blocks = re.findall(
+            r"\[epoch:\s*(\d+)\](.*?)(?=\[epoch:|\Z)",text,re.DOTALL)
 
-    # Sort by avg_first6 in descending order
+        for epoch, block in epoch_blocks:
+            match = re.search(r"accuracy:\s*([\d.]+)", block)
+            if match:
+                results.append((int(epoch), float(match.group(1))))
+
+    else:
+        blocks = re.findall(
+            rf"{metric_name}:\s*\[(.*?)\]",text,re.DOTALL | re.IGNORECASE)
+
+        for epoch_idx, block in enumerate(blocks):
+            values = [float(x) for x in re.findall(r"[\d.]+", block)]
+            first6 = values[1:6]
+            avg_first6 = sum(first6) / len(first6) if first6 else 0
+            results.append((epoch_idx, avg_first6))
+
     results.sort(key=lambda x: x[1], reverse=True)
 
-    print(f"\n=== Top 10 Epochs by {metric_name.upper()} (AVG first 6) ===")
-    for i, (epoch, avg) in enumerate(results[:10], start=1):
-        print(f"{i}. Epoch {epoch} → {metric_name.upper()} AVG(first 6) = {avg:.2f}")
-
-
+    print(f"\n=== Top 10 Epochs by {metric_name.upper()} ===")
+    for i, (epoch, value) in enumerate(results[:20], start=1):
+        print(f"{i}. Epoch {epoch} → {value:.2f}")
 # --- Usage ---
-log_file = r"D:\Devendra_Files\CrackSegFormer-main\weights\UNET_concrete_7Feb_imagenet\UNET_concrete_7Feb_imagenet-results.txt"
+log_file = r"D:\Devendra_Files\segmentation_training\weights\2june_asp_\2june_asp_-results.txt"
 top10_metric(log_file, "recall")
 top10_metric(log_file, "precision")
 top10_metric(log_file, "accuracy")

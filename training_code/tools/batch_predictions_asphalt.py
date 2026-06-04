@@ -48,8 +48,8 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
     num_classes = 5 + 1  #14 #5
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    mean = (0.478, 0.478, 0.478)  ##478 548
-    std = (0.145, 0.145, 0.145)  ###145 146
+    mean = (0.47668327, 0.47668327, 0.47668327)  # 478
+    std = (0.148, 0.148, 0.148)  # 145
 
     data_transform = A.Compose([
         # A.Resize(1024, 1024),
@@ -63,6 +63,7 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
 
     # Model
     model = UNetPP(in_channels=3, num_classes=num_classes)
+    model = VGG16UNet(num_classes=num_classes, pretrain_backbone=False)
     pretrain_weights = torch.load(weights_path, map_location=device)
     if "model" in pretrain_weights:
         model.load_state_dict(pretrain_weights["model"])
@@ -118,17 +119,24 @@ def colorize_prediction(prediction):
 # UTILITIES
 # =====================================
 def find_endpoints(contour):
-    """Return two farthest points in contour (endpoints)."""
     pts = contour.reshape(-1, 2)
-    max_dist = 0
-    endpoints = (pts[0], pts[0])
+    if len(pts) < 2:
+        return pts[0], pts[0]
+    max_dist_sq = -1
+    p1, p2 = pts[0], pts[0]
+
     for i in range(len(pts)):
         for j in range(i + 1, len(pts)):
-            d = np.linalg.norm(pts[i] - pts[j])
-            if d > max_dist:
-                max_dist = d
-                endpoints = (pts[i], pts[j])
-    return endpoints
+            dx = float(pts[i][0]) - float(pts[j][0])
+            dy = float(pts[i][1]) - float(pts[j][1])
+
+            dist_sq = dx * dx + dy * dy
+
+            if dist_sq > max_dist_sq:
+                max_dist_sq = dist_sq
+                p1, p2 = pts[i], pts[j]
+
+    return p1, p2
 
 
 def join_directional(mask, crack_type, radius=5, line_width=2):
@@ -227,10 +235,9 @@ def remove_small_components_multiclass(mask, min_area=200):
 
 
 if __name__ == "__main__":
-    WEIGHTS_PATH = r"y:\Devendra_Files\segmentation_training\weights\8may_asp_scratch.pth"
+    WEIGHTS_PATH = r"D:\Devendra_Files\segmentation_training\weights\VGG16UNet\VGG16UNet_best_epoch44_dice0.710.pth"
     BATCH_SIZE = 4
-    main(imgs_root=rf"g:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\potpatch_image",
-         prediction_save_path=r"g:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\potpatch_imagpred",
+    main(imgs_root=rf"Z:\Devendra\ASPHALT\SPLIT\VAL\IMAGES",
+         prediction_save_path=rf"Z:\Devendra\ASPHALT\30mayy_2",
          weights_path=WEIGHTS_PATH,
          batch_size=BATCH_SIZE)
-    

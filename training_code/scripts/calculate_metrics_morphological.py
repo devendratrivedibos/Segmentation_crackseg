@@ -6,19 +6,17 @@ from tqdm import tqdm
 from skimage.morphology import skeletonize
 
 # ================== CONFIG ==================
-root_dir = r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL"
+root_dir = rf"Z:\Devendra\ASPHALT"
 
 GT_DIRS = [
-"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\MASKS"
-
+    rf"Z:\Devendra\ASPHALT\SPLIT\VAL\MASKS"
 ]
 
 PRED_DIRS = [
-    "Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT\VAL\PRED_10may"
-
+    rf"Z:\Devendra\ASPHALT\MASKS_VAL_04_NOV"
 ]
 
-SAVE_CSV = os.path.join(root_dir, " .csv")
+SAVE_CSV = os.path.join(root_dir, "2june.csv")
 COLOR_MAP = {
     (0, 0, 0): (0, "Background"),
     (255, 0, 0): (1, "Alligator"),
@@ -38,9 +36,9 @@ COLOR_MAP = {
 }
 
 IGNORE_CLASSES = {
-    # "Spalling", "Corner Break",
-    # "Sealed Joint Transverse", "Sealed Joint Longitudinal",
-    # "Punchout", "Popout", "Cracking"
+    "Spalling", "Corner Break",
+    "Sealed Joint Transverse", "Sealed Joint Longitudinal",
+    "Punchout", "Popout", "Cracking", "Multiple Crack"
 }
 
 CRACK_CLASSES = {"Alligator", "Transverse Crack", "Longitudinal Crack", "Multiple Crack"}
@@ -75,13 +73,16 @@ lut = np.zeros((256, 256, 256), dtype=np.uint8)
 for rgb, (idx, _) in COLOR_MAP.items():
     lut[rgb] = idx
 
+
 def color_to_index(mask):
     return lut[mask[..., 0], mask[..., 1], mask[..., 2]]
+
 
 def morphology_operations(mask, width_kernel_size=15, height_kernel_size=30):
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (width_kernel_size, height_kernel_size))
     closed = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
     return closed
+
 
 def get_objects(mask, class_id, min_pixels=50):
     binary = (mask == class_id).astype(np.uint8)
@@ -93,6 +94,7 @@ def get_objects(mask, class_id, min_pixels=50):
             obj_mask = (labels == i).astype(np.uint8)
             objects.append(obj_mask)
     return objects
+
 
 def measure_length(binary_mask, class_name):
     """Skeletonize cracks and return length; otherwise count nonzero pixels"""
@@ -146,6 +148,7 @@ def compute_classwise_overlap(gt, pred):
             "Length_ratio": length_ratio
         })
     return stats
+
 
 def compute_detection_metrics_multi_threshold(gt_mask, pred_mask, color_map, iou_thresh=0.1):
     all_stats = []
@@ -203,11 +206,14 @@ def compute_detection_metrics_multi_threshold(gt_mask, pred_mask, color_map, iou
         all_stats.append(stats)
     return all_stats
 
+
 # ================== MAIN LOOP ==================
 for fname in tqdm(all_files):
     gt_path, pred_path = gt_files.get(fname), pred_files.get(fname)
-    gt_mask = color_to_index(cv2.cvtColor(cv2.imread(gt_path), cv2.COLOR_BGR2RGB)) if gt_path else np.zeros((1024, 419), np.uint8)
-    pred_mask = color_to_index(cv2.cvtColor(cv2.imread(pred_path), cv2.COLOR_BGR2RGB)) if pred_path else np.zeros_like(gt_mask)
+    gt_mask = color_to_index(cv2.cvtColor(cv2.imread(gt_path), cv2.COLOR_BGR2RGB)) if gt_path else np.zeros((1024, 419),
+                                                                                                            np.uint8)
+    pred_mask = color_to_index(cv2.cvtColor(cv2.imread(pred_path), cv2.COLOR_BGR2RGB)) if pred_path else np.zeros_like(
+        gt_mask)
 
     gt_mask = cv2.resize(gt_mask, (419, 1024), interpolation=cv2.INTER_NEAREST)
     pred_mask = cv2.resize(pred_mask, (419, 1024), interpolation=cv2.INTER_NEAREST)
@@ -236,43 +242,144 @@ for fname in tqdm(all_files):
 # ================= CLASS-WISE SUMMARY =================
 df = pd.DataFrame(all_results)
 classwise_results = []
+# Collect dataset IoUs for mIoU
+dataset_ious = []
+dataset_dices = []
+
+# ================= CLASS-WISE SUMMARY =================
+df = pd.DataFrame(all_results)
+classwise_results = []
+
+dataset_ious = []
+dataset_dices = []
 
 for cname, g in df.groupby("class_name"):
+
+    gt_pixels = g["Ground Truth Pixels"].sum()
+    pred_pixels = g["Prediction Pixels"].sum()
+    intersection = g["Intersection"].sum()
+
+    union = gt_pixels + pred_pixels - intersection
+
+    dataset_iou = (
+        intersection / (union + 1e-7)
+        if union > 0 else 0
+    )
+
+    dataset_dice = (
+        (2 * intersection) / (gt_pixels + pred_pixels + 1e-7)
+        if (gt_pixels + pred_pixels) > 0 else 0
+    )
+
+    dataset_ious.append(dataset_iou)
+    dataset_dices.append(dataset_dice)
+
     class_dict = {
         "filename": "GLOBAL",
         "class_name": cname,
         "status": "class_summary",
-        "Ground Truth Pixels": g["Ground Truth Pixels"].sum(),
-        "Prediction Pixels": g["Prediction Pixels"].sum(),
-        "Intersection": g["Intersection"].sum(),
-        "IoU": g["IoU"].mean(),
-        "Dice": g["Dice"].mean(),
+
+        "Ground Truth Pixels": gt_pixels,
+        "Prediction Pixels": pred_pixels,
+        "Intersection": intersection,
+
+        # Standard segmentation metrics
+        "Dataset_IoU": dataset_iou,
+        "Dataset_Dice": dataset_dice,
+
+        # Average image-wise metrics
+        "Avg_IoU": g["IoU"].mean(),
+        "Avg_Dice": g["Dice"].mean(),
+
         "GT_length": g["GT_length"].sum(),
         "Pred_length": g["Pred_length"].sum(),
-        "Length_ratio": g["Pred_length"].sum() / g["GT_length"].sum() if g["GT_length"].sum() > 0 else 0
+        "Length_ratio":
+            g["Pred_length"].sum() /
+            g["GT_length"].sum()
+            if g["GT_length"].sum() > 0 else 0
     }
 
     thresholds = FILTER_PIXELS.get(cname, [0])
+
     for th in thresholds:
-        class_dict[f"GT_objects_filt_{th}"] = g.get(f"GT_objects_filt_{th}", pd.Series(dtype=float)).sum()
-        class_dict[f"Pred_objects_filt_{th}"] = g.get(f"Pred_objects_filt_{th}", pd.Series(dtype=float)).sum()
-        class_dict[f"GT_length_{th}"] = g.get(f"GT_length_{th}", pd.Series(dtype=float)).sum()
-        class_dict[f"Pred_length_{th}"] = g.get(f"Pred_length_{th}", pd.Series(dtype=float)).sum()
-        class_dict[f"Length_ratio_{th}"] = (class_dict[f"Pred_length_{th}"] / class_dict[f"GT_length_{th}"]
-                                            if class_dict[f"GT_length_{th}"] > 0 else 0)
-        TP = g.get(f"TP_{th}", pd.Series(dtype=float)).sum()
-        FP = g.get(f"FP_{th}", pd.Series(dtype=float)).sum()
-        FN = g.get(f"FN_{th}", pd.Series(dtype=float)).sum()
+        class_dict[f"GT_objects_filt_{th}"] = (
+            g.get(f"GT_objects_filt_{th}",
+                  pd.Series(dtype=float)).sum()
+        )
+
+        class_dict[f"Pred_objects_filt_{th}"] = (
+            g.get(f"Pred_objects_filt_{th}",
+                  pd.Series(dtype=float)).sum()
+        )
+
+        class_dict[f"GT_length_{th}"] = (
+            g.get(f"GT_length_{th}",
+                  pd.Series(dtype=float)).sum()
+        )
+
+        class_dict[f"Pred_length_{th}"] = (
+            g.get(f"Pred_length_{th}",
+                  pd.Series(dtype=float)).sum()
+        )
+
+        class_dict[f"Length_ratio_{th}"] = (
+            class_dict[f"Pred_length_{th}"] /
+            class_dict[f"GT_length_{th}"]
+            if class_dict[f"GT_length_{th}"] > 0 else 0
+        )
+
+        TP = g.get(f"TP_{th}",
+                   pd.Series(dtype=float)).sum()
+
+        FP = g.get(f"FP_{th}",
+                   pd.Series(dtype=float)).sum()
+
+        FN = g.get(f"FN_{th}",
+                   pd.Series(dtype=float)).sum()
+
         class_dict.update({
             f"TP_{th}": TP,
             f"FP_{th}": FP,
             f"FN_{th}": FN,
-            f"Precision_{th}": TP / (TP + FP) if (TP + FP) > 0 else 0,
-            f"Recall_{th}": TP / (TP + FN) if (TP + FN) > 0 else 0,
-            f"F1_{th}": 2 * TP / (2 * TP + FP + FN) if (TP + FP + FN) > 0 else 0
+
+            f"Precision_{th}":
+                TP / (TP + FP)
+                if (TP + FP) > 0 else 0,
+
+            f"Recall_{th}":
+                TP / (TP + FN)
+                if (TP + FN) > 0 else 0,
+
+            f"F1_{th}":
+                2 * TP / (2 * TP + FP + FN)
+                if (2 * TP + FP + FN) > 0 else 0
         })
     classwise_results.append(class_dict)
 
+# ================= OVERALL SUMMARY =================
+overall_dict = {"filename": "GLOBAL", "class_name": "ALL", "status": "summary", "mIoU": np.mean(dataset_ious),
+                "mDice": np.mean(dataset_dices), "Ground Truth Pixels": df["Ground Truth Pixels"].sum(),
+                "Prediction Pixels": df["Prediction Pixels"].sum(), "Intersection": df["Intersection"].sum()}
+
+print("\n==============================")
+print(f"mIoU  : {overall_dict['mIoU']:.4f}")
+print(f"mDice : {overall_dict['mDice']:.4f}")
+print("==============================\n")
+
+# ================= SAVE =================
+
+df_final = pd.concat(
+    [
+        df,
+        pd.DataFrame(classwise_results),
+        pd.DataFrame([overall_dict])
+    ],
+    ignore_index=True
+)
+
+df_final.to_csv(SAVE_CSV, index=False)
+
+print(f"✅ Results saved to {SAVE_CSV}")
 # ================= OVERALL SUMMARY =================
 overall_dict = {"filename": "GLOBAL", "class_name": "ALL", "status": "summary"}
 numeric_cols = [c for c in df.columns if df[c].dtype in [np.int64, np.float64]]

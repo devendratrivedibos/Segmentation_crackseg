@@ -21,7 +21,7 @@ from train_utils.utils import plot, show_config
 from models.segformer.segformer import SegFormer
 # from models.unet.unet import UNet
 # from models.unet.mobilenet_unet import MobileV3Unet
-# from models.unet.vgg_unet import VGG16UNet
+from models.unet.vgg_unet import VGG16UNet
 from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
 # from models.fcn.fcn import fcn_resnet50
 
@@ -32,8 +32,8 @@ from models.unet.UnetPP import UNetPP
 
 
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / '2june_asp_pretrain'  # Change this to your desired output path
-model_name = "2june_asp_pretrain"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'VGG16UNet'  # Change this to your desired output path
+model_name = "VGG16UNet"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 
 
@@ -54,9 +54,9 @@ def create_model(aux, num_classes, pretrained=True):
     # model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
     # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
     # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
-    # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
+    model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = DINODeepLab(num_classes=num_classes, backbone_name="dinov2_vitl14")
-    model = UNetPP(in_channels=3, num_classes=num_classes)
+    # model = UNetPP(in_channels=3, num_classes=num_classes)
     return model
 
 
@@ -95,6 +95,62 @@ def main(args):
     model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
     model.to(device)
 
+    from tqdm import tqdm
+
+    counts_file = OUTPUT_SAVE_PATH / "class_counts.pt"
+
+    if counts_file.exists():
+
+        class_counts = torch.load(counts_file)
+
+        print("\nLoaded class counts:")
+        print(class_counts)
+
+    else:
+
+        print("\nCalculating class distribution...")
+
+        count_loader = DataLoader(
+            train_dataset,
+            batch_size=16,
+            shuffle=False,
+            num_workers=num_workers,
+            pin_memory=True,
+            collate_fn=train_dataset.collate_fn
+        )
+
+        class_counts = torch.zeros(
+            num_classes,
+            dtype=torch.long
+        )
+
+        for _, masks in tqdm(
+                count_loader,
+                desc="Computing class counts"):
+            masks = masks.view(-1)
+
+            valid = masks != 255
+
+            hist = torch.bincount(
+                masks[valid],
+                minlength=num_classes
+            )
+
+            class_counts += hist.cpu()
+
+        print("\nClass Counts:")
+        print(class_counts)
+
+        torch.save(
+            class_counts,
+            counts_file
+        )
+
+        print(
+            f"\nSaved class counts to "
+            f"{counts_file}"
+        )
+
     if args.pretrained_weights != "":
         assert os.path.exists(args.pretrained_weights), "weights file: '{}' not exist.".format(args.pretrained_weights)
         model_dict = model.state_dict()
@@ -131,7 +187,13 @@ def main(args):
 
     scaler = torch.cuda.amp.GradScaler() if args.amp else None
 
-    lr_scheduler = create_lr_scheduler(optimizer, len(train_loader), args.epochs, warmup=True, warmup_epochs=10)
+    lr_scheduler = create_lr_scheduler(
+        optimizer,
+        len(train_loader),
+        args.epochs,
+        warmup=True,
+        warmup_epochs=args.warmup_epochs
+    )
 
     if args.resume:
         checkpoint = torch.load(args.resume, map_location='cuda:0')
@@ -162,7 +224,7 @@ def main(args):
         'img_size': '1024 * 419',
         'start_epoch': args.start_epoch,
         'epochs': args.epochs,
-        "warmup_epochs: 10\n"
+        "warmup_epochs": args.warmup_epochs,
         'weights_save_best': args.save_best,
         'amp': args.amp,
         'num_workers': num_workers
@@ -184,9 +246,20 @@ def main(args):
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs):
         epoch_start_time = time.time()
-        mean_loss, lr = train_one_epoch_loss(model, optimizer, train_loader, device, epoch, num_classes,
-                                             lr_scheduler=lr_scheduler, print_freq=args.print_freq, scaler=scaler)
-
+        # mean_loss, lr = train_one_epoch_loss(model, optimizer, train_loader, device, epoch, num_classes,
+        #                                      lr_scheduler=lr_scheduler, print_freq=args.print_freq, scaler=scaler)
+        mean_loss, lr = train_one_epoch_loss(
+            model,
+            optimizer,
+            train_loader,
+            device,
+            epoch,
+            num_classes,
+            lr_scheduler=lr_scheduler,
+            print_freq=args.print_freq,
+            scaler=scaler,
+            grad_clip_norm=1.0
+        )
         confmat, dice = evaluate(model, val_loader, device=device, num_classes=num_classes)
         val_info = str(confmat)
 
@@ -236,24 +309,24 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"Z:\Devendra\ASPHALT\SPLIT",
+                        default=r"G:\Devendra\ASPHALT\SPLIT",
                         help="root")
     parser.add_argument("--num-classes", default=5, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
     parser.add_argument("--phi", default="b0", help="Use backbone")
-    parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
+    parser.add_argument('--pretrained', default=False, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
-                        default=r"Y:\Devendra_Files\segmentation_training\weights\UNET_Asphalt_30may\30may_asp__best_epoch17_dice0.774.pth",
-                        # default="",
+                        # default=r"W:\Devendra_Files\segmentation_training\weights\asphalt_best.pth",
+                        default="",
                         help='pretrained weights path')
     parser.add_argument('--optimizer-type', default="adamw")
     parser.add_argument('--lr', default=0.0001, type=float, help='initial learning rate')  # 0.00006
-    parser.add_argument('--warmup-epochs', default=10, type=int)
+    parser.add_argument('--warmup-epochs', default=1, type=int)
     parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                         help='momentum')
     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
-    parser.add_argument("-b", "--batch-size", default=8, type=int)
+    parser.add_argument("-b", "--batch-size", default=16, type=int)
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
     parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")

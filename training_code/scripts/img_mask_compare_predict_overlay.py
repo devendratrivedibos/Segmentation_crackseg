@@ -17,19 +17,19 @@ root_dir = r"D:/"
 
 pcams_dir = r"Z:/Devendra/CONCRETE/COMBINED_SPLITTED/TEST/IMAGES"
 image_dirs = [
-    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\potpatch_image",
+    rf"Z:\Devendra\ASPHALT\IMAGES",
 ]
 
 orig_mask_dirs = [
-    rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\potpatch_mask"
+    rf"Z:\Devendra\ASPHALT\MASKS_TRIAL"
 ]
 
 old_pred_mask_dirs = [
-   rf"Z:\Devendra\ASPHALT\ASPHALT_ACCEPTED\COMBINED_SPLITTED\TRAIN\potpatch_imagpred"
+rf"Z:\Devendra\ASPHALT\MASKS_VAL_04_NOV"
 ]
 
 new_pred_mask_dirs = [
-    rf"D:\Devendra_Files\ultralytics_11\runs\segment\predict-3"
+    rf"Z:\Devendra\ASPHALT\30mayy_2"
 ]
 
 # --- Output dirs ---)

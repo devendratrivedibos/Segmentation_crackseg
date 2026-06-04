@@ -162,32 +162,33 @@ folderlist = [
 
 for i in folderlist:
     save_masks_from_json(i,
-                         r"Z:\Devendra\ASPHALT\MASKS_TRAIL",
+                         r"Z:\Devendra\ASPHALT\MASKS_TRIAL",
                          use_rgb=True)
     save_masks_from_json(i,
-                         r"Z:\Devendra\ASPHALT\MASKS",
+                         r"Z:\Devendra\ASPHALT\MASKS_OLD",
                          use_rgb=True)
     save_masks_from_json(i,
-                         r"D:\cracks\ASPHALT\MASKS_TRAIL",
+                         r"D:\cracks\ASPHALT\MASKS_TRIAL",
                          use_rgb=True)
     save_masks_from_json(i,
-                         r"D:\cracks\ASPHALT\MASKS",
+                         r"D:\cracks\ASPHALT\MASKS_OLD",
                          use_rgb=True)
 
 folderlist = [
+r"Z:\Devendra\CONCRETE\prathamesh 3-6-2026\project-144-at-2026-06-03-16-01-702403d7.json"
 ]
 
 for i in folderlist:
     save_masks_from_json(i,
-                         r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\MASKS_TRAIL",
+                         r"Z:\Devendra\CONCRETE\MASKS_TRIAL",
                          use_rgb=True)
     save_masks_from_json(i,
-                         r"Z:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\MASKS",
+                         r"Z:\Devendra\CONCRETE\MASKS_OLD",
                          use_rgb=True)
 
     save_masks_from_json(i,
-                         r"D:\cracks\CONCRETE\MASKS",
+                         r"D:\cracks\CONCRETE\MASKS_OLD",
                          use_rgb=True)
     save_masks_from_json(i,
-                         r"D:\cracks\CONCRETE\MASKS_TRAIL",
+                         r"D:\cracks\CONCRETE\MASKS_TRIAL",
                          use_rgb=True)
