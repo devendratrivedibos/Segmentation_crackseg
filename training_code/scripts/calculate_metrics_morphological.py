@@ -13,7 +13,7 @@ GT_DIRS = [
 ]
 
 PRED_DIRS = [
-    rf"Z:\Devendra\ASPHALT\MASKS_VAL_04_NOV"
+    rf"Z:\Devendra\ASPHALT\30mayy_2"
 ]
 
 SAVE_CSV = os.path.join(root_dir, "2june.csv")

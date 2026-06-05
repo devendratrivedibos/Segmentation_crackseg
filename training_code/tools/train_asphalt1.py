@@ -32,14 +32,14 @@ from models.unet.UnetPP import UNetPP
 
 
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'VGG16UNet'  # Change this to your desired output path
-model_name = "VGG16UNet"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'Unetpp'  # Change this to your desired output path
+model_name = "5nov_"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
+
 
 
 def get_transform(train, mean=(0.487, 0.487, 0.487), std=(0.145, 0.145, 0.145)):
     img_size = 512
-
     if train:
         return SegmentationPresetTrain(img_size, mean=mean, std=std)
     else:
@@ -54,9 +54,9 @@ def create_model(aux, num_classes, pretrained=True):
     # model = SegFormer(num_classes=num_classes, phi=args.phi, pretrained=args.pretrained)
     # model = UNet(in_channels=3, num_classes=num_classes, base_c=64)
     # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
-    model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
+    # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = DINODeepLab(num_classes=num_classes, backbone_name="dinov2_vitl14")
-    # model = UNetPP(in_channels=3, num_classes=num_classes)
+    model = UNetPP(in_channels=3, num_classes=num_classes)
     return model
 
 
@@ -97,17 +97,13 @@ def main(args):
 
     from tqdm import tqdm
 
-    counts_file = OUTPUT_SAVE_PATH / "class_counts.pt"
+    counts_file = ( project_root_/ "weights"/ "class_counts.pt")
 
     if counts_file.exists():
-
         class_counts = torch.load(counts_file)
-
         print("\nLoaded class counts:")
         print(class_counts)
-
     else:
-
         print("\nCalculating class distribution...")
 
         count_loader = DataLoader(
@@ -138,18 +134,12 @@ def main(args):
 
             class_counts += hist.cpu()
 
-        print("\nClass Counts:")
-        print(class_counts)
+        # print("\nClass Counts:")
+        # print(class_counts)
 
-        torch.save(
-            class_counts,
-            counts_file
-        )
+        torch.save(class_counts,counts_file)
 
-        print(
-            f"\nSaved class counts to "
-            f"{counts_file}"
-        )
+        print(f"\nSaved class counts to "f"{counts_file}")
 
     if args.pretrained_weights != "":
         assert os.path.exists(args.pretrained_weights), "weights file: '{}' not exist.".format(args.pretrained_weights)
@@ -240,7 +230,7 @@ def main(args):
 
     train_loss = []
     dice_coefficient = []
-    img_save_path = OUTPUT_SAVE_PATH / "{}-visualization.svg".format(model_name)
+    img_save_path = OUTPUT_SAVE_PATH / f"{model_name}_training_curve.png"
 
     best_dice = 0.
     start_time = time.time()
@@ -265,7 +255,11 @@ def main(args):
 
         train_loss.append(mean_loss)
         dice_coefficient.append(dice)
-        # plot(train_loss, dice_coefficient, img_save_path)
+        plot(
+            train_loss,
+            dice_coefficient,
+            img_save_path
+        )
         print(f"MEAN LOSS: {mean_loss:.3f}")
         print("VALINFO", val_info)
         print(f"dice coefficient: {dice:.3f}")
@@ -314,10 +308,9 @@ def parse_args():
     parser.add_argument("--num-classes", default=5, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
     parser.add_argument("--phi", default="b0", help="Use backbone")
-    parser.add_argument('--pretrained', default=False, type=bool, help='backbone')
+    parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
-                        # default=r"W:\Devendra_Files\segmentation_training\weights\asphalt_best.pth",
-                        default="",
+                        default=r"Y:\Devendra_Files\segmentation_training\weights\2june_asp_\2june_asp__best_epoch193_dice0.696.pth",
                         help='pretrained weights path')
     parser.add_argument('--optimizer-type', default="adamw")
     parser.add_argument('--lr', default=0.0001, type=float, help='initial learning rate')  # 0.00006

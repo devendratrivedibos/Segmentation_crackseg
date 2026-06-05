@@ -63,6 +63,7 @@ class FocalCrossEntropy(nn.Module):
     """
     Multi-class focal loss on logits (CE + (1-pt)^gamma), with optional per-class alpha.
     """
+
     def __init__(self, alpha: Optional[torch.Tensor] = None, gamma: float = 1.5,
                  ignore_index: int = -100, reduction: str = "mean"):
         super().__init__()
@@ -89,7 +90,8 @@ class FocalCrossEntropy(nn.Module):
             loss = loss * mask
 
         if self.reduction == "mean":
-            denom = (targets != self.ignore_index).float().sum().clamp_min(1.0) if self.ignore_index >= 0 else loss.numel()
+            denom = (targets != self.ignore_index).float().sum().clamp_min(
+                1.0) if self.ignore_index >= 0 else loss.numel()
             return loss.sum() / denom
         elif self.reduction == "sum":
             return loss.sum()
@@ -101,6 +103,7 @@ class SoftDiceLoss(nn.Module):
     """
     Multi-class soft Dice loss with optional per-class weights.
     """
+
     def __init__(self, num_classes: int, class_weights: Optional[torch.Tensor] = None,
                  ignore_index: int = -100, smooth: float = 1e-6):
         super().__init__()
@@ -125,10 +128,11 @@ class SoftDiceLoss(nn.Module):
         denom = p.sum(-1) + t.sum(-1)
         dice = (2.0 * intersection + self.smooth) / (denom + self.smooth)  # [B,C]
         dice_loss_c = 1.0 - dice  # [B,C]
-
+        # Ignore background class
+        dice_loss_c = dice_loss_c[:, 1:]
         # Per-class weighting
         if self.cw is not None:
-            w = self.cw.view(1, -1).expand_as(dice_loss_c)
+            w = self.cw[1:].view(1, -1).expand_as(dice_loss_c)
             dice_loss_c = dice_loss_c * w
 
         return dice_loss_c.mean()
@@ -140,6 +144,7 @@ class TverskyLoss(nn.Module):
     alpha -> weight for FN (increase for recall)
     beta  -> weight for FP
     """
+
     def __init__(self, num_classes: int, alpha: float = 0.7, beta: float = 0.3,
                  class_weights: Optional[torch.Tensor] = None, ignore_index: int = -100, smooth: float = 1e-6):
         super().__init__()
@@ -167,9 +172,10 @@ class TverskyLoss(nn.Module):
 
         tversky = (tp + self.smooth) / (tp + self.alpha * fn + self.beta * fp + self.smooth)
         loss_c = 1.0 - tversky  # [B,C]
-
+        # ignore background
+        loss_c = loss_c[:, 1:]
         if self.cw is not None:
-            w = self.cw.view(1, -1).expand_as(loss_c)
+            w = self.cw[1:].view(1, -1).expand_as(loss_c)
             loss_c = loss_c * w
 
         return loss_c.mean()
@@ -180,6 +186,7 @@ class FocalTverskyLoss(nn.Module):
     Focal Tversky: (1 - Tversky) ** gamma
     Good for very small/elongated structures (cracks).
     """
+
     def __init__(self, num_classes: int, alpha: float = 0.7, beta: float = 0.3, gamma: float = 1.33,
                  class_weights: Optional[torch.Tensor] = None, ignore_index: int = -100, smooth: float = 1e-6):
         super().__init__()
@@ -213,6 +220,7 @@ class CombinedCriterion(nn.Module):
       - auto-balance loss scales (optional)
       - supports model outputs as Tensor or dict with {'out', 'aux'}
     """
+
     def __init__(self,
                  num_classes: int,
                  ce_weight: float = 0.3,
@@ -221,16 +229,16 @@ class CombinedCriterion(nn.Module):
                  tversky_weight: float = 0.0,
                  focal_tversky_weight: float = 0.3,
                  # loss options
-                 ce_class_weights: Optional[torch.Tensor] = None,         # shape [C]
-                 dice_class_weights: Optional[torch.Tensor] = None,       # shape [C]
-                 tversky_class_weights: Optional[torch.Tensor] = None,    # shape [C]
+                 ce_class_weights: Optional[torch.Tensor] = None,  # shape [C]
+                 dice_class_weights: Optional[torch.Tensor] = None,  # shape [C]
+                 tversky_class_weights: Optional[torch.Tensor] = None,  # shape [C]
                  alpha_tversky: float = 0.7,
                  beta_tversky: float = 0.3,
                  focal_gamma: float = 1.5,
                  focal_tversky_gamma: float = 1.33,
                  ignore_index: int = 255,
                  aux_weight: float = 0.5,
-                 normalize_losses: bool = False):   #True
+                 normalize_losses: bool = False):  #True
         super().__init__()
 
         self.num_classes = num_classes
@@ -320,78 +328,104 @@ class CombinedCriterion(nn.Module):
 # -----------------------------
 # Helper: build criterion from class counts (mask stats)
 # -----------------------------
-def build_crack_criterion(num_classes: int,
-                          class_counts: Optional[torch.Tensor] = None,
-                          device: Optional[torch.device] = None,
-                          ignore_index: int = 255) -> CombinedCriterion:
-    """
-    Build a good default criterion for crack segmentation with dominant background.
-
-    Strategy:
-      - CE with class-balanced weights (effective number)
-      - Focal CE (gamma=1.5) to focus on hard crack pixels
-      - Focal Tversky (alpha=0.7, beta=0.3, gamma=1.33) for thin structures
-      - A bit of plain Dice for extra IoU stability
-    """
+def build_crack_criterion(
+        num_classes: int,
+        class_counts: Optional[torch.Tensor] = None,
+        device: Optional[torch.device] = None,
+        ignore_index: int = 255
+) -> CombinedCriterion:
     if device is None:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu"
+        )
 
     ce_w = None
     dice_w = None
     tv_w = None
 
     if class_counts is not None:
-        class_counts = class_counts.to(device=device, dtype=torch.float32)
+        class_counts = class_counts.to(
+            device=device,
+            dtype=torch.float32
+        )
 
-        # CE weights via effective number (stable for extreme imbalance)
-        ce_w = effective_number_weights(class_counts, beta=0.9999)
-        ce_w = normalize_weights(ce_w, "mean1")
-        ce_w = torch.clamp(ce_w, min=0.5, max=10.0)
-        # Make background a bit less dominant (optional, but helpful)
-        # Reduce background weight toward 0.5x of the average
-        bg_idx = 0
-        ce_w[bg_idx] = ce_w[bg_idx] * 0.8
+        # --------------------------------------------------
+        # Cross Entropy / Focal weights
+        # --------------------------------------------------
+        ce_w = class_counts.sum() / class_counts
 
-        # For Dice/Tversky per-class weights, use inverse frequency but milder
-        inv_freq = (class_counts.sum() / class_counts).clamp_max(1000.0)
-        inv_freq = normalize_weights(inv_freq, "mean1")
-        inv_freq = torch.clamp(inv_freq, min=0.5, max=10.0)
-        # Down-weight background again
-        inv_freq[bg_idx] = inv_freq[bg_idx] * 0.5
+        # Stronger weighting for rare crack classes
+        ce_w = torch.pow(ce_w, 0.65)
 
-        dice_w = inv_freq.clone()
-        tv_w = inv_freq.clone()
-    print("\nClass Counts:")
-    print(class_counts)
+        ce_w = normalize_weights(
+            ce_w,
+            mode="mean1"
+        )
 
-    print("\nCE Weights:")
+        ce_w = torch.clamp(
+            ce_w,
+            min=0.5,
+            max=12.0
+        )
+
+        # Background less important
+        ce_w[0] *= 0.25
+        # Longitudinal crack
+        ce_w[2] *= 2.5
+        # Transverse crack
+        ce_w[3] *= 1.5
+        # --------------------------------------------------
+        # Dice / Tversky weights
+        # --------------------------------------------------
+        dice_w = class_counts.sum() / class_counts
+
+        dice_w = normalize_weights(
+            dice_w,
+            mode="mean1"
+        )
+
+        dice_w = torch.clamp(
+            dice_w,
+            min=0.5,
+            max=10.0
+        )
+
+        # Background ignored/reduced
+        dice_w[0] *= 0.1
+        dice_w[2] *= 3.0
+        dice_w[3] *= 1.5
+        tv_w = dice_w.clone()
+
+    print("\nFinal CE Weights")
     print(ce_w)
 
-    print("\nDice Weights:")
+    print("\nFinal Dice Weights")
     print(dice_w)
-    crit = CombinedCriterion(
+
+    print("\nFinal Tversky Weights")
+    print(tv_w)
+    criterion = CombinedCriterion(
         num_classes=num_classes,
 
-        ce_weight=0.5,
-        focal_weight=0.3,
-        dice_weight=0.2,
-
+        ce_weight=0.20,
+        focal_weight=0.20,
+        dice_weight=0.20,
         tversky_weight=0.0,
-        focal_tversky_weight=0.0,
+        focal_tversky_weight=0.40,
 
         ce_class_weights=ce_w,
         dice_class_weights=dice_w,
-        tversky_class_weights=None,
-
-        alpha_tversky=0.7,
-        beta_tversky=0.3,
+        tversky_class_weights=tv_w,
 
         focal_gamma=2.0,
-        focal_tversky_gamma=1.33,
+
+        alpha_tversky=0.9,
+        beta_tversky=0.1,
+        focal_tversky_gamma=1.5,
 
         ignore_index=ignore_index,
         aux_weight=0.5,
-
         normalize_losses=False
     ).to(device)
-    return crit
+
+    return criterion

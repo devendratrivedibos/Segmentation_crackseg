@@ -63,7 +63,7 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
 
     # Model
     model = UNetPP(in_channels=3, num_classes=num_classes)
-    model = VGG16UNet(num_classes=num_classes, pretrain_backbone=False)
+    # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=False)
     pretrain_weights = torch.load(weights_path, map_location=device)
     if "model" in pretrain_weights:
         model.load_state_dict(pretrain_weights["model"])
@@ -235,9 +235,9 @@ def remove_small_components_multiclass(mask, min_area=200):
 
 
 if __name__ == "__main__":
-    WEIGHTS_PATH = r"D:\Devendra_Files\segmentation_training\weights\VGG16UNet\VGG16UNet_best_epoch44_dice0.710.pth"
+    WEIGHTS_PATH = r"D:\Devendra_Files\segmentation_training\weights\2june_asp_\2june_asp__best_epoch193_dice0.696.pth"
     BATCH_SIZE = 4
     main(imgs_root=rf"Z:\Devendra\ASPHALT\SPLIT\VAL\IMAGES",
-         prediction_save_path=rf"Z:\Devendra\ASPHALT\30mayy_2",
+         prediction_save_path=rf"Z:\Devendra\ASPHALT\5June",
          weights_path=WEIGHTS_PATH,
          batch_size=BATCH_SIZE)

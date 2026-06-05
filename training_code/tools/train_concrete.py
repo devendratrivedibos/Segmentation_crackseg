@@ -13,16 +13,16 @@ sys.path.append(os.path.join(project_root, '..'))
 from pathlib import Path
 
 from torch.utils.data import DataLoader
-from train_utils.train_and_eval_concrete import train_one_epoch, evaluate, create_lr_scheduler, train_one_epoch_loss
-from train_utils.my_dataset_concrete import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
+from train_utils.train_and_eval_asphalt import train_one_epoch, evaluate, create_lr_scheduler, train_one_epoch_loss
+from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
 import train_utils.transforms as T
 from train_utils.utils import plot, show_config
 
 from models.segformer.segformer import SegFormer
 # from models.unet.unet import UNet
 # from models.unet.mobilenet_unet import MobileV3Unet
-# from models.unet.vgg_unet import VGG16UNet
-# from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
+from models.unet.vgg_unet import VGG16UNet
+from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
 # from models.fcn.fcn import fcn_resnet50
 
 # from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
@@ -32,14 +32,14 @@ from models.unet.UnetPP import UNetPP
 
 
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'UNET_concrete'  # Change this to your desired output path
-model_name = "UNET_concrete"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'Unetpp'  # Change this to your desired output path
+model_name = "5nov_"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
+
 
 
 def get_transform(train, mean=(0.487, 0.487, 0.487), std=(0.145, 0.145, 0.145)):
     img_size = 512
-
     if train:
         return SegmentationPresetTrain(img_size, mean=mean, std=std)
     else:
@@ -66,10 +66,9 @@ def main(args):
     # segmentation nun_classes + background
     num_classes = args.num_classes + 1
 
-    # mean = (0.548, 0.548, 0.548)   ##478
-    # std = (0.146, 0.146, 0.146)   ###145
-    mean = (0.478, 0.478, 0.478)  ##478
-    std = (0.145, 0.145, 0.145)  ###145
+    mean = (0.47668327, 0.47668327, 0.47668327)  # 478
+    std = (0.148, 0.148, 0.148)  # 145
+
     num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
 
     train_dataset = CrackDataset(args.data_path,
@@ -90,12 +89,57 @@ def main(args):
     val_loader = DataLoader(val_dataset,
                             batch_size=1,
                             num_workers=num_workers,
-                            shuffle=True,
                             pin_memory=True,
                             collate_fn=val_dataset.collate_fn)
 
     model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
     model.to(device)
+
+    from tqdm import tqdm
+
+    counts_file = ( project_root_/ "weights"/ "class_counts.pt")
+
+    if counts_file.exists():
+        class_counts = torch.load(counts_file)
+        print("\nLoaded class counts:")
+        print(class_counts)
+    else:
+        print("\nCalculating class distribution...")
+
+        count_loader = DataLoader(
+            train_dataset,
+            batch_size=16,
+            shuffle=False,
+            num_workers=num_workers,
+            pin_memory=True,
+            collate_fn=train_dataset.collate_fn
+        )
+
+        class_counts = torch.zeros(
+            num_classes,
+            dtype=torch.long
+        )
+
+        for _, masks in tqdm(
+                count_loader,
+                desc="Computing class counts"):
+            masks = masks.view(-1)
+
+            valid = masks != 255
+
+            hist = torch.bincount(
+                masks[valid],
+                minlength=num_classes
+            )
+
+            class_counts += hist.cpu()
+
+        # print("\nClass Counts:")
+        # print(class_counts)
+
+        torch.save(class_counts,counts_file)
+
+        print(f"\nSaved class counts to "f"{counts_file}")
 
     if args.pretrained_weights != "":
         assert os.path.exists(args.pretrained_weights), "weights file: '{}' not exist.".format(args.pretrained_weights)
@@ -133,7 +177,13 @@ def main(args):
 
     scaler = torch.cuda.amp.GradScaler() if args.amp else None
 
-    lr_scheduler = create_lr_scheduler(optimizer, len(train_loader), args.epochs, warmup=True, warmup_epochs=10)
+    lr_scheduler = create_lr_scheduler(
+        optimizer,
+        len(train_loader),
+        args.epochs,
+        warmup=True,
+        warmup_epochs=args.warmup_epochs
+    )
 
     if args.resume:
         checkpoint = torch.load(args.resume, map_location='cuda:0')
@@ -164,7 +214,7 @@ def main(args):
         'img_size': '1024 * 419',
         'start_epoch': args.start_epoch,
         'epochs': args.epochs,
-        "warmup_epochs: 10\n"
+        "warmup_epochs": args.warmup_epochs,
         'weights_save_best': args.save_best,
         'amp': args.amp,
         'num_workers': num_workers
@@ -180,21 +230,36 @@ def main(args):
 
     train_loss = []
     dice_coefficient = []
-    img_save_path = OUTPUT_SAVE_PATH / "{}-visualization.svg".format(model_name)
+    img_save_path = OUTPUT_SAVE_PATH / f"{model_name}_training_curve.png"
 
     best_dice = 0.
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs):
         epoch_start_time = time.time()
-        mean_loss, lr = train_one_epoch_loss(model, optimizer, train_loader, device, epoch, num_classes,
-                                             lr_scheduler=lr_scheduler, print_freq=args.print_freq, scaler=scaler)
-
+        # mean_loss, lr = train_one_epoch_loss(model, optimizer, train_loader, device, epoch, num_classes,
+        #                                      lr_scheduler=lr_scheduler, print_freq=args.print_freq, scaler=scaler)
+        mean_loss, lr = train_one_epoch_loss(
+            model,
+            optimizer,
+            train_loader,
+            device,
+            epoch,
+            num_classes,
+            lr_scheduler=lr_scheduler,
+            print_freq=args.print_freq,
+            scaler=scaler,
+            grad_clip_norm=1.0
+        )
         confmat, dice = evaluate(model, val_loader, device=device, num_classes=num_classes)
         val_info = str(confmat)
 
         train_loss.append(mean_loss)
         dice_coefficient.append(dice)
-        # plot(train_loss, dice_coefficient, img_save_path)
+        plot(
+            train_loss,
+            dice_coefficient,
+            img_save_path
+        )
         print(f"MEAN LOSS: {mean_loss:.3f}")
         print("VALINFO", val_info)
         print(f"dice coefficient: {dice:.3f}")
@@ -238,35 +303,38 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"G:\Devendra\CONCRETE\COMBINED_SPLITTED\TRAIN\SPLIT", help="root")
+                        default=r"G:\Devendra\CONCRETE\SPLIT",
+                        help="root")
     parser.add_argument("--num-classes", default=14, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
     parser.add_argument("--phi", default="b0", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
-                        default=r"Y:\Devendra_Files\segmentation_training\weights\concrete_best.pth",
+                        default="",
                         help='pretrained weights path')
     parser.add_argument('--optimizer-type', default="adamw")
-    parser.add_argument('--lr', default=0.00001, type=float, help='initial learning rate')  # 0.000s06
-    parser.add_argument('--warmup-epochs', default=10, type=int)
+    parser.add_argument('--lr', default=0.0001, type=float, help='initial learning rate')  # 0.00006
+    parser.add_argument('--warmup-epochs', default=1, type=int)
     parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                         help='momentum')
     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
-    parser.add_argument("-b", "--batch-size", default=8, type=int)
+    parser.add_argument("-b", "--batch-size", default=16, type=int)
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
     parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")
     parser.add_argument('--print-freq', default=1, type=int, help='print frequency')
 
     parser.add_argument('--save-best', default=False, type=bool, help='only save best dice weights')
-
-    parser.add_argument('--resume', default=r"",
+    parser.add_argument('--resume',
+                        default=r"",
                         help='resume from checkpoint')
     # Mixed precision training parameters
     parser.add_argument("--amp", default=True, type=bool,
                         help="Use torch.cuda.amp for automatic mixed precision training")
+
     args = parser.parse_args()
+
     return args
 
 

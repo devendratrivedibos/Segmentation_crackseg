@@ -18,16 +18,21 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 num_classes = 5 + 1
 
-class_counts = None
-class_counts = torch.tensor([
-    2115730079,
-    64987876,
-    394513,
-    4182415,
-    3542392,
-    46115429
-], dtype=torch.float32)
 
+from pathlib import Path
+
+project_root = Path(__file__).resolve().parent.parent.parent
+
+counts_file = (project_root/ "weights"/ "class_counts.pt")
+
+if counts_file.exists():
+    class_counts = torch.load(counts_file,map_location="cpu", weights_only=True).float()
+
+    print("\nLoaded Class Counts:")
+    print(class_counts)
+else:
+    print("\nWARNING: weights/class_counts.pt not found")
+    class_counts = None
 
 # ✅ FIX: use counts_tensor, not the Python list
 counts_tensor = class_counts
@@ -63,7 +68,8 @@ def evaluate(model, data_loader, device, num_classes):
     header = 'Test:'
 
     with torch.no_grad():
-        for image, target in metric_logger.log_every(data_loader, 50, header):
+        for batch_idx, (image, target) in enumerate(
+                metric_logger.log_every(data_loader, 50, header)):
             image, target = image.to(device), target.to(device)
 
             outputs = model(image)                 # Tensor or dict
@@ -102,13 +108,41 @@ def train_one_epoch(model,
     metric_logger.add_meter('lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
     header = f'Epoch: [{epoch}]'
 
-    for image, target in metric_logger.log_every(data_loader, print_freq, header):
+    for batch_idx, (image, target) in enumerate(
+            metric_logger.log_every(
+                data_loader,
+                print_freq,
+                header
+            )
+    ):
         image, target = image.to(device), target.to(device)
 
-        with torch.cuda.amp.autocast(enabled=scaler is not None):
+        with torch.amp.autocast(
+                "cuda",
+                enabled=scaler is not None):
             outputs = model(image)        # Tensor or {'out', 'aux'}
             loss = criterion(outputs, target)
+        if batch_idx == 0:
 
+            logits = outputs["out"] if isinstance(outputs, dict) else outputs
+            pred = logits.argmax(1)
+
+            print(f"\nEpoch {epoch}")
+
+            print("GT classes:")
+            print(torch.unique(target))
+
+            print("Pred classes:")
+            print(torch.unique(pred))
+
+            print("Loss:")
+            print(loss.item())
+
+            for cls in range(num_classes):
+                print(
+                    f"Pred class {cls}:",
+                    (pred == cls).sum().item()
+                )
         optimizer.zero_grad(set_to_none=True)
 
         if scaler is not None:
@@ -151,13 +185,33 @@ def train_one_epoch_loss(model,
     running_loss = 0.0
     total_batches = 0
 
-    for image, target in metric_logger.log_every(data_loader, print_freq, header):
+    for batch_idx, (image, target) in enumerate(
+            metric_logger.log_every(
+                data_loader,
+                print_freq,
+                header
+            )
+    ):
         image, target = image.to(device), target.to(device)
 
-        with torch.cuda.amp.autocast(enabled=scaler is not None):
+        with torch.amp.autocast(
+                "cuda",
+                enabled=scaler is not None):
             outputs = model(image)        # Tensor or {'out', 'aux'}
             loss = criterion(outputs, target)
+        if batch_idx == 0:
+            logits = outputs["out"] if isinstance(outputs, dict) else outputs
+            pred = logits.argmax(1)
+            print(f"\nEpoch {epoch}")
+            print("GT classes:" , torch.unique(target))
+            print("Pred classes:", torch.unique(pred))
+            print("Loss:", loss.item())
 
+            for cls in range(num_classes):
+                print(
+                    f"Pred class {cls}:",
+                    (pred == cls).sum().item()
+                )
         optimizer.zero_grad(set_to_none=True)
 
         if scaler is not None:
@@ -183,12 +237,7 @@ def train_one_epoch_loss(model,
         total_batches += 1
 
     epoch_loss = running_loss / total_batches
-    if total_batches == 0:
-        pred = outputs.argmax(1)
 
-        print("GT:", torch.unique(target))
-        print("PRED:", torch.unique(pred))
-        print("LOSS:", loss.item())
     return epoch_loss, lr
 # -----------------------------
 # LR Scheduler (unchanged)

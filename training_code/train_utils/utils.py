@@ -1,3 +1,4 @@
+"""train_utils/utils.py"""
 import scipy.signal
 from matplotlib import pyplot as plt
 from PIL import Image
@@ -15,47 +16,97 @@ def show_config(config):
     print('-' * 70)
 
 
-def plot(data1, data2, save_path):
-    iters = range(len(data1))
+def plot(train_loss,
+         dice_scores,
+         save_path):
 
-    plt.figure()
-    plt.plot(iters, data1, 'red', linewidth=2, label='Training loss')
-    plt.plot(iters, data2, 'coral', linewidth=2, label='Dice coefficient')
-    # try:
-    #     if len(data1) < 25:
-    #         num = 5
-    #     else:
-    #         num = 15
-    #
-    #     plt.plot(iters, scipy.signal.savgol_filter(data1, num, 3), 'green', linestyle='--', linewidth=2,
-    #              label='Smooth training loss')
-    #     plt.plot(iters, scipy.signal.savgol_filter(data2, num, 3), '#8B4513', linestyle='--', linewidth=2,
-    #              label='Smooth dice coefficient')
-    # except:
-    #     pass
+    epochs = np.arange(1, len(train_loss) + 1)
+
+    plt.figure(figsize=(12, 6))
+
+    # Raw curves
+    plt.plot(
+        epochs,
+        train_loss,
+        linewidth=2,
+        label="Train Loss"
+    )
+
+    plt.plot(
+        epochs,
+        dice_scores,
+        linewidth=2,
+        label="Val Dice"
+    )
+
+    # Smoothed curves
+    if len(train_loss) >= 5:
+        try:
+            window = min(
+                len(train_loss) if len(train_loss) % 2 == 1 else len(train_loss) - 1,
+                11
+            )
+
+            if window >= 5:
+
+                smooth_loss = scipy.signal.savgol_filter(
+                    train_loss,
+                    window_length=window,
+                    polyorder=3
+                )
+
+                smooth_dice = scipy.signal.savgol_filter(
+                    dice_scores,
+                    window_length=window,
+                    polyorder=3
+                )
+
+                plt.plot(
+                    epochs,
+                    smooth_loss,
+                    linestyle="--",
+                    linewidth=2,
+                    label="Smooth Loss"
+                )
+
+                plt.plot(
+                    epochs,
+                    smooth_dice,
+                    linestyle="--",
+                    linewidth=2,
+                    label="Smooth Dice"
+                )
+
+        except Exception as e:
+            print(f"Plot smoothing error: {e}")
 
     plt.grid(True)
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend(loc="upper right")
+    plt.xlabel("Epoch")
+    plt.ylabel("Value")
+    plt.title("Training Progress")
+    plt.legend()
 
-    plt.savefig(save_path, dpi=1000, format="svg")  # Wiley,折线图dpi=600,图像dpi=300
+    plt.tight_layout()
 
-    plt.cla()
-    plt.close("all")
+    plt.savefig(
+        save_path,
+        dpi=300,
+        bbox_inches="tight"
+    )
+
+    plt.close()
 
 
 def show_label(label):
-    # img = Image.fromarray(np.uint8(label))  # abel是数组形式
     img = label.convert('RGBA')
     x, y = img.size
     for i in range(x):
         for j in range(y):
             color = img.getpixel((i, j))
             Mean = np.mean(list(color[:-1]))
-            if Mean < 255:  # 我的标签区域为白色，非标签区域为黑色
-                color = color[:-1] + (0,)  # 若非标签区域则设置为透明
+            if Mean < 255:
+                color = color[:-1] + (0,)
             else:
-                color = (255, 97, 0, 255)  # 标签区域设置为橙色，前3位为RGB值，最后一位为透明度情况，255为完全不透明，0为完全透明
+                color = (255, 97, 0, 255)
             img.putpixel((i, j), color)
     return img
