@@ -234,8 +234,9 @@ def remove_small_components_multiclass(mask, min_area=200):
     return cleaned
 
 
+
 if __name__ == "__main__":
-    WEIGHTS_PATH = r"D:\Devendra_Files\segmentation_training\weights\2june_asp_\2june_asp__best_epoch193_dice0.696.pth"
+    WEIGHTS_PATH = r"D:\Devendra_Files\segmentation_training\weights\Unetpp\5nov__best_epoch5_dice0.579.pth"
     BATCH_SIZE = 4
     main(imgs_root=rf"Z:\Devendra\ASPHALT\SPLIT\VAL\IMAGES",
          prediction_save_path=rf"Z:\Devendra\ASPHALT\5June",

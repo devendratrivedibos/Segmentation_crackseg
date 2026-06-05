@@ -1,33 +1,34 @@
+"""TRAINING CODE FOR ASPHALT CRACK SEGMENTATION
+This script trains a segmentation model (e.g., UNetPP) on the asphalt crack dataset.
+It includes data loading, model creation, training loop, evaluation, and checkpointing.
+"""
 import os
-import pdb
+import argparse
 import time
+from pathlib import Path
 import datetime
-import torch
-import numpy as np
 import sys
-import cv2
+from tqdm import tqdm
 
+import numpy as np
+import torch
+from torch.utils.data import DataLoader
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(project_root, '..'))
 
-from pathlib import Path
 
-from torch.utils.data import DataLoader
-from train_utils.train_and_eval_asphalt import train_one_epoch, evaluate, create_lr_scheduler, train_one_epoch_loss
-from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
-import train_utils.transforms as T
+from train_utils.train_and_eval_concrete import evaluate, create_lr_scheduler, train_one_epoch_loss
+from train_utils.my_dataset_concrete import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
 from train_utils.utils import plot, show_config
 
-from models.segformer.segformer import SegFormer
+# from models.segformer.segformer import SegFormer
 # from models.unet.unet import UNet
 # from models.unet.mobilenet_unet import MobileV3Unet
-from models.unet.vgg_unet import VGG16UNet
-from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
+# from models.unet.vgg_unet import VGG16UNet
+# from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
 # from models.fcn.fcn import fcn_resnet50
-
 # from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
 from models.unet.UnetPP import UNetPP
-
 # from models.dinov3.dinov3 import DINODeepLab
 
 
@@ -35,7 +36,8 @@ project_root_ = Path(__file__).resolve().parent.parent.parent
 OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'Unetpp'  # Change this to your desired output path
 model_name = "5nov_"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
-
+CHECKPOINT_FILE = OUTPUT_SAVE_PATH / "latest_checkpoint.pth"
+counts_file = OUTPUT_SAVE_PATH / "class_counts.pt"
 
 
 def get_transform(train, mean=(0.487, 0.487, 0.487), std=(0.145, 0.145, 0.145)):
@@ -60,17 +62,28 @@ def create_model(aux, num_classes, pretrained=True):
     return model
 
 
+def save_checkpoint(save_path, epoch, model, optimizer, lr_scheduler, scaler, best_dice, train_loss, dice_coefficient):
+    checkpoint = {
+        "epoch": epoch,
+        "model": model.state_dict(),
+        "optimizer": optimizer.state_dict(),
+        "lr_scheduler": lr_scheduler.state_dict(),
+        "best_dice": best_dice,
+        "train_loss": train_loss,
+        "dice_coefficient": dice_coefficient
+    }
+    if scaler is not None:
+        checkpoint["scaler"] = scaler.state_dict()
+    torch.save(checkpoint,save_path)
+
+
 def main(args):
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
-
     # segmentation nun_classes + background
     num_classes = args.num_classes + 1
-
     mean = (0.47668327, 0.47668327, 0.47668327)  # 478
     std = (0.148, 0.148, 0.148)  # 145
-
     num_workers = min([os.cpu_count(), args.batch_size if args.batch_size > 1 else 0, 8])
-
     train_dataset = CrackDataset(args.data_path,
                                  train=True,
                                  transforms=get_transform(train=True, mean=mean, std=std))
@@ -94,10 +107,6 @@ def main(args):
 
     model = create_model(aux=args.aux, num_classes=num_classes, pretrained=args.pretrained)
     model.to(device)
-
-    from tqdm import tqdm
-
-    counts_file = ( project_root_/ "weights"/ "class_counts.pt")
 
     if counts_file.exists():
         class_counts = torch.load(counts_file)
@@ -137,12 +146,13 @@ def main(args):
         # print("\nClass Counts:")
         # print(class_counts)
 
-        torch.save(class_counts,counts_file)
+        torch.save(class_counts, counts_file)
 
         print(f"\nSaved class counts to "f"{counts_file}")
 
     if args.pretrained_weights != "":
-        assert os.path.exists(args.pretrained_weights), "weights file: '{}' not exist.".format(args.pretrained_weights)
+        assert os.path.exists(args.pretrained_weights), ("weights file: '{}' not exist."
+                                                         .format(args.pretrained_weights))
         model_dict = model.state_dict()
         checkpoint = torch.load(args.pretrained_weights, map_location=device)
 
@@ -174,31 +184,27 @@ def main(args):
         'sgd': torch.optim.SGD(params_to_optimize, lr=args.lr, momentum=args.momentum,
                                weight_decay=args.weight_decay)
     }[args.optimizer_type]
-
+    lr_scheduler = create_lr_scheduler(optimizer, len(train_loader), args.epochs, warmup=True,
+                                       warmup_epochs=args.warmup_epochs)
     scaler = torch.cuda.amp.GradScaler() if args.amp else None
-
-    lr_scheduler = create_lr_scheduler(
-        optimizer,
-        len(train_loader),
-        args.epochs,
-        warmup=True,
-        warmup_epochs=args.warmup_epochs
-    )
-
-    if args.resume:
-        checkpoint = torch.load(args.resume, map_location='cuda:0')
-        model.load_state_dict(checkpoint)
-        # model.load_state_dict(checkpoint['model'])
-        # optimizer.load_state_dict(checkpoint['optimizer'])
-        # lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
-        # args.start_epoch = checkpoint['epoch'] + 1
-        # if args.amp:
-        #     scaler.load_state_dict(checkpoint["scaler"])
+    best_dice = 0.0
+    train_loss = []
+    dice_coefficient = []
+    if args.resume and os.path.exists(args.resume):
+        checkpoint = torch.load(args.resume, map_location=device)
+        model.load_state_dict(checkpoint["model"])
+        optimizer.load_state_dict(checkpoint["optimizer"])
+        lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
+        args.start_epoch = checkpoint["epoch"] + 1
+        best_dice = checkpoint.get("best_dice", 0.0)
+        train_loss = checkpoint.get("train_loss", [])
+        dice_coefficient = checkpoint.get("dice_coefficient", [])
+        if scaler is not None and "scaler" in checkpoint:
+            scaler.load_state_dict(checkpoint["scaler"])
+        print(f"Resuming from epoch {args.start_epoch}, "f"best dice={best_dice:.4f}")
 
     results_file = OUTPUT_SAVE_PATH / "{}-results.txt".format(model_name)
-
     config_info = {
-
         'device': args.device,
         'data_path': args.data_path,
         'num_classes': num_classes,
@@ -228,16 +234,11 @@ def main(args):
             f.write(f"{key}: {value}\n")
         f.write("\n\n")
 
-    train_loss = []
-    dice_coefficient = []
     img_save_path = OUTPUT_SAVE_PATH / f"{model_name}_training_curve.png"
 
-    best_dice = 0.
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs):
         epoch_start_time = time.time()
-        # mean_loss, lr = train_one_epoch_loss(model, optimizer, train_loader, device, epoch, num_classes,
-        #                                      lr_scheduler=lr_scheduler, print_freq=args.print_freq, scaler=scaler)
         mean_loss, lr = train_one_epoch_loss(
             model,
             optimizer,
@@ -275,6 +276,7 @@ def main(args):
                          f"lr: {lr:.8f}\n" \
                          f"dice coefficient: {dice:.3f}\n" \
                          f"epoch time: {one_epoch_time}\n"
+
             f.write(train_info + val_info + "\n\n")
 
             torch.save(model.state_dict(), OUTPUT_SAVE_PATH / f"{model_name}_best_epoch{epoch}_dice{dice:.3f}.pth")
@@ -285,13 +287,15 @@ def main(args):
         if args.save_best is True:
             if best_dice < dice:
                 best_dice = dice
-                # torch.save(model.state_dict(), OUTPUT_SAVE_PATH / "{}-best_model.pth".format(model_name))
                 torch.save(model.state_dict(), OUTPUT_SAVE_PATH / f"{model_name}_best_epoch{epoch}_dice{dice:.3f}.pth")
                 best_model_info = OUTPUT_SAVE_PATH / f"{model_name}_best_epoch{epoch}_dice{dice:.3f}.txt"
                 with open(best_model_info, "w") as f:
                     f.write(train_info + val_info)
             else:
                 continue
+        save_checkpoint(
+            save_path=CHECKPOINT_FILE, epoch=epoch, model=model, optimizer=optimizer, lr_scheduler=lr_scheduler,
+            scaler=scaler, best_dice=best_dice, train_loss=train_loss, dice_coefficient=dice_coefficient)
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
@@ -299,18 +303,18 @@ def main(args):
 
 
 def parse_args():
-    import argparse
+
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=r"G:\Devendra\CONCRETE\SPLIT",
+                        default=rf"G:\Devendra\CONCRETE\SPLIT",
                         help="root")
     parser.add_argument("--num-classes", default=14, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
     parser.add_argument("--phi", default="b0", help="Use backbone")
     parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
-                        default="",
+                        default=r"",
                         help='pretrained weights path')
     parser.add_argument('--optimizer-type', default="adamw")
     parser.add_argument('--lr', default=0.0001, type=float, help='initial learning rate')  # 0.00006
@@ -326,9 +330,7 @@ def parse_args():
     parser.add_argument('--print-freq', default=1, type=int, help='print frequency')
 
     parser.add_argument('--save-best', default=False, type=bool, help='only save best dice weights')
-    parser.add_argument('--resume',
-                        default=r"",
-                        help='resume from checkpoint')
+    parser.add_argument('--resume', default=str(CHECKPOINT_FILE), help='resume from checkpoint')
     # Mixed precision training parameters
     parser.add_argument("--amp", default=True, type=bool,
                         help="Use torch.cuda.amp for automatic mixed precision training")
