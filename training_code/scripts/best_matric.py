@@ -34,7 +34,7 @@ def top10_metric(log_file, metric_name):
     for i, (epoch, value) in enumerate(results[:20], start=1):
         print(f"{i}. Epoch {epoch} → {value:.2f}")
 # --- Usage ---
-log_file = r"D:\Devendra_Files\segmentation_training\weights\2june_asp_\2june_asp_-results.txt"
+log_file = r"D:\Devendra_Files\segmentation_training\weights\UNet_resnet\6junetpp_resnet_b4-results.txt"
 top10_metric(log_file, "recall")
 top10_metric(log_file, "precision")
 top10_metric(log_file, "accuracy")

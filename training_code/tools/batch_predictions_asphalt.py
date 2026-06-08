@@ -1,30 +1,32 @@
-import pdb
-
+"""
+This script processes a batch of images for semantic segmentation using a pre-trained UNet++ model.
+It reads images from a specified directory, applies necessary transformations,
+and generates segmentation masks. The predicted masks
+"""
 from tqdm import tqdm
+from random import shuffle
+import sys
+import os
+import itertools
 import cv2
 import numpy as np
 import torch
-from PIL import Image
-import sys
-import os
-from torchvision import transforms as T
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
-import itertools
 
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(project_root, '..'))
 
-from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
-from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
-from models.segformer.segformer import SegFormer
-from models.unet.unet import UNet
-from models.unet.mobilenet_unet import MobileV3Unet
-from models.unet.vgg_unet import VGG16UNet
-from models.fcn.fcn import fcn_resnet101
+# from models.deeplab_v3.deeplabv3 import deeplabv3_resnet101
+# from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
+# from models.segformer.segformer import SegFormer
+# from models.unet.unet import UNet
+# from models.unet.mobilenet_unet import MobileV3Unet
+# from models.unet.vgg_unet import VGG16UNet
+# from models.fcn.fcn import fcn_resnet101
 from models.unet.UnetPP import UNetPP
-from random import shuffle
-
+from models.unet.UnetPP import UNetPP
+from models.unet.UnetPP_backbone import build_unetpp_model
 COLOR_MAP = {
     (0, 0, 0): (0, "Background"),
     (255, 0, 0): (1, "Alligator"),
@@ -61,9 +63,18 @@ def main(imgs_root=None, prediction_save_path=None, weights_path=None, batch_siz
     shuffle(images_list)
     os.makedirs(prediction_save_path, exist_ok=True)
 
-    # Model
-    model = UNetPP(in_channels=3, num_classes=num_classes)
+    model = UNetPP(in_channels=3, num_classes=num_classes, deep_supervision=True, base_channels=64)
     # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=False)
+    model = build_unetpp_model(
+                    encoder="resnet50",   # or efficientnet_b3
+                    pretrained=False,
+                    in_channels=3,
+                    num_classes=num_classes,
+                    dec_ch=320,
+                    use_se=True,
+                    use_attn_gates=True,
+                    deep_supervision=True
+    )
     pretrain_weights = torch.load(weights_path, map_location=device)
     if "model" in pretrain_weights:
         model.load_state_dict(pretrain_weights["model"])
@@ -234,11 +245,10 @@ def remove_small_components_multiclass(mask, min_area=200):
     return cleaned
 
 
-
 if __name__ == "__main__":
-    WEIGHTS_PATH = r"D:\Devendra_Files\segmentation_training\weights\Unetpp\5nov__best_epoch5_dice0.579.pth"
+    WEIGHTS_PATH = r"y:\Devendra_Files\segmentation_training\weights\UNet_resnet\6junetpp_resnet_b4_best_epoch13_dice0.657.pth"
     BATCH_SIZE = 4
-    main(imgs_root=rf"Z:\Devendra\ASPHALT\SPLIT\VAL\IMAGES",
-         prediction_save_path=rf"Z:\Devendra\ASPHALT\5June",
+    main(imgs_root=r"Z:\Devendra\ASPHALT\SPLIT\VAL\IMAGES",
+         prediction_save_path=r"Z:\Devendra\ASPHALT\5June",
          weights_path=WEIGHTS_PATH,
          batch_size=BATCH_SIZE)

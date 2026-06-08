@@ -367,33 +367,30 @@ def build_crack_criterion(
             min=0.5,
             max=12.0
         )
-
-        # Background less important
-        ce_w[0] *= 0.25
-        # Longitudinal crack
-        ce_w[2] *= 2.5
-        # Transverse crack
-        ce_w[3] *= 1.5
         # --------------------------------------------------
         # Dice / Tversky weights
         # --------------------------------------------------
         dice_w = class_counts.sum() / class_counts
 
-        dice_w = normalize_weights(
-            dice_w,
-            mode="mean1"
-        )
+        dice_w = normalize_weights( dice_w, mode="mean1")
+        dice_w = torch.clamp(dice_w, min=0.5, max=10.0)
 
-        dice_w = torch.clamp(
-            dice_w,
-            min=0.5,
-            max=10.0
-        )
-
-        # Background ignored/reduced
+        # Background
+        ce_w[0] *= 0.1
         dice_w[0] *= 0.1
-        dice_w[2] *= 3.0
-        dice_w[3] *= 1.5
+        # Longitudinal
+        ce_w[2] *= 1.5
+        dice_w[2] *= 1.5
+        # Transverse
+        ce_w[3] *= 3.0
+        dice_w[3] *= 3.0
+        # Pothole
+        ce_w[4] *= 0.8
+        dice_w[4] *= 0.8
+        # Patch
+        ce_w[5] *= 1.5
+        dice_w[5] *= 1.5
+
         tv_w = dice_w.clone()
 
     print("\nFinal CE Weights")
@@ -419,8 +416,8 @@ def build_crack_criterion(
 
         focal_gamma=2.0,
 
-        alpha_tversky=0.9,
-        beta_tversky=0.1,
+        alpha_tversky=0.6,
+        beta_tversky=0.4,
         focal_tversky_gamma=1.5,
 
         ignore_index=ignore_index,

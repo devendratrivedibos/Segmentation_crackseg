@@ -175,20 +175,10 @@ for i in folderlist:
                          use_rgb=True)
 
 folderlist = [
-r"Z:\Devendra\CONCRETE\prathamesh 3-6-2026\project-144-at-2026-06-03-16-01-702403d7.json"
+
 ]
 
 for i in folderlist:
     save_masks_from_json(i,
-                         r"Z:\Devendra\CONCRETE\MASKS_TRIAL",
-                         use_rgb=True)
-    save_masks_from_json(i,
-                         r"Z:\Devendra\CONCRETE\MASKS_OLD",
-                         use_rgb=True)
-
-    save_masks_from_json(i,
-                         r"D:\cracks\CONCRETE\MASKS_OLD",
-                         use_rgb=True)
-    save_masks_from_json(i,
-                         r"D:\cracks\CONCRETE\MASKS_TRIAL",
+                         r"Z:\BHOPAL_MAY 2026\JAMUNIYA-BARELY_2026-05-15_11-44-18\SECTION-5\MASKS_NEW",
                          use_rgb=True)

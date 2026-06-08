@@ -25,11 +25,11 @@ orig_mask_dirs = [
 ]
 
 old_pred_mask_dirs = [
-rf"Z:\Devendra\ASPHALT\MASKS_VAL_04_NOV"
+rf"Z:\Devendra\ASPHALT\4nov"
 ]
 
 new_pred_mask_dirs = [
-    rf"Z:\Devendra\ASPHALT\30mayy_2"
+    rf"Z:\Devendra\ASPHALT\5June"
 ]
 
 # --- Output dirs ---)

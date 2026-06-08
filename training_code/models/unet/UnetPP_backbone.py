@@ -74,6 +74,7 @@ class UpCatBlock(nn.Module):
         x = self.se(x)
         return x
 
+
 class SegHead(nn.Module):
     def __init__(self, in_ch, n_classes):
         super().__init__()
@@ -84,6 +85,7 @@ class SegHead(nn.Module):
             x = F.interpolate(x, size=out_hw, mode="bilinear", align_corners=False)
         return x
 
+
 class UNetPP(nn.Module):
     """
     UNet++ with timm encoder, optional SE and attention gates.
@@ -92,10 +94,10 @@ class UNetPP(nn.Module):
       - {"out": main_logits} otherwise
     """
     def __init__(self,
-                 encoder_name="efficientnet_b3",
+                 encoder_name="resnet50",
                  encoder_pretrained=True,
                  in_channels=3,
-                 num_classes=2,
+                 num_classes=6,
                  dec_ch=256,
                  use_se=True,
                  use_attn_gates=True,
@@ -189,6 +191,7 @@ class UNetPP(nn.Module):
             return {"out": out, "aux": aux}
         else:
             return {"out": out}
+
 
 def build_unetpp_model(
     encoder="efficientnet_b3",   # or "resnet50"

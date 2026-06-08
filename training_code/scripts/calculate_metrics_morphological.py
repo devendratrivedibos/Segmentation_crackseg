@@ -1,8 +1,9 @@
 import os
 import cv2
+from tqdm import tqdm
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
+
 from skimage.morphology import skeletonize
 
 # ================== CONFIG ==================
@@ -13,10 +14,10 @@ GT_DIRS = [
 ]
 
 PRED_DIRS = [
-    rf"Z:\Devendra\ASPHALT\30mayy_2"
+    rf"Z:\Devendra\ASPHALT\5June"
 ]
 
-SAVE_CSV = os.path.join(root_dir, "2june.csv")
+SAVE_CSV = os.path.join(root_dir, "5June.csv")
 COLOR_MAP = {
     (0, 0, 0): (0, "Background"),
     (255, 0, 0): (1, "Alligator"),
@@ -124,8 +125,8 @@ def compute_classwise_overlap(gt, pred):
         if class_name in IGNORE_CLASSES:
             continue
 
-        gt_mask = (gt == c)
-        pred_mask = (pred == c)
+        gt_mask = gt == c
+        pred_mask = pred == c
         inter = np.logical_and(gt_mask, pred_mask).sum()
         union = np.logical_or(gt_mask, pred_mask).sum()
         gt_count, pred_count = gt_mask.sum(), pred_mask.sum()

@@ -4,9 +4,8 @@ from torch import nn
 from typing import Union, Dict
 import numpy as np
 from . import distributed_utils as utils
-from .dice_coefficient_loss import dice_loss, build_target   # kept for compatibility if you use elsewhere
-from .hybrid_loss import build_crack_criterion               # your hybrid criterion builder
-
+from .dice_coefficient_loss import dice_loss, build_target  # kept for compatibility if you use elsewhere
+from .hybrid_loss import build_crack_criterion  # your hybrid criterion builder
 
 # -----------------------------
 # Global config
@@ -18,15 +17,14 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 num_classes = 14 + 1
 
-
 from pathlib import Path
 
 project_root = Path(__file__).resolve().parent.parent.parent
 
-counts_file = (project_root/ "weights"/ "class_counts.pt")
+counts_file = (project_root / "weights" / "class_counts_concrete.pt")
 
 if counts_file.exists():
-    class_counts = torch.load(counts_file,map_location="cpu", weights_only=True).float()
+    class_counts = torch.load(counts_file, map_location="cpu", weights_only=True).float()
 
     print("\nLoaded Class Counts:")
     print(class_counts)
@@ -72,9 +70,9 @@ def evaluate(model, data_loader, device, num_classes):
                 metric_logger.log_every(data_loader, 50, header)):
             image, target = image.to(device), target.to(device)
 
-            outputs = model(image)                 # Tensor or dict
-            logits = _main_output(outputs)         # [B, C, H, W]
-            pred = logits.argmax(1)                # [B, H, W]
+            outputs = model(image)  # Tensor or dict
+            logits = _main_output(outputs)  # [B, C, H, W]
+            pred = logits.argmax(1)  # [B, H, W]
 
             confmat.update(target.flatten(), pred.flatten())
             dice.update(logits, target)
@@ -120,7 +118,7 @@ def train_one_epoch(model,
         with torch.amp.autocast(
                 "cuda",
                 enabled=scaler is not None):
-            outputs = model(image)        # Tensor or {'out', 'aux'}
+            outputs = model(image)  # Tensor or {'out', 'aux'}
             loss = criterion(outputs, target)
         if batch_idx == 0:
 
@@ -166,17 +164,16 @@ def train_one_epoch(model,
     return metric_logger.meters["loss"].global_avg, lr
 
 
-
 def train_one_epoch_loss(model,
-                    optimizer,
-                    data_loader,
-                    device,
-                    epoch,
-                    num_classes,
-                    lr_scheduler,
-                    print_freq=10,
-                    scaler=None,
-                    grad_clip_norm: float = 0.0):
+                         optimizer,
+                         data_loader,
+                         device,
+                         epoch,
+                         num_classes,
+                         lr_scheduler,
+                         print_freq=10,
+                         scaler=None,
+                         grad_clip_norm: float = 0.0):
     model.train()
     metric_logger = utils.MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
@@ -197,13 +194,13 @@ def train_one_epoch_loss(model,
         with torch.amp.autocast(
                 "cuda",
                 enabled=scaler is not None):
-            outputs = model(image)        # Tensor or {'out', 'aux'}
+            outputs = model(image)  # Tensor or {'out', 'aux'}
             loss = criterion(outputs, target)
         if batch_idx == 0:
             logits = outputs["out"] if isinstance(outputs, dict) else outputs
             pred = logits.argmax(1)
             print(f"\nEpoch {epoch}")
-            print("GT classes:" , torch.unique(target))
+            print("GT classes:", torch.unique(target))
             print("Pred classes:", torch.unique(pred))
             print("Loss:", loss.item())
 
@@ -239,6 +236,8 @@ def train_one_epoch_loss(model,
     epoch_loss = running_loss / total_batches
 
     return epoch_loss, lr
+
+
 # -----------------------------
 # LR Scheduler (unchanged)
 # -----------------------------

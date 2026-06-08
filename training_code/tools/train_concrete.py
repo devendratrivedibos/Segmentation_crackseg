@@ -37,7 +37,7 @@ OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'Unetpp'  # Change this to your d
 model_name = "5nov_"
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 CHECKPOINT_FILE = OUTPUT_SAVE_PATH / "latest_checkpoint.pth"
-counts_file = OUTPUT_SAVE_PATH / "class_counts.pt"
+counts_file = project_root_ / "weights" / "class_counts_concrete.pt"
 
 
 def get_transform(train, mean=(0.487, 0.487, 0.487), std=(0.145, 0.145, 0.145)):

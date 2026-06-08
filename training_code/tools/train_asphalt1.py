@@ -13,13 +13,14 @@ from tqdm import tqdm
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
+
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(project_root, '..'))
 from train_utils.train_and_eval_asphalt import evaluate, create_lr_scheduler, train_one_epoch_loss
 from train_utils.my_dataset import CrackDataset, SegmentationPresetTrain, SegmentationPresetEval
 from train_utils.utils import plot, show_config
 
-from models.segformer.segformer import SegFormer
+# from models.segformer.segformer import SegFormer
 # from models.unet.unet import UNet
 # from models.unet.mobilenet_unet import MobileV3Unet
 # from models.unet.vgg_unet import VGG16UNet
@@ -27,15 +28,18 @@ from models.segformer.segformer import SegFormer
 # from models.fcn.fcn import fcn_resnet50
 # from models.deeplab_v3.deeplabv3 import deeplabv3_mobilenetv3_large
 from models.unet.UnetPP import UNetPP
+from models.unet.UnetPP_backbone import build_unetpp_model
+
 # from models.dinov3.dinov3 import DINODeepLab
 
 
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'Unetpp'  # Change this to your desired output path
-model_name = "5nov_"
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'TRIAL'  # Change this to your desired output path
+model_name = "6junetpp_resnet_b4"  # Change this to your desired model name
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 CHECKPOINT_FILE = OUTPUT_SAVE_PATH / "latest_checkpoint.pth"
-counts_file = OUTPUT_SAVE_PATH / "class_counts.pt"
+
+counts_file = project_root_ / "weights" / "class_counts.pt"
 
 
 def get_transform(train, mean=(0.487, 0.487, 0.487), std=(0.145, 0.145, 0.145)):
@@ -56,7 +60,17 @@ def create_model(aux, num_classes, pretrained=True):
     # model = MobileV3Unet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = VGG16UNet(num_classes=num_classes, pretrain_backbone=args.pretrained)
     # model = DINODeepLab(num_classes=num_classes, backbone_name="dinov2_vitl14")
-    model = UNetPP(in_channels=3, num_classes=num_classes)
+    model = UNetPP(in_channels=3, num_classes=num_classes, deep_supervision=True, base_channels=64)
+    # model = build_unetpp_model(
+    #     encoder="resnet50",   # or efficientnet_b3
+    #     pretrained=pretrained,
+    #     in_channels=3,
+    #     num_classes=num_classes,
+    #     dec_ch=320,
+    #     use_se=True,
+    #     use_attn_gates=True,
+    #     deep_supervision=True
+    # )
     return model
 
 
@@ -72,7 +86,7 @@ def save_checkpoint(save_path, epoch, model, optimizer, lr_scheduler, scaler, be
     }
     if scaler is not None:
         checkpoint["scaler"] = scaler.state_dict()
-    torch.save(checkpoint,save_path)
+    torch.save(checkpoint, save_path)
 
 
 def main(args):
@@ -113,39 +127,19 @@ def main(args):
     else:
         print("\nCalculating class distribution...")
 
-        count_loader = DataLoader(
-            train_dataset,
-            batch_size=16,
-            shuffle=False,
-            num_workers=num_workers,
-            pin_memory=True,
-            collate_fn=train_dataset.collate_fn
-        )
+        count_loader = DataLoader(train_dataset, batch_size=args.batch_size , shuffle=False,
+                                  num_workers=num_workers, pin_memory=True, collate_fn=train_dataset.collate_fn)
 
-        class_counts = torch.zeros(
-            num_classes,
-            dtype=torch.long
-        )
+        class_counts = torch.zeros(num_classes, dtype=torch.long)
 
-        for _, masks in tqdm(
-                count_loader,
-                desc="Computing class counts"):
+        for _, masks in tqdm(count_loader, desc="Computing class counts"):
             masks = masks.view(-1)
-
             valid = masks != 255
-
-            hist = torch.bincount(
-                masks[valid],
-                minlength=num_classes
-            )
-
+            hist = torch.bincount( masks[valid], minlength=num_classes)
             class_counts += hist.cpu()
-
         # print("\nClass Counts:")
         # print(class_counts)
-
         torch.save(class_counts, counts_file)
-
         print(f"\nSaved class counts to "f"{counts_file}")
 
     if args.pretrained_weights != "":
@@ -301,16 +295,18 @@ def main(args):
 
 
 def parse_args():
-
+    """
+Parse command-line arguments for training configuration.
+    """
     parser = argparse.ArgumentParser(description="pytorch unet training")
     parser.add_argument("--device", default="cuda:0", help="training device")
     parser.add_argument("--data-path",
-                        default=rf"G:\Devendra\ASPHALT\SPLIT",
+                        default=r"G:\Devendra\ASPHALT\SPLIT",
                         help="root")
     parser.add_argument("--num-classes", default=5, type=int)  # exclude background
     parser.add_argument("--aux", default=True, type=bool, help="deeplabv3 auxilier loss")
     parser.add_argument("--phi", default="b0", help="Use backbone")
-    parser.add_argument('--pretrained', default=True, type=bool, help='backbone')
+    parser.add_argument('--pretrained', default=False, type=bool, help='backbone')
     parser.add_argument('--pretrained-weights', type=str,
                         default=r"",
                         help='pretrained weights path')
