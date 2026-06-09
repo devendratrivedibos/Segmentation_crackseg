@@ -34,8 +34,8 @@ from models.unet.UnetPP_backbone import build_unetpp_model
 
 
 project_root_ = Path(__file__).resolve().parent.parent.parent
-OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'TRIAL'  # Change this to your desired output path
-model_name = "6junetpp_resnet_b4"  # Change this to your desired model name
+OUTPUT_SAVE_PATH = project_root_ / 'weights' / 'Unet8June'  # Change this to your desired output path
+model_name = "8pythonjunetpp"  # Change this to your desired model name
 os.makedirs(OUTPUT_SAVE_PATH, exist_ok=True)
 CHECKPOINT_FILE = OUTPUT_SAVE_PATH / "latest_checkpoint.pth"
 
@@ -317,7 +317,7 @@ Parse command-line arguments for training configuration.
                         help='momentum')
     parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float,
                         metavar='W', help='weight decay (default: 1e-4)', dest='weight_decay')
-    parser.add_argument("-b", "--batch-size", default=16, type=int)
+    parser.add_argument("-b", "--batch-size", default=8, type=int)
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
     parser.add_argument("--epochs", default=500, type=int, metavar="N",
                         help="number of total epochs to train")

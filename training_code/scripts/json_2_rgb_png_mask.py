@@ -175,7 +175,8 @@ for i in folderlist:
                          use_rgb=True)
 
 folderlist = [
-
+r"Z:\BHOPAL_MAY 2026\JAMUNIYA-BARELY_2026-05-15_11-44-18\SECTION-5\Jayesh_8-6-2026\project-96-at-2026-06-08-18-03-e4ebb94c.json",
+    r"Z:\BHOPAL_MAY 2026\JAMUNIYA-BARELY_2026-05-15_11-44-18\SECTION-5\Jayesh_8-6-2026\project-97-at-2026-06-08-18-02-c1aef766.json"
 ]
 
 for i in folderlist:
