@@ -17,19 +17,19 @@ root_dir = r"D:/"
 
 pcams_dir = r"Z:/Devendra/CONCRETE/COMBINED_SPLITTED/TEST/IMAGES"
 image_dirs = [
-    rf"Z:\Devendra\ASPHALT\IMAGES",
+    rf"Z:\Devendra\ASPHALT\SPLIT\TRAIN\FOLDER_3\IMAGES",
 ]
 
 orig_mask_dirs = [
-    rf"Z:\Devendra\ASPHALT\MASKS_TRIAL"
+    rf"Z:\Devendra\ASPHALT\SPLIT\TRAIN\FOLDER_3\MASKS"
 ]
 
 old_pred_mask_dirs = [
-rf"Z:\Devendra\ASPHALT\4nov"
+    rf"Z:\Devendra\ASPHALT\SPLIT\TRAIN\FOLDER_3\MASKS"
 ]
 
 new_pred_mask_dirs = [
-    rf"Z:\Devendra\ASPHALT\5June"
+    rf"Z:\Devendra\ASPHALT\SPLIT\TRAIN\FOLDER_3\MASKS"
 ]
 
 # --- Output dirs ---)
